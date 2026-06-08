@@ -1,0 +1,15 @@
+name = "hifz-companion-api"
+main = "src/index.js"
+compatibility_date = "2026-06-07"
+
+# Ganti database_id setelah menjalankan:
+# wrangler d1 create hifz-companion-db
+[[d1_databases]]
+binding = "DB"
+database_name = "hifz-companion-db"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[vars]
+# Isi dengan domain GitHub Pages Bapak, contoh:
+# ALLOWED_ORIGINS = "https://cakgup.github.io,https://cakgup.github.io/hifz-companion"
+ALLOWED_ORIGINS = ""

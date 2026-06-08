@@ -1,0 +1,199 @@
+{
+  "metadata": {
+    "title": "Qur'an sample dataset for Hifz Companion",
+    "note": "Contoh awal untuk MVP. Ganti dengan full mushaf resmi/terverifikasi sebelum produksi.",
+    "structure_version": "1.0-hifz-companion"
+  },
+  "surahs": [
+    {
+      "id": 1,
+      "name_ar": "الفاتحة",
+      "name_latin": "Al-Fatihah",
+      "total_ayah": 7,
+      "juz": 1,
+      "ayahs": [
+        {
+          "number": 1,
+          "juz": 1,
+          "text_ar": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+          "translation_id": "Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.",
+          "audio_url": ""
+        },
+        {
+          "number": 2,
+          "juz": 1,
+          "text_ar": "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
+          "translation_id": "Segala puji bagi Allah, Tuhan seluruh alam.",
+          "audio_url": ""
+        },
+        {
+          "number": 3,
+          "juz": 1,
+          "text_ar": "الرَّحْمَٰنِ الرَّحِيمِ",
+          "translation_id": "Yang Maha Pengasih, Maha Penyayang.",
+          "audio_url": ""
+        },
+        {
+          "number": 4,
+          "juz": 1,
+          "text_ar": "مَالِكِ يَوْمِ الدِّينِ",
+          "translation_id": "Pemilik hari pembalasan.",
+          "audio_url": ""
+        },
+        {
+          "number": 5,
+          "juz": 1,
+          "text_ar": "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
+          "translation_id": "Hanya kepada Engkaulah kami menyembah dan hanya kepada Engkaulah kami mohon pertolongan.",
+          "audio_url": ""
+        },
+        {
+          "number": 6,
+          "juz": 1,
+          "text_ar": "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ",
+          "translation_id": "Tunjukilah kami jalan yang lurus.",
+          "audio_url": ""
+        },
+        {
+          "number": 7,
+          "juz": 1,
+          "text_ar": "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ",
+          "translation_id": "Jalan orang-orang yang telah Engkau beri nikmat, bukan jalan mereka yang dimurkai dan bukan pula jalan mereka yang sesat.",
+          "audio_url": ""
+        }
+      ]
+    },
+    {
+      "id": 112,
+      "name_ar": "الإخلاص",
+      "name_latin": "Al-Ikhlas",
+      "total_ayah": 4,
+      "juz": 30,
+      "ayahs": [
+        {
+          "number": 1,
+          "juz": 30,
+          "text_ar": "قُلْ هُوَ اللَّهُ أَحَدٌ",
+          "translation_id": "Katakanlah, Dialah Allah Yang Maha Esa.",
+          "audio_url": ""
+        },
+        {
+          "number": 2,
+          "juz": 30,
+          "text_ar": "اللَّهُ الصَّمَدُ",
+          "translation_id": "Allah tempat meminta segala sesuatu.",
+          "audio_url": ""
+        },
+        {
+          "number": 3,
+          "juz": 30,
+          "text_ar": "لَمْ يَلِدْ وَلَمْ يُولَدْ",
+          "translation_id": "Dia tidak beranak dan tidak pula diperanakkan.",
+          "audio_url": ""
+        },
+        {
+          "number": 4,
+          "juz": 30,
+          "text_ar": "وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ",
+          "translation_id": "Dan tidak ada sesuatu yang setara dengan Dia.",
+          "audio_url": ""
+        }
+      ]
+    },
+    {
+      "id": 113,
+      "name_ar": "الفلق",
+      "name_latin": "Al-Falaq",
+      "total_ayah": 5,
+      "juz": 30,
+      "ayahs": [
+        {
+          "number": 1,
+          "juz": 30,
+          "text_ar": "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ",
+          "translation_id": "Katakanlah, aku berlindung kepada Tuhan yang menguasai subuh.",
+          "audio_url": ""
+        },
+        {
+          "number": 2,
+          "juz": 30,
+          "text_ar": "مِنْ شَرِّ مَا خَلَقَ",
+          "translation_id": "Dari kejahatan makhluk-Nya.",
+          "audio_url": ""
+        },
+        {
+          "number": 3,
+          "juz": 30,
+          "text_ar": "وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ",
+          "translation_id": "Dan dari kejahatan malam apabila telah gelap gulita.",
+          "audio_url": ""
+        },
+        {
+          "number": 4,
+          "juz": 30,
+          "text_ar": "وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ",
+          "translation_id": "Dan dari kejahatan perempuan-perempuan penyihir yang meniup pada buhul-buhul.",
+          "audio_url": ""
+        },
+        {
+          "number": 5,
+          "juz": 30,
+          "text_ar": "وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ",
+          "translation_id": "Dan dari kejahatan orang yang dengki apabila dia dengki.",
+          "audio_url": ""
+        }
+      ]
+    },
+    {
+      "id": 114,
+      "name_ar": "الناس",
+      "name_latin": "An-Nas",
+      "total_ayah": 6,
+      "juz": 30,
+      "ayahs": [
+        {
+          "number": 1,
+          "juz": 30,
+          "text_ar": "قُلْ أَعُوذُ بِرَبِّ النَّاسِ",
+          "translation_id": "Katakanlah, aku berlindung kepada Tuhannya manusia.",
+          "audio_url": ""
+        },
+        {
+          "number": 2,
+          "juz": 30,
+          "text_ar": "مَلِكِ النَّاسِ",
+          "translation_id": "Raja manusia.",
+          "audio_url": ""
+        },
+        {
+          "number": 3,
+          "juz": 30,
+          "text_ar": "إِلَٰهِ النَّاسِ",
+          "translation_id": "Sembahan manusia.",
+          "audio_url": ""
+        },
+        {
+          "number": 4,
+          "juz": 30,
+          "text_ar": "مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ",
+          "translation_id": "Dari kejahatan bisikan setan yang bersembunyi.",
+          "audio_url": ""
+        },
+        {
+          "number": 5,
+          "juz": 30,
+          "text_ar": "الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ",
+          "translation_id": "Yang membisikkan kejahatan ke dalam dada manusia.",
+          "audio_url": ""
+        },
+        {
+          "number": 6,
+          "juz": 30,
+          "text_ar": "مِنَ الْجِنَّةِ وَالنَّاسِ",
+          "translation_id": "Dari golongan jin dan manusia.",
+          "audio_url": ""
+        }
+      ]
+    }
+  ]
+}

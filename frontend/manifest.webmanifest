@@ -1,0 +1,16 @@
+{
+  "name": "Hifz Companion",
+  "short_name": "Hifz",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F7FAFC",
+  "theme_color": "#1A3A6B",
+  "description": "Asisten hafalan Qur'an dengan murajaah dan jadwal shalat.",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

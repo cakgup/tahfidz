@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#1A3A6B" />
+  <meta name="description" content="Hifz Companion: asisten hafalan Qur'an dengan murajaah, jadwal shalat, dan setoran guru." />
+  <title>Hifz Companion</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header" id="top">
+      <div class="brand-block">
+        <div class="brand-mark" aria-hidden="true">ح</div>
+        <div>
+          <p class="brand-kicker">Hifz Companion</p>
+          <h1>Asisten Hafalan Qur'an</h1>
+        </div>
+      </div>
+
+      <section class="prayer-strip" aria-label="Jadwal shalat berikutnya">
+        <div>
+          <span class="muted-light">Shalat berikutnya</span>
+          <strong id="nextPrayerName">Memuat...</strong>
+        </div>
+        <div>
+          <span class="muted-light" id="activeLocation">Bekasi</span>
+          <strong class="accent" id="nextPrayerTime">--:--</strong>
+        </div>
+        <div>
+          <span class="muted-light">Menuju waktu</span>
+          <strong class="countdown" id="prayerCountdown">--:--:--</strong>
+        </div>
+      </section>
+    </header>
+
+    <nav class="tab-nav" aria-label="Navigasi utama">
+      <button class="nav-pill active" data-view="home">Beranda</button>
+      <button class="nav-pill" data-view="hafalan">Hafalan</button>
+      <button class="nav-pill" data-view="murajaah">Murajaah</button>
+      <button class="nav-pill" data-view="setoran">Setoran</button>
+      <button class="nav-pill" data-view="dashboard">Dashboard</button>
+      <button class="nav-pill" data-view="settings">Pengaturan</button>
+    </nav>
+
+    <main>
+      <section class="view active" id="view-home">
+        <div class="hero-card">
+          <div class="hero-copy">
+            <p class="eyebrow">Bismillahirrahmanirrahim</p>
+            <h2>Hafalan baru terarah, murajaah lama tetap terjaga.</h2>
+            <p>Aplikasi ini menyiapkan mode ayat-per-ayat, pengulangan audio, mode sembunyikan teks, jadwal murajaah, dan setoran kepada guru. Konten dapat dihubungkan dengan pola data dari repo PPSA.</p>
+            <div class="hero-actions">
+              <button class="btn primary" data-jump="hafalan">Mulai Hafalan</button>
+              <button class="btn secondary" data-jump="murajaah">Lihat Murajaah Hari Ini</button>
+            </div>
+          </div>
+          <div class="hero-progress">
+            <div class="progress-ring" aria-label="Progress hafalan">
+              <span id="heroProgress">0%</span>
+            </div>
+            <p><strong id="memorizedCount">0</strong> ayat ditandai hafal</p>
+            <small>Data demo tersimpan lokal; jika API Worker aktif, data dapat disimpan ke Cloudflare D1.</small>
+          </div>
+        </div>
+
+        <section class="grid cards-3">
+          <article class="info-card">
+            <span class="icon-chip">🎧</span>
+            <h3>Audio Repeat</h3>
+            <p>Putar ayat berulang dengan jeda agar santri bisa menirukan bacaan.</p>
+          </article>
+          <article class="info-card">
+            <span class="icon-chip">🧠</span>
+            <h3>Mode Sembunyi</h3>
+            <p>Tingkatkan tantangan: tampil penuh, sembunyikan terjemah, atau sembunyikan teks Arab.</p>
+          </article>
+          <article class="info-card">
+            <span class="icon-chip">🕌</span>
+            <h3>Jadwal Shalat</h3>
+            <p>Header menampilkan shalat berikutnya, jam, dan countdown seperti pola aplikasi ibadah harian.</p>
+          </article>
+        </section>
+      </section>
+
+      <section class="view" id="view-hafalan">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Mode Hafalan</p>
+            <h2>Ayat per ayat</h2>
+          </div>
+          <button class="btn ghost" id="reloadQuran">Muat ulang konten</button>
+        </div>
+
+        <div class="control-panel">
+          <label>Surah
+            <select id="surahSelect"></select>
+          </label>
+          <label>Ayat awal
+            <select id="startAyah"></select>
+          </label>
+          <label>Ayat akhir
+            <select id="endAyah"></select>
+          </label>
+          <label>Pengulangan
+            <select id="repeatCount">
+              <option value="3">3x</option>
+              <option value="5" selected>5x</option>
+              <option value="7">7x</option>
+              <option value="10">10x</option>
+            </select>
+          </label>
+          <label>Mode Tampilan
+            <select id="hideMode">
+              <option value="full">Arab + Terjemahan</option>
+              <option value="translationHidden">Arab saja</option>
+              <option value="arabicHidden">Terjemahan saja</option>
+              <option value="firstWords">Awal ayat saja</option>
+              <option value="blank">Tes tanpa teks</option>
+            </select>
+          </label>
+        </div>
+
+        <section class="reader-card" id="readerCard" aria-live="polite"></section>
+
+        <div class="action-row">
+          <button class="btn primary" id="playSequence">▶ Putar urutan</button>
+          <button class="btn secondary" id="markMemorized">Tandai sudah hafal</button>
+          <button class="btn warning" id="markDifficult">Tandai ayat sulit</button>
+        </div>
+      </section>
+
+      <section class="view" id="view-murajaah">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Murajaah</p>
+            <h2>Jadwal hari ini</h2>
+          </div>
+          <button class="btn secondary" id="generateReview">Buat jadwal dari hafalan</button>
+        </div>
+        <div class="review-list" id="reviewList"></div>
+      </section>
+
+      <section class="view" id="view-setoran">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Setoran</p>
+            <h2>Rekam dan kirim ke guru</h2>
+          </div>
+        </div>
+        <div class="info-card">
+          <p>Fitur ini sudah disiapkan untuk browser recording. Pada MVP static, rekaman disimpan sebagai URL object lokal untuk pratinjau. Pada produksi, file audio sebaiknya disimpan di Cloudflare R2, sedangkan D1 menyimpan metadata setoran.</p>
+          <div class="control-panel compact">
+            <label>Nama guru
+              <input id="teacherName" placeholder="Ustadz/Ustadzah" />
+            </label>
+            <label>Catatan setoran
+              <input id="submissionNote" placeholder="Contoh: Al-Fatihah 1-7" />
+            </label>
+          </div>
+          <div class="action-row">
+            <button class="btn primary" id="startRecord">Mulai Rekam</button>
+            <button class="btn warning" id="stopRecord" disabled>Stop</button>
+            <button class="btn secondary" id="saveSubmission">Simpan Setoran</button>
+          </div>
+          <audio id="recordPreview" controls hidden></audio>
+        </div>
+        <div id="submissionList" class="review-list"></div>
+      </section>
+
+      <section class="view" id="view-dashboard">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h2>Ringkasan progres</h2>
+          </div>
+        </div>
+        <section class="grid cards-4">
+          <article class="stat-card"><span id="statAyah">0</span><small>Ayat hafal</small></article>
+          <article class="stat-card"><span id="statDifficult">0</span><small>Ayat sulit</small></article>
+          <article class="stat-card"><span id="statReviews">0</span><small>Jadwal murajaah</small></article>
+          <article class="stat-card"><span id="statSubmissions">0</span><small>Setoran</small></article>
+        </section>
+        <div class="reader-card compact" id="dashboardDetail"></div>
+      </section>
+
+      <section class="view" id="view-settings">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Pengaturan</p>
+            <h2>Lokasi, API, dan konten</h2>
+          </div>
+        </div>
+        <div class="settings-grid">
+          <article class="info-card">
+            <h3>Jadwal Shalat</h3>
+            <div class="control-panel single">
+              <label>Nama lokasi
+                <input id="locationName" value="Bekasi" />
+              </label>
+              <label>Latitude
+                <input id="latitude" value="-6.2383" />
+              </label>
+              <label>Longitude
+                <input id="longitude" value="106.9756" />
+              </label>
+            </div>
+            <button class="btn primary" id="savePrayerSettings">Simpan Lokasi</button>
+          </article>
+          <article class="info-card">
+            <h3>Endpoint API Worker</h3>
+            <p>Isi URL Worker jika sudah deploy. Jika kosong, aplikasi berjalan dengan localStorage.</p>
+            <input id="apiBase" placeholder="https://hifz-api.nama.workers.dev" />
+            <button class="btn secondary" id="saveApiBase">Simpan API</button>
+          </article>
+          <article class="info-card">
+            <h3>Konten PPSA</h3>
+            <p>Repo PPSA menggunakan data JSON `sections → subsections → items`; adapter di aplikasi ini dapat membaca pola tersebut untuk konten tambahan/doa.</p>
+            <button class="btn ghost" id="loadPpsa">Coba muat data PPSA</button>
+            <div id="ppsaPreview" class="mini-log"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="js/config.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
