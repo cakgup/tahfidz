@@ -413,12 +413,10 @@ function detectGps(){
 }
 
 function localCaptcha(){
-  const a = Math.floor(Math.random()*8)+2;
-  const b = Math.floor(Math.random()*8)+1;
-  const ops = ['+', '-', '×'];
-  const op = ops[Math.floor(Math.random()*ops.length)];
-  let answer = op === '+' ? a+b : op === '-' ? a-b : a*b;
-  return {id:`local-${crypto.randomUUID()}`, question:`Berapa hasil ${a} ${op} ${b}?`, answer:String(answer), local:true};
+  const a = Math.floor(Math.random()*9)+1;
+  const b = Math.floor(Math.random()*9)+1;
+  const answer = a + b;
+  return {id:`local-${crypto.randomUUID()}`, question:`Berapa hasil ${a} + ${b}?`, answer:String(answer), local:true};
 }
 async function loadCaptcha(type){
   try{

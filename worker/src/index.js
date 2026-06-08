@@ -56,7 +56,7 @@ async function sha256(text){ return bytesToHex(await crypto.subtle.digest('SHA-2
 async function passwordHash(password, salt){
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
-  const bits = await crypto.subtle.deriveBits({ name:'PBKDF2', salt:enc.encode(salt), iterations:120000, hash:'SHA-256' }, key, 256);
+  const bits = await crypto.subtle.deriveBits({ name:'PBKDF2', salt:enc.encode(salt), iterations:100000, hash:'SHA-256' }, key, 256);
   return bytesToHex(bits);
 }
 function publicUser(row){ return { id: row.id, name: row.name, email: row.email, role: row.role, status: row.status }; }
@@ -81,12 +81,11 @@ async function requireAuth(request, env){
 }
 
 async function createCaptcha(env){
-  const a = Math.floor(Math.random()*8)+2;
-  const b = Math.floor(Math.random()*8)+1;
-  const op = ['+','-','×'][Math.floor(Math.random()*3)];
-  const answer = op === '+' ? a + b : op === '-' ? a - b : a * b;
+  const a = Math.floor(Math.random()*9)+1;
+  const b = Math.floor(Math.random()*9)+1;
+  const answer = a + b;
   const id = crypto.randomUUID();
-  const question = `Berapa hasil ${a} ${op} ${b}?`;
+  const question = `Berapa hasil ${a} + ${b}?`;
   const answerHash = await sha256(`${id}:${answer}:${secret(env)}`);
   await env.DB.prepare('INSERT INTO captcha_challenges (id, question, answer_hash, expires_at, used, created_at) VALUES (?, ?, ?, ?, 0, ?)')
     .bind(id, question, answerHash, addMinutes(5), nowIso()).run();
