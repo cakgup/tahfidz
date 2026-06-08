@@ -1,25 +1,42 @@
 # Hifz Companion / Tahfidz
 
-Baseline aplikasi tahfidz berbasis **GitHub Pages + Cloudflare Worker + Cloudflare D1**.
+Aplikasi tahfidz berbasis **GitHub Pages + Cloudflare Worker + Cloudflare D1** dengan konten Al-Qur’an Kemenag.
 
-## Perubahan versi ini
+## Perubahan versi UX + Auth
 
-- Konten utama Al-Qur'an sudah disesuaikan dengan file JSON Kemenag di `data/quran_kemenag/surah_1.json` sampai `surah_114.json`.
-- Ditambahkan file gabungan siap pakai: `data/quran-kemenag-combined.json`.
-- Ditambahkan index metadata: `data/quran-kemenag-index.json`.
-- `js/config.js` sudah diarahkan ke Worker Bapak:
+Versi ini memperbaiki alur pengguna agar lebih siap dipakai:
+
+- Beranda disederhanakan agar langsung mengarah ke hafalan, murajaah, atau daftar akun.
+- Card informasi umum di Beranda dihapus.
+- Menu teknis `Endpoint API Worker`, `Konten PPSA`, dan form besar lokasi jadwal shalat dihapus dari UI.
+- Menu utama berubah berdasarkan status login:
+  - sebelum login: `Beranda`, `Hafalan`, `Murajaah`, `Masuk`, `Daftar`;
+  - setelah login: `Beranda`, `Hafalan`, `Murajaah`, `Setoran`, `Dashboard`, `Profil`, `Keluar`.
+- Ditambahkan registrasi, login, logout, session token, dan captcha matematika.
+- Dashboard, Setoran, Profil, penyimpanan hafalan, dan murajaah personal hanya aktif setelah login.
+- Tombol `Buat jadwal dari hafalan` sudah difungsikan.
+- Pengaturan lokasi jadwal shalat dipindahkan menjadi ikon kecil 📍 pada header, dengan opsi detect GPS.
+- CSS diperbaiki agar teks tetap terbaca jelas pada mode gelap.
+
+## Konten Al-Qur’an
+
+- Konten utama Al-Qur’an memakai file Kemenag di `data/quran_kemenag/surah_1.json` sampai `surah_114.json`.
+- File gabungan frontend: `data/quran-kemenag-combined.json`.
+- File index metadata: `data/quran-kemenag-index.json`.
+- Frontend membaca field Kemenag seperti `surah`, `ayahs`, `ayah`, `arabic`, `translation`, `juz`, `page`, dan `footnotes`.
+- Audio ayat diarahkan ke URL eksternal EveryAyah Alafasy berdasarkan nomor surah/ayat.
+
+## Endpoint Worker
+
+`js/config.js` sudah diarahkan ke Worker:
 
 ```text
 https://hifz-companion-api.baghasasi.workers.dev
 ```
 
-- Frontend sudah membaca field Kemenag: `surah`, `ayahs`, `ayah`, `arabic`, `translation`, `juz`, `page`, dan `footnotes`.
-- Audio ayat otomatis diarahkan ke URL eksternal EveryAyah Alafasy berdasarkan nomor surah/ayat.
-- Service worker diperbarui agar cache memakai konten Kemenag, bukan sample lama.
-- Binding D1 di `worker/wrangler.toml` diperbaiki menjadi `DB`, sesuai kode Worker `env.DB`.
-- Ditambahkan migration `0003_seed_quran_kemenag.sql` untuk mengisi D1 dengan 114 surah dan 6.236 ayat.
-
 ## Menjalankan frontend lokal
+
+Jalankan dari root repository:
 
 ```bash
 python -m http.server 8000
@@ -53,44 +70,33 @@ npx wrangler d1 migrations apply hifz-companion-db --remote
 Migration penting:
 
 ```text
-0001_schema.sql              schema awal
-0002_seed_sample.sql         sample pendek lama
-0003_seed_quran_kemenag.sql  seed penuh dari JSON Kemenag
+0001_schema.sql                         schema awal
+0002_seed_sample.sql                    sample pendek lama
+0003_reset_quran_schema.sql             reset schema surah/ayah Kemenag
+0004-0058_seed_quran_kemenag_part_*.sql seed penuh 6.236 ayat, dipecah agar tidak SQLITE_TOOBIG
+0059_auth_login_captcha.sql             tabel session dan captcha untuk login/registrasi
 ```
 
-Catatan: jika database Bapak sudah pernah memakai schema lama, migration `0003` akan menambahkan kolom `page`, `global_ayah_id`, dan `footnotes`, lalu mengganti sample ayat dengan data Kemenag penuh.
+Jika database development sebelumnya sempat gagal migrasi, cara paling bersih adalah mengganti folder `worker/migrations` dengan versi ini lalu menjalankan ulang migration. Untuk database kosong, apply migration dari awal.
 
 ## Deploy GitHub Pages
 
-Upload/push isi root repository ini ke GitHub Pages. Frontend akan otomatis memakai:
+Upload/push isi root repository ini ke GitHub Pages. Frontend otomatis memakai:
 
 ```text
 data/quran-kemenag-combined.json
 ```
 
-Aplikasi tetap dapat berjalan tanpa Worker untuk fungsi lokal, tetapi jadwal shalat dan sinkronisasi progress ke D1 membutuhkan endpoint Worker.
+## Catatan keamanan
 
-## Catatan penting
-
-- File audio tidak disimpan di repository; audio memakai sumber eksternal.
-- Rekaman setoran di MVP masih berupa object URL lokal. Untuk produksi, simpan file audio ke Cloudflare R2 atau storage lain, sedangkan D1 hanya menyimpan metadata.
-- Folder `.wrangler` tidak disertakan dalam paket karena dapat memuat cache akun/deploy lokal.
+- Password disimpan sebagai hash PBKDF2/SHA-256 dengan salt di Worker/D1.
+- Captcha matematika dibuat dan divalidasi di Worker, bukan hanya frontend.
+- Session token dikirim melalui header `Authorization: Bearer <token>`.
+- Untuk produksi dengan custom domain yang sama, session dapat ditingkatkan menjadi HttpOnly Secure Cookie.
+- Rekaman setoran pada MVP masih berupa object URL lokal. Untuk produksi, simpan file audio ke Cloudflare R2 atau storage lain, sedangkan D1 hanya menyimpan metadata.
 
 ## Regenerate file gabungan jika JSON Kemenag berubah
 
 ```bash
 node tools/normalize-kemenag-json.mjs
 ```
-
-
-## Catatan Migrasi D1: SQLITE_TOOBIG
-
-Jika muncul error seperti:
-
-```text
-statement too long: SQLITE_TOOBIG
-```
-
-penyebabnya biasanya file seed Al-Qur’an terlalu besar jika dimasukkan dalam satu `INSERT` panjang. Versi ini sudah memecah seed ayat menjadi banyak file migration kecil `0004_seed_quran_kemenag_part_*.sql`, masing-masing berisi statement kecil per ayat.
-
-Untuk database development yang sebelumnya sempat gagal migrasi, cara paling bersih adalah menjalankan ulang migration setelah mengganti folder `worker/migrations` dengan versi ini. Jika masih gagal karena skema lama tersisa, hapus/recreate D1 database development, lalu apply migration dari awal.

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#1A3A6B" />
-  <meta name="description" content="Hifz Companion: asisten hafalan Qur'an dengan murajaah, jadwal shalat, dan setoran guru." />
+  <meta name="description" content="Hifz Companion: asisten hafalan Qur'an dengan murajaah, jadwal shalat, login, dan setoran guru." />
   <title>Hifz Companion</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
@@ -26,9 +26,9 @@
           <span class="muted-light">Shalat berikutnya</span>
           <strong id="nextPrayerName">Memuat...</strong>
         </div>
-        <div>
-          <span class="muted-light" id="activeLocation">Bekasi</span>
-          <strong class="accent" id="nextPrayerTime">--:--</strong>
+        <div class="location-cell">
+          <span class="muted-light">Lokasi</span>
+          <strong><span id="activeLocation">Bekasi</span> · <span id="nextPrayerTime">--:--</span> <button class="icon-button" id="locationButton" title="Atur lokasi jadwal shalat" aria-label="Atur lokasi jadwal shalat">📍</button></strong>
         </div>
         <div>
           <span class="muted-light">Menuju waktu</span>
@@ -41,9 +41,12 @@
       <button class="nav-pill active" data-view="home">Beranda</button>
       <button class="nav-pill" data-view="hafalan">Hafalan</button>
       <button class="nav-pill" data-view="murajaah">Murajaah</button>
-      <button class="nav-pill" data-view="setoran">Setoran</button>
-      <button class="nav-pill" data-view="dashboard">Dashboard</button>
-      <button class="nav-pill" data-view="settings">Pengaturan</button>
+      <button class="nav-pill" data-view="setoran" data-user-only>Setoran</button>
+      <button class="nav-pill" data-view="dashboard" data-user-only>Dashboard</button>
+      <button class="nav-pill" data-view="profile" data-user-only>Profil</button>
+      <button class="nav-pill" data-view="login" data-guest-only>Masuk</button>
+      <button class="nav-pill emphasis" data-view="register" data-guest-only>Daftar</button>
+      <button class="nav-pill" id="logoutBtn" data-user-only>Keluar</button>
     </nav>
 
     <main>
@@ -51,39 +54,19 @@
         <div class="hero-card">
           <div class="hero-copy">
             <p class="eyebrow">Bismillahirrahmanirrahim</p>
-            <h2>Hafalan baru terarah, murajaah lama tetap terjaga.</h2>
-            <p>Aplikasi ini menyiapkan mode ayat-per-ayat, pengulangan audio, mode sembunyikan teks, jadwal murajaah, dan setoran kepada guru. Konten utama menggunakan JSON Al-Qur'an Kemenag yang sudah dinormalisasi, dengan pola PWA/offline-first seperti repo PPSA.</p>
-            <div class="hero-actions">
+            <h2 id="homeTitle">Hafalan baru terarah, murajaah lama tetap terjaga.</h2>
+            <p id="homeDescription">Mulai latihan hafalan ayat per ayat. Daftar atau masuk agar progres, jadwal murajaah, dan setoran tersimpan rapi.</p>
+            <div class="hero-actions" id="homeActions">
               <button class="btn primary" data-jump="hafalan">Mulai Hafalan</button>
-              <button class="btn secondary" data-jump="murajaah">Lihat Murajaah Hari Ini</button>
+              <button class="btn secondary" data-jump="register" data-guest-action>Daftar untuk Simpan Progres</button>
             </div>
           </div>
           <div class="hero-progress">
-            <div class="progress-ring" aria-label="Progress hafalan">
-              <span id="heroProgress">0%</span>
-            </div>
+            <div class="progress-ring" aria-label="Progress hafalan"><span id="heroProgress">0%</span></div>
             <p><strong id="memorizedCount">0</strong> ayat ditandai hafal</p>
-            <small>Data demo tersimpan lokal; jika API Worker aktif, data dapat disimpan ke Cloudflare D1.</small>
+            <small id="homeSmallNote">Progres pribadi aktif setelah masuk.</small>
           </div>
         </div>
-
-        <section class="grid cards-3">
-          <article class="info-card">
-            <span class="icon-chip">🎧</span>
-            <h3>Audio Repeat</h3>
-            <p>Putar ayat berulang dengan jeda agar santri bisa menirukan bacaan.</p>
-          </article>
-          <article class="info-card">
-            <span class="icon-chip">🧠</span>
-            <h3>Mode Sembunyi</h3>
-            <p>Tingkatkan tantangan: tampil penuh, sembunyikan terjemah, atau sembunyikan teks Arab.</p>
-          </article>
-          <article class="info-card">
-            <span class="icon-chip">🕌</span>
-            <h3>Jadwal Shalat</h3>
-            <p>Header menampilkan shalat berikutnya, jam, dan countdown seperti pola aplikasi ibadah harian.</p>
-          </article>
-        </section>
       </section>
 
       <section class="view" id="view-hafalan">
@@ -126,7 +109,7 @@
 
         <section class="reader-card" id="readerCard" aria-live="polite"></section>
 
-        <div class="action-row">
+        <div class="action-row sticky-actions">
           <button class="btn primary" id="playSequence">▶ Putar urutan</button>
           <button class="btn secondary" id="markMemorized">Tandai sudah hafal</button>
           <button class="btn warning" id="markDifficult">Tandai ayat sulit</button>
@@ -152,7 +135,7 @@
           </div>
         </div>
         <div class="info-card">
-          <p>Fitur ini sudah disiapkan untuk browser recording. Pada MVP static, rekaman disimpan sebagai URL object lokal untuk pratinjau. Pada produksi, file audio sebaiknya disimpan di Cloudflare R2, sedangkan D1 menyimpan metadata setoran.</p>
+          <p>Pilih rentang ayat di menu Hafalan, lalu rekam bacaan setoran. Pada produksi, file audio sebaiknya disimpan di Cloudflare R2, sedangkan D1 menyimpan metadata setoran.</p>
           <div class="control-panel compact">
             <label>Nama guru
               <input id="teacherName" placeholder="Ustadz/Ustadzah" />
@@ -187,44 +170,106 @@
         <div class="reader-card compact" id="dashboardDetail"></div>
       </section>
 
-      <section class="view" id="view-settings">
+      <section class="view auth-view" id="view-login">
+        <div class="auth-card">
+          <p class="eyebrow">Masuk</p>
+          <h2>Masuk ke akun hafalan</h2>
+          <p class="form-help">Gunakan akun agar progres hafalan, murajaah, dan setoran tersimpan.</p>
+          <form id="loginForm" class="stack-form">
+            <label>Email
+              <input type="email" id="loginEmail" autocomplete="email" required placeholder="nama@email.com" />
+            </label>
+            <label>Password
+              <input type="password" id="loginPassword" autocomplete="current-password" required placeholder="Password" />
+            </label>
+            <label>Captcha: <span class="captcha-question" id="loginCaptchaQuestion">Memuat...</span>
+              <input id="loginCaptchaAnswer" inputmode="numeric" required placeholder="Jawaban" />
+            </label>
+            <div class="action-row">
+              <button class="btn primary" type="submit">Masuk</button>
+              <button class="btn ghost" type="button" id="refreshLoginCaptcha">Ganti soal</button>
+            </div>
+          </form>
+          <p class="form-help">Belum punya akun? <button class="link-button" data-jump="register">Daftar di sini</button>.</p>
+        </div>
+      </section>
+
+      <section class="view auth-view" id="view-register">
+        <div class="auth-card">
+          <p class="eyebrow">Daftar</p>
+          <h2>Buat akun santri</h2>
+          <p class="form-help">Role awal pengguna adalah santri. Role guru/admin dapat diatur kemudian dari database atau fitur admin.</p>
+          <form id="registerForm" class="stack-form">
+            <label>Nama lengkap
+              <input id="registerName" autocomplete="name" required placeholder="Nama lengkap" />
+            </label>
+            <label>Email
+              <input type="email" id="registerEmail" autocomplete="email" required placeholder="nama@email.com" />
+            </label>
+            <label>Password
+              <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required placeholder="Minimal 6 karakter" />
+            </label>
+            <label>Konfirmasi password
+              <input type="password" id="registerPasswordConfirm" autocomplete="new-password" minlength="6" required placeholder="Ulangi password" />
+            </label>
+            <label>Captcha: <span class="captcha-question" id="registerCaptchaQuestion">Memuat...</span>
+              <input id="registerCaptchaAnswer" inputmode="numeric" required placeholder="Jawaban" />
+            </label>
+            <div class="action-row">
+              <button class="btn primary" type="submit">Daftar</button>
+              <button class="btn ghost" type="button" id="refreshRegisterCaptcha">Ganti soal</button>
+            </div>
+          </form>
+          <p class="form-help">Sudah punya akun? <button class="link-button" data-jump="login">Masuk</button>.</p>
+        </div>
+      </section>
+
+      <section class="view" id="view-profile">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Pengaturan</p>
-            <h2>Lokasi, API, dan konten</h2>
+            <p class="eyebrow">Profil</p>
+            <h2>Profil dan pengaturan ringan</h2>
           </div>
         </div>
         <div class="settings-grid">
+          <article class="info-card" id="profileCard"></article>
           <article class="info-card">
-            <h3>Jadwal Shalat</h3>
+            <h3>Tampilan bacaan</h3>
             <div class="control-panel single">
-              <label>Nama lokasi
-                <input id="locationName" value="Bekasi" />
+              <label>Ukuran font Arab
+                <input type="range" id="arabicFontSize" min="28" max="58" value="42" />
               </label>
-              <label>Latitude
-                <input id="latitude" value="-6.2383" />
-              </label>
-              <label>Longitude
-                <input id="longitude" value="106.9756" />
-              </label>
+              <label class="check-row"><input type="checkbox" id="showTranslation" checked /> Tampilkan terjemahan</label>
             </div>
-            <button class="btn primary" id="savePrayerSettings">Simpan Lokasi</button>
+            <button class="btn secondary" id="saveDisplaySettings">Simpan Tampilan</button>
           </article>
           <article class="info-card">
-            <h3>Endpoint API Worker</h3>
-            <p>Isi URL Worker jika sudah deploy. Jika kosong, aplikasi berjalan dengan localStorage.</p>
-            <input id="apiBase" placeholder="https://hifz-api.nama.workers.dev" />
-            <button class="btn secondary" id="saveApiBase">Simpan API</button>
+            <h3>Data lokal</h3>
+            <p>Gunakan reset jika data demo/localStorage perlu dibersihkan pada perangkat ini.</p>
+            <button class="btn warning" id="resetLocalData">Reset Data Lokal</button>
           </article>
           <article class="info-card">
-            <h3>Konten PPSA</h3>
-            <p>Konten Qur'an utama membaca file <code>data/quran-kemenag-combined.json</code>. Repo PPSA tetap dapat dipakai sebagai referensi pola PWA/offline-first dan konten doa tambahan.</p>
-            <button class="btn ghost" id="loadPpsa">Coba muat data PPSA</button>
-            <div id="ppsaPreview" class="mini-log"></div>
+            <h3>Tentang aplikasi</h3>
+            <p>Sumber konten utama: <strong>Al-Qur’an Kemenag RI</strong>. Aplikasi ini adalah alat bantu, bukan pengganti bimbingan guru tahsin/tahfiz.</p>
           </article>
         </div>
       </section>
     </main>
+  </div>
+
+  <div class="modal-backdrop" id="locationModal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="locationModalTitle">
+      <div class="modal-head">
+        <h3 id="locationModalTitle">Atur Lokasi Jadwal Shalat</h3>
+        <button class="icon-button" id="closeLocationModal" aria-label="Tutup">✕</button>
+      </div>
+      <p>Lokasi aktif: <strong id="modalLocationName">Bekasi</strong></p>
+      <div class="action-row">
+        <button class="btn primary" id="detectGps">Gunakan GPS saat ini</button>
+        <button class="btn ghost" id="useDefaultLocation">Gunakan Bekasi</button>
+      </div>
+      <div class="mini-log" id="gpsStatus"></div>
+    </div>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>

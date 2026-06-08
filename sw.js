@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hifz-companion-v2-kemenag';
+const CACHE_NAME = 'hifz-companion-v3-ux-auth';
 const CORE_ASSETS = [
   './', './index.html', './css/styles.css', './js/config.js', './js/app.js', './data/quran-kemenag-combined.json', './data/quran-kemenag-index.json', './manifest.webmanifest', './assets/icon.svg'
 ];

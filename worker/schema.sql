@@ -6,8 +6,29 @@ CREATE TABLE IF NOT EXISTS users (
   name TEXT NOT NULL,
   email TEXT UNIQUE,
   password_hash TEXT,
+  password_salt TEXT,
   role TEXT NOT NULL DEFAULT 'santri',
   status TEXT NOT NULL DEFAULT 'active',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT
+);
+
+
+CREATE TABLE IF NOT EXISTS sessions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  token_hash TEXT NOT NULL UNIQUE,
+  expires_at TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS captcha_challenges (
+  id TEXT PRIMARY KEY,
+  question TEXT NOT NULL,
+  answer_hash TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  used INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -160,3 +181,7 @@ CREATE INDEX IF NOT EXISTS idx_progress_user ON memorization_progress(user_id);
 CREATE INDEX IF NOT EXISTS idx_review_user_due ON review_schedule(user_id, due_date, status);
 CREATE INDEX IF NOT EXISTS idx_submission_user ON submissions(user_id, submitted_at);
 CREATE INDEX IF NOT EXISTS idx_prayer_cache ON prayer_times_cache(location_key, prayer_date);
+
+CREATE INDEX IF NOT EXISTS idx_sessions_token_hash ON sessions(token_hash);
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id, expires_at);
+CREATE INDEX IF NOT EXISTS idx_captcha_expires ON captcha_challenges(expires_at, used);

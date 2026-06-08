@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+
+
 CREATE TABLE IF NOT EXISTS surahs (
   id INTEGER PRIMARY KEY,
   name_ar TEXT NOT NULL,
@@ -153,3 +155,4 @@ CREATE INDEX IF NOT EXISTS idx_progress_user ON memorization_progress(user_id);
 CREATE INDEX IF NOT EXISTS idx_review_user_due ON review_schedule(user_id, due_date, status);
 CREATE INDEX IF NOT EXISTS idx_submission_user ON submissions(user_id, submitted_at);
 CREATE INDEX IF NOT EXISTS idx_prayer_cache ON prayer_times_cache(location_key, prayer_date);
+
