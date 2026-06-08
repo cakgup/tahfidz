@@ -16,7 +16,11 @@ CREATE TABLE IF NOT EXISTS surahs (
   name_ar TEXT NOT NULL,
   name_latin TEXT NOT NULL,
   total_ayah INTEGER NOT NULL,
-  revelation_type TEXT
+  revelation_type TEXT,
+  name_ar_plain TEXT,
+  transliteration TEXT,
+  translation TEXT,
+  page INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS ayahs (

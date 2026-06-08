@@ -81,3 +81,16 @@ Aplikasi tetap dapat berjalan tanpa Worker untuk fungsi lokal, tetapi jadwal sha
 ```bash
 node tools/normalize-kemenag-json.mjs
 ```
+
+
+## Catatan Migrasi D1: SQLITE_TOOBIG
+
+Jika muncul error seperti:
+
+```text
+statement too long: SQLITE_TOOBIG
+```
+
+penyebabnya biasanya file seed Al-Qur’an terlalu besar jika dimasukkan dalam satu `INSERT` panjang. Versi ini sudah memecah seed ayat menjadi banyak file migration kecil `0004_seed_quran_kemenag_part_*.sql`, masing-masing berisi statement kecil per ayat.
+
+Untuk database development yang sebelumnya sempat gagal migrasi, cara paling bersih adalah menjalankan ulang migration setelah mengganti folder `worker/migrations` dengan versi ini. Jika masih gagal karena skema lama tersisa, hapus/recreate D1 database development, lalu apply migration dari awal.
