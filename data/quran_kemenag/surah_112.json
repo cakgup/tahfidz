@@ -1,0 +1,61 @@
+{
+  "surah": {
+    "id": 112,
+    "arabic": "الاخلاص",
+    "arabic_harakat": "سُورَةُ الإِخۡلَاصِ",
+    "latin": "Al-Ikhlāṣ",
+    "transliteration": "Al-Ikhlas",
+    "translation": "Ikhlas",
+    "num_ayah": 4,
+    "page": 604,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 6222,
+      "surah_id": 112,
+      "ayah": 1,
+      "page": 604,
+      "juz": 30,
+      "arabic": "قُلْ هُوَ اللّٰهُ اَحَدٌۚ",
+      "kitabah": "قُلْ هُوَ اللّٰهُ اَحَدٌۚ",
+      "translation": "Katakanlah (Nabi Muhammad), “Dialah Allah Yang Maha Esa.",
+      "footnotes": ""
+    },
+    {
+      "id": 6223,
+      "surah_id": 112,
+      "ayah": 2,
+      "page": 604,
+      "juz": 30,
+      "arabic": "اَللّٰهُ الصَّمَدُۚ",
+      "kitabah": "اَللّٰهُ الصَّمَدُۚ",
+      "translation": "Allah tempat meminta segala sesuatu.",
+      "footnotes": ""
+    },
+    {
+      "id": 6224,
+      "surah_id": 112,
+      "ayah": 3,
+      "page": 604,
+      "juz": 30,
+      "arabic": "لَمْ يَلِدْ وَلَمْ يُوْلَدْۙ",
+      "kitabah": "لَمْ يَلِدْ وَلَمْ يُوْلَدْۙ",
+      "translation": "Dia tidak beranak dan tidak pula diperanakkan",
+      "footnotes": ""
+    },
+    {
+      "id": 6225,
+      "surah_id": 112,
+      "ayah": 4,
+      "page": 604,
+      "juz": 30,
+      "arabic": "وَلَمْ يَكُنْ لَّهٗ كُفُوًا اَحَدٌ ࣖ",
+      "kitabah": "وَلَمْ يَكُنْ لَّهٗ كُفُوًا اَحَدٌ ࣖ",
+      "translation": "serta tidak ada sesuatu pun yang setara dengan-Nya.”",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

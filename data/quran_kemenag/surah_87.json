@@ -1,0 +1,226 @@
+{
+  "surah": {
+    "id": 87,
+    "arabic": "الاعلى",
+    "arabic_harakat": "سُورَةُ الأَعۡلَىٰ",
+    "latin": "Al-A‘lā",
+    "transliteration": "Al-A‘la",
+    "translation": "Yang Maha Tinggi",
+    "num_ayah": 19,
+    "page": 591,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 5949,
+      "surah_id": 87,
+      "ayah": 1,
+      "page": 591,
+      "juz": 30,
+      "arabic": "سَبِّحِ اسْمَ رَبِّكَ الْاَعْلَىۙ ",
+      "kitabah": "سَبِّحِ اسْمَ رَبِّكَ الْاَعْلَىۙ ",
+      "translation": "Sucikanlah nama Tuhanmu Yang Maha Tinggi,",
+      "footnotes": ""
+    },
+    {
+      "id": 5950,
+      "surah_id": 87,
+      "ayah": 2,
+      "page": 591,
+      "juz": 30,
+      "arabic": "الَّذِيْ خَلَقَ فَسَوّٰىۖ ",
+      "kitabah": "الَّذِيْ خَلَقَ فَسَوّٰىۖ ",
+      "translation": "yang menciptakan, lalu menyempurnakan (ciptaan-Nya),",
+      "footnotes": ""
+    },
+    {
+      "id": 5951,
+      "surah_id": 87,
+      "ayah": 3,
+      "page": 591,
+      "juz": 30,
+      "arabic": "وَالَّذِيْ قَدَّرَ فَهَدٰىۖ ",
+      "kitabah": "وَالَّذِيْ قَدَّرَ فَهَدٰىۖ ",
+      "translation": "yang menentukan kadar (masing-masing) dan memberi petunjuk,",
+      "footnotes": ""
+    },
+    {
+      "id": 5952,
+      "surah_id": 87,
+      "ayah": 4,
+      "page": 591,
+      "juz": 30,
+      "arabic": "وَالَّذِيْٓ اَخْرَجَ الْمَرْعٰىۖ ",
+      "kitabah": "وَالَّذِيْٓ اَخْرَجَ الْمَرْعٰىۖ ",
+      "translation": "dan yang menumbuhkan (rerumputan) padang gembala,",
+      "footnotes": ""
+    },
+    {
+      "id": 5953,
+      "surah_id": 87,
+      "ayah": 5,
+      "page": 591,
+      "juz": 30,
+      "arabic": "فَجَعَلَهٗ غُثَاۤءً اَحْوٰىۖ ",
+      "kitabah": "فَجَعَلَهٗ غُثَاۤءً اَحْوٰىۖ ",
+      "translation": "lalu menjadikannya kering kehitam-hitaman.",
+      "footnotes": ""
+    },
+    {
+      "id": 5954,
+      "surah_id": 87,
+      "ayah": 6,
+      "page": 591,
+      "juz": 30,
+      "arabic": "سَنُقْرِئُكَ فَلَا تَنْسٰىٓ  ۖ ",
+      "kitabah": "سَنُقْرِئُكَ فَلَا تَنْسٰىٓ  ۖ ",
+      "translation": "Kami akan membacakan (Al-Qur’an) kepadamu (Nabi Muhammad) sehingga engkau tidak akan lupa,",
+      "footnotes": ""
+    },
+    {
+      "id": 5955,
+      "surah_id": 87,
+      "ayah": 7,
+      "page": 591,
+      "juz": 30,
+      "arabic": "اِلَّا مَا شَاۤءَ اللّٰهُ ۗاِنَّهٗ يَعْلَمُ الْجَهْرَ وَمَا يَخْفٰىۗ ",
+      "kitabah": "اِلَّا مَا شَاۤءَ اللّٰهُ ۗاِنَّهٗ يَعْلَمُ الْجَهْرَ وَمَا يَخْفٰىۗ ",
+      "translation": "kecuali jika Allah menghendaki. Sesungguhnya Dia mengetahui yang terang dan yang tersembunyi.",
+      "footnotes": ""
+    },
+    {
+      "id": 5956,
+      "surah_id": 87,
+      "ayah": 8,
+      "page": 591,
+      "juz": 30,
+      "arabic": "وَنُيَسِّرُكَ لِلْيُسْرٰىۖ ",
+      "kitabah": "وَنُيَسِّرُكَ لِلْيُسْرٰىۖ ",
+      "translation": "Kami akan melapangkan bagimu jalan kemudahan (dalam segala urusan).",
+      "footnotes": ""
+    },
+    {
+      "id": 5957,
+      "surah_id": 87,
+      "ayah": 9,
+      "page": 591,
+      "juz": 30,
+      "arabic": "فَذَكِّرْ اِنْ نَّفَعَتِ الذِّكْرٰىۗ ",
+      "kitabah": "فَذَكِّرْ اِنْ نَّفَعَتِ الذِّكْرٰىۗ ",
+      "translation": "Maka, sampaikanlah peringatan jika peringatan itu bermanfaat.",
+      "footnotes": ""
+    },
+    {
+      "id": 5958,
+      "surah_id": 87,
+      "ayah": 10,
+      "page": 591,
+      "juz": 30,
+      "arabic": "سَيَذَّكَّرُ مَنْ يَّخْشٰىۙ ",
+      "kitabah": "سَيَذَّكَّرُ مَنْ يَّخْشٰىۙ ",
+      "translation": "Orang yang takut (kepada Allah) akan mengambil pelajaran,",
+      "footnotes": ""
+    },
+    {
+      "id": 5959,
+      "surah_id": 87,
+      "ayah": 11,
+      "page": 591,
+      "juz": 30,
+      "arabic": "وَيَتَجَنَّبُهَا الْاَشْقَىۙ ",
+      "kitabah": "وَيَتَجَنَّبُهَا الْاَشْقَىۙ ",
+      "translation": "sedangkan orang-orang yang celaka (kafir) akan menjauhinya,",
+      "footnotes": ""
+    },
+    {
+      "id": 5960,
+      "surah_id": 87,
+      "ayah": 12,
+      "page": 591,
+      "juz": 30,
+      "arabic": "الَّذِيْ يَصْلَى النَّارَ الْكُبْرٰىۚ ",
+      "kitabah": "الَّذِيْ يَصْلَى النَّارَ الْكُبْرٰىۚ ",
+      "translation": "(yaitu) orang yang akan memasuki api (neraka) yang besar.",
+      "footnotes": ""
+    },
+    {
+      "id": 5961,
+      "surah_id": 87,
+      "ayah": 13,
+      "page": 591,
+      "juz": 30,
+      "arabic": "ثُمَّ لَا يَمُوْتُ فِيْهَا وَلَا يَحْيٰىۗ ",
+      "kitabah": "ثُمَّ لَا يَمُوْتُ فِيْهَا وَلَا يَحْيٰىۗ ",
+      "translation": "Selanjutnya, dia tidak mati dan tidak (pula) hidup di sana.",
+      "footnotes": ""
+    },
+    {
+      "id": 5962,
+      "surah_id": 87,
+      "ayah": 14,
+      "page": 591,
+      "juz": 30,
+      "arabic": "قَدْ اَفْلَحَ مَنْ تَزَكّٰىۙ ",
+      "kitabah": "قَدْ اَفْلَحَ مَنْ تَزَكّٰىۙ ",
+      "translation": "Sungguh, beruntung orang yang menyucikan diri (dari kekafiran)",
+      "footnotes": ""
+    },
+    {
+      "id": 5963,
+      "surah_id": 87,
+      "ayah": 15,
+      "page": 591,
+      "juz": 30,
+      "arabic": "وَذَكَرَ اسْمَ رَبِّهٖ فَصَلّٰىۗ ",
+      "kitabah": "وَذَكَرَ اسْمَ رَبِّهٖ فَصَلّٰىۗ ",
+      "translation": "dan mengingat nama Tuhannya, lalu dia salat.",
+      "footnotes": ""
+    },
+    {
+      "id": 5964,
+      "surah_id": 87,
+      "ayah": 16,
+      "page": 592,
+      "juz": 30,
+      "arabic": "بَلْ تُؤْثِرُوْنَ الْحَيٰوةَ الدُّنْيَاۖ ",
+      "kitabah": "بَلْ تُؤْثِرُوْنَ الْحَيٰوةَ الدُّنْيَاۖ ",
+      "translation": "Adapun kamu (orang-orang kafir) mengutamakan kehidupan dunia,",
+      "footnotes": ""
+    },
+    {
+      "id": 5965,
+      "surah_id": 87,
+      "ayah": 17,
+      "page": 592,
+      "juz": 30,
+      "arabic": "وَالْاٰخِرَةُ خَيْرٌ وَّاَبْقٰىۗ ",
+      "kitabah": "وَالْاٰخِرَةُ خَيْرٌ وَّاَبْقٰىۗ ",
+      "translation": "padahal kehidupan akhirat itu lebih baik dan lebih kekal.",
+      "footnotes": ""
+    },
+    {
+      "id": 5966,
+      "surah_id": 87,
+      "ayah": 18,
+      "page": 592,
+      "juz": 30,
+      "arabic": "اِنَّ هٰذَا لَفِى الصُّحُفِ الْاُوْلٰىۙ ",
+      "kitabah": "اِنَّ هٰذَا لَفِى الصُّحُفِ الْاُوْلٰىۙ ",
+      "translation": "Sesungguhnya (penjelasan) ini terdapat dalam suhuf (lembaran-lembaran) yang terdahulu,",
+      "footnotes": ""
+    },
+    {
+      "id": 5967,
+      "surah_id": 87,
+      "ayah": 19,
+      "page": 592,
+      "juz": 30,
+      "arabic": "صُحُفِ اِبْرٰهِيْمَ وَمُوْسٰى ࣖ ",
+      "kitabah": "صُحُفِ اِبْرٰهِيْمَ وَمُوْسٰى ࣖ ",
+      "translation": "(yaitu) suhuf (yang diturunkan kepada) Ibrahim dan Musa.",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

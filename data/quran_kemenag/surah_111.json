@@ -1,0 +1,72 @@
+{
+  "surah": {
+    "id": 111,
+    "arabic": "اللّهب",
+    "arabic_harakat": "سُورَةُ المَسَدِ",
+    "latin": "Al-Lahab",
+    "transliteration": "Al-Lahab",
+    "translation": "Gejolak Api",
+    "num_ayah": 5,
+    "page": 603,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 6217,
+      "surah_id": 111,
+      "ayah": 1,
+      "page": 603,
+      "juz": 30,
+      "arabic": "تَبَّتْ يَدَآ اَبِيْ لَهَبٍ وَّتَبَّۗ",
+      "kitabah": "تَبَّتْ يَدَآ اَبِيْ لَهَبٍ وَّتَبَّۗ",
+      "translation": "Binasalah kedua tangan Abu Lahab dan benar-benar binasa dia.763)",
+      "footnotes": "763) Yang dimaksud dengan kedua tangan Abu Lahab adalah Abu Lahab itu sendiri."
+    },
+    {
+      "id": 6218,
+      "surah_id": 111,
+      "ayah": 2,
+      "page": 603,
+      "juz": 30,
+      "arabic": "مَآ اَغْنٰى عَنْهُ مَالُهٗ وَمَا كَسَبَۗ",
+      "kitabah": "مَآ اَغْنٰى عَنْهُ مَالُهٗ وَمَا كَسَبَۗ",
+      "translation": "Tidaklah berguna baginya hartanya dan apa yang dia usahakan.",
+      "footnotes": ""
+    },
+    {
+      "id": 6219,
+      "surah_id": 111,
+      "ayah": 3,
+      "page": 603,
+      "juz": 30,
+      "arabic": "سَيَصْلٰى نَارًا ذَاتَ لَهَبٍۙ",
+      "kitabah": "سَيَصْلٰى نَارًا ذَاتَ لَهَبٍۙ",
+      "translation": "Kelak dia akan memasuki api yang bergejolak (neraka),",
+      "footnotes": ""
+    },
+    {
+      "id": 6220,
+      "surah_id": 111,
+      "ayah": 4,
+      "page": 603,
+      "juz": 30,
+      "arabic": "وَّامْرَاَتُهٗ ۗحَمَّالَةَ الْحَطَبِۚ",
+      "kitabah": "وَّامْرَاَتُهٗ ۗحَمَّالَةَ الْحَطَبِۚ",
+      "translation": "(begitu pula) istrinya, pembawa kayu bakar (penyebar fitnah). ",
+      "footnotes": ""
+    },
+    {
+      "id": 6221,
+      "surah_id": 111,
+      "ayah": 5,
+      "page": 603,
+      "juz": 30,
+      "arabic": "فِيْ جِيْدِهَا حَبْلٌ مِّنْ مَّسَدٍ ࣖ",
+      "kitabah": "فِيْ جِيْدِهَا حَبْلٌ مِّنْ مَّسَدٍ ࣖ",
+      "translation": "Di lehernya ada tali dari sabut yang dipintal.",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

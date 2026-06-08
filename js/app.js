@@ -1,5 +1,6 @@
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
+
 const state = {
   quran: null,
   currentSurah: null,
@@ -7,26 +8,51 @@ const state = {
   chunks: [],
   recordingUrl: null,
   prayerTimer: null,
+  lastAudio: null,
 };
+
 const STORAGE_KEYS = {
-  progress: 'hifz_progress_v1',
-  reviews: 'hifz_reviews_v1',
-  submissions: 'hifz_submissions_v1',
-  difficult: 'hifz_difficult_v1',
-  prayerCache: 'hifz_prayer_cache_v1'
+  progress: 'hifz_progress_v2',
+  reviews: 'hifz_reviews_v2',
+  submissions: 'hifz_submissions_v2',
+  difficult: 'hifz_difficult_v2',
+  prayerCache: 'hifz_prayer_cache_v2'
 };
+
+const escapeHtml = (value = '') => String(value)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#039;');
 
 function toast(message){
   const el = $('#toast');
+  if(!el) return;
   el.textContent = message;
   el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2400);
+  setTimeout(() => el.classList.remove('show'), 2600);
 }
+
 function readJson(key, fallback){
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
 }
 function writeJson(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
-function today(){ return new Date().toISOString().slice(0,10); }
+function today(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function nextDate(days){
+  const d = new Date();
+  d.setDate(d.getDate()+days);
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
 function ayahKey(surahId, ayahNumber){ return `${surahId}:${ayahNumber}`; }
 function getSelectedRange(){
   return {
@@ -41,38 +67,76 @@ async function apiFetch(path, options={}){
   if(!base) throw new Error('API Worker belum dikonfigurasi.');
   const res = await fetch(`${base}${path}`, {
     ...options,
-    headers: {'Content-Type':'application/json', ...(options.headers || {})}
+    headers: {'Content-Type':'application/json', 'X-User-Id':'demo-user', ...(options.headers || {})}
   });
   if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
+function normalizeQuran(raw){
+  const source = raw?.metadata?.title || window.HIFZ_CONFIG.quranSourceLabel || 'Data Qur\'an';
+  const surahs = (raw?.surahs || []).map(s => ({
+    id: Number(s.id),
+    name_ar: s.name_ar || s.arabic_harakat || s.arabic || '',
+    name_ar_plain: s.name_ar_plain || s.arabic || s.name_ar || '',
+    name_latin: s.name_latin || s.latin || s.transliteration || `Surah ${s.id}`,
+    transliteration: s.transliteration || s.name_latin || s.latin || '',
+    translation: s.translation || '',
+    total_ayah: Number(s.total_ayah || s.num_ayah || s.ayahs?.length || 0),
+    page: s.page || null,
+    revelation_type: s.revelation_type || s.location || '',
+    ayahs: (s.ayahs || []).map(a => ({
+      id: a.id || `${s.id}:${a.number || a.ayah || a.ayah_number}`,
+      global_id: a.global_id || a.global_ayah_id || null,
+      surah_id: Number(a.surah_id || s.id),
+      number: Number(a.number || a.ayah || a.ayah_number),
+      ayah_number: Number(a.number || a.ayah || a.ayah_number),
+      page: a.page || null,
+      juz: a.juz || null,
+      text_ar: a.text_ar || a.arabic || a.kitabah || '',
+      kitabah: a.kitabah || a.text_ar || a.arabic || '',
+      translation_id: a.translation_id || a.translation || '',
+      footnotes: a.footnotes || '',
+      audio_url: a.audio_url || buildEveryAyahUrl(Number(a.surah_id || s.id), Number(a.number || a.ayah || a.ayah_number))
+    })).sort((a,b)=>a.number-b.number)
+  })).sort((a,b)=>a.id-b.id);
+  return {metadata:{...(raw.metadata || {}), title: source}, surahs};
+}
+function buildEveryAyahUrl(surahId, ayahNumber){
+  if(!surahId || !ayahNumber) return '';
+  return `https://everyayah.com/data/Alafasy_128kbps/${String(surahId).padStart(3,'0')}${String(ayahNumber).padStart(3,'0')}.mp3`;
+}
+
 async function loadQuran(){
-  const res = await fetch(window.HIFZ_CONFIG.quranDataPath, {cache:'no-store'});
-  if(!res.ok) throw new Error('Data Qur\'an tidak dapat dimuat.');
-  state.quran = await res.json();
+  const path = window.HIFZ_CONFIG.quranDataPath || 'data/quran-kemenag-combined.json';
+  const res = await fetch(path, {cache:'no-store'});
+  if(!res.ok) throw new Error(`Data Qur'an tidak dapat dimuat dari ${path}.`);
+  const raw = await res.json();
+  state.quran = normalizeQuran(raw);
   populateSurahSelect();
   renderReader();
   updateDashboard();
+  toast(`${state.quran.metadata.title || 'Konten Qur\'an'} dimuat: ${state.quran.surahs.length} surah.`);
 }
+
 function populateSurahSelect(){
   const select = $('#surahSelect');
-  select.innerHTML = state.quran.surahs.map(s => `<option value="${s.id}">${s.id}. ${s.name_latin} — ${s.name_ar}</option>`).join('');
+  select.innerHTML = state.quran.surahs.map(s => `<option value="${s.id}">${s.id}. ${escapeHtml(s.name_latin)} — ${escapeHtml(s.name_ar_plain || s.name_ar)}</option>`).join('');
   state.currentSurah = state.quran.surahs[0];
   populateAyahSelects();
 }
 function populateAyahSelects(){
   const surahId = Number($('#surahSelect').value || state.quran.surahs[0].id);
-  state.currentSurah = state.quran.surahs.find(s => s.id === surahId);
+  state.currentSurah = state.quran.surahs.find(s => s.id === surahId) || state.quran.surahs[0];
   const options = state.currentSurah.ayahs.map(a => `<option value="${a.number}">${a.number}</option>`).join('');
   $('#startAyah').innerHTML = options;
   $('#endAyah').innerHTML = options;
-  $('#endAyah').value = state.currentSurah.ayahs.at(-1).number;
+  $('#endAyah').value = state.currentSurah.ayahs.at(-1)?.number || 1;
 }
 function getAyahsInRange(){
   const {start,end} = getSelectedRange();
   const min = Math.min(start,end), max = Math.max(start,end);
-  return state.currentSurah.ayahs.filter(a => a.number >= min && a.number <= max);
+  return (state.currentSurah?.ayahs || []).filter(a => a.number >= min && a.number <= max);
 }
 function renderReader(){
   if(!state.currentSurah) return;
@@ -80,23 +144,29 @@ function renderReader(){
   const progress = readJson(STORAGE_KEYS.progress, {});
   const difficult = readJson(STORAGE_KEYS.difficult, {});
   const ayahs = getAyahsInRange();
-  $('#readerCard').innerHTML = ayahs.map(a => {
+  const meta = `${state.currentSurah.revelation_type || '-'} · ${state.currentSurah.total_ayah} ayat${state.currentSurah.translation ? ` · ${state.currentSurah.translation}` : ''}`;
+  $('#readerCard').innerHTML = `<div class="surah-title">
+      <div><span class="badge">${escapeHtml(window.HIFZ_CONFIG.quranSourceLabel || 'Al-Qur’an Kemenag RI')}</span><h3>${state.currentSurah.id}. ${escapeHtml(state.currentSurah.name_latin)}</h3><p>${escapeHtml(meta)}</p></div>
+      <div class="arabic surah-name">${escapeHtml(state.currentSurah.name_ar)}</div>
+    </div>` + ayahs.map(a => {
     const key = ayahKey(state.currentSurah.id, a.number);
     const isMemorized = progress[key]?.status === 'memorized';
     const isDifficult = difficult[key];
-    let arabic = a.text_ar;
-    let translation = a.translation_id || '';
+    let arabic = escapeHtml(a.text_ar);
+    let translation = escapeHtml(a.translation_id || '');
+    const footnotes = String(a.footnotes || '').trim();
     if(mode === 'arabicHidden') arabic = '<div class="hidden-placeholder">Teks Arab disembunyikan</div>';
     if(mode === 'translationHidden') translation = '';
-    if(mode === 'firstWords') arabic = `<span>${a.text_ar.split(' ').slice(0, 3).join(' ')} ...</span>`;
+    if(mode === 'firstWords') arabic = `<span>${escapeHtml(a.text_ar.split(/\s+/).slice(0, 3).join(' '))} ...</span>`;
     if(mode === 'blank') { arabic = '<div class="hidden-placeholder">Tes hafalan: baca tanpa melihat teks</div>'; translation = ''; }
     return `<article class="ayah-card">
       <div class="ayah-top">
-        <span class="badge">${state.currentSurah.name_latin} · ayat ${a.number}</span>
+        <span class="badge">${escapeHtml(state.currentSurah.name_latin)} · ayat ${a.number}${a.juz ? ` · juz ${a.juz}` : ''}</span>
         <span class="badge">${isMemorized ? '✅ Hafal' : '○ Belum'} ${isDifficult ? ' · ⚠ Sulit' : ''}</span>
       </div>
       <div class="arabic">${arabic}</div>
       ${translation ? `<p class="translation">${translation}</p>` : ''}
+      ${footnotes ? `<details class="footnote"><summary>Catatan Kemenag</summary><p>${escapeHtml(footnotes)}</p></details>` : ''}
     </article>`;
   }).join('');
 }
@@ -104,27 +174,36 @@ function renderReader(){
 async function playSequence(){
   const repeat = Number($('#repeatCount').value);
   const ayahs = getAyahsInRange();
-  toast(`Mode demo: urutan ${ayahs.length} ayat × ${repeat} pengulangan disiapkan.`);
-  for(const ayah of ayahs){
-    if(!ayah.audio_url) continue;
-    for(let i=0;i<repeat;i++){
-      await playAudio(ayah.audio_url).catch(()=>{});
-      await new Promise(r=>setTimeout(r, 550));
+  const withAudio = ayahs.filter(a => a.audio_url).length;
+  if(!withAudio){ toast('URL audio belum tersedia untuk rentang ayat ini.'); return; }
+  toast(`Memutar ${ayahs.length} ayat × ${repeat} pengulangan.`);
+  $('#playSequence').disabled = true;
+  try{
+    for(const ayah of ayahs){
+      if(!ayah.audio_url) continue;
+      for(let i=0;i<repeat;i++){
+        await playAudio(ayah.audio_url);
+        await new Promise(r=>setTimeout(r, 550));
+      }
     }
-  }
+  }catch(e){ toast(`Audio gagal diputar: ${e.message || 'cek koneksi'}`); }
+  finally{ $('#playSequence').disabled = false; }
 }
 function playAudio(url){
   return new Promise((resolve, reject) => {
+    if(state.lastAudio){ state.lastAudio.pause(); state.lastAudio = null; }
     const audio = new Audio(url);
+    state.lastAudio = audio;
     audio.onended = resolve;
-    audio.onerror = reject;
+    audio.onerror = () => reject(new Error('sumber audio tidak dapat diakses'));
     audio.play().catch(reject);
   });
 }
-function markMemorized(){
+async function markMemorized(){
   const progress = readJson(STORAGE_KEYS.progress, {});
   const reviews = readJson(STORAGE_KEYS.reviews, []);
-  for(const a of getAyahsInRange()){
+  const selected = getAyahsInRange();
+  for(const a of selected){
     const key = ayahKey(state.currentSurah.id, a.number);
     progress[key] = {surah_id: state.currentSurah.id, surah: state.currentSurah.name_latin, ayah_number: a.number, status:'memorized', memorized_at: new Date().toISOString(), strength_score: 60};
     reviews.push({id: crypto.randomUUID(), key, surah:state.currentSurah.name_latin, ayah_number:a.number, due_date: nextDate(1), status:'pending', priority:2});
@@ -132,6 +211,15 @@ function markMemorized(){
   writeJson(STORAGE_KEYS.progress, progress);
   writeJson(STORAGE_KEYS.reviews, dedupeReviews(reviews));
   renderReader(); renderReviews(); updateDashboard();
+  if(window.HIFZ_CONFIG.apiBase){
+    Promise.allSettled(selected.map(a => apiFetch('/api/progress', {
+      method:'POST',
+      body:JSON.stringify({surah_id:state.currentSurah.id, ayah_number:a.number, status:'memorized', strength_score:60})
+    }))).then(results => {
+      const failed = results.filter(r => r.status === 'rejected').length;
+      if(failed) console.warn(`${failed} progress gagal sinkron ke D1`);
+    });
+  }
   toast('Hafalan ditandai dan jadwal murajaah dibuat.');
 }
 function markDifficult(){
@@ -141,10 +229,9 @@ function markDifficult(){
   renderReader(); updateDashboard();
   toast('Ayat masuk daftar sulit dan diprioritaskan untuk murajaah.');
 }
-function nextDate(days){ const d = new Date(); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
 function dedupeReviews(items){
   const seen = new Map();
-  for(const item of items) seen.set(`${item.key}:${item.due_date}`, item);
+  for(const item of items) seen.set(`${item.key}:${item.due_date}:${item.status}`, item);
   return [...seen.values()];
 }
 function generateReview(){
@@ -160,7 +247,7 @@ function renderReviews(){
   const list = readJson(STORAGE_KEYS.reviews, []).sort((a,b)=>a.priority-b.priority || a.due_date.localeCompare(b.due_date));
   const due = list.filter(r => r.status === 'pending' && r.due_date <= today());
   $('#reviewList').innerHTML = due.length ? due.map(r => `<article class="review-item">
-    <div><strong>${r.surah} ayat ${r.ayah_number}</strong><p>Jatuh tempo: ${r.due_date} · Prioritas ${r.priority}</p></div>
+    <div><strong>${escapeHtml(r.surah)} ayat ${r.ayah_number}</strong><p>Jatuh tempo: ${escapeHtml(r.due_date)} · Prioritas ${r.priority}</p></div>
     <div class="action-row"><button class="btn secondary" data-review="lancar" data-id="${r.id}">Lancar</button><button class="btn warning" data-review="ulang" data-id="${r.id}">Perlu ulang</button></div>
   </article>`).join('') : '<article class="info-card"><p>Belum ada murajaah jatuh tempo hari ini.</p></article>';
 }
@@ -202,14 +289,19 @@ function stopRecording(){
   toast('Rekaman dihentikan.');
 }
 function saveSubmission(){
+  const {surahId, start, end} = getSelectedRange();
   const submissions = readJson(STORAGE_KEYS.submissions, []);
-  submissions.unshift({id:crypto.randomUUID(), teacher:$('#teacherName').value || 'Guru', note:$('#submissionNote').value || 'Setoran hafalan', audio_url:state.recordingUrl, status:'draft/local', created_at:new Date().toISOString()});
+  const item = {id:crypto.randomUUID(), teacher:$('#teacherName').value || 'Guru', note:$('#submissionNote').value || `${state.currentSurah.name_latin} ${start}-${end}`, audio_url:state.recordingUrl, status:'draft/local', surah_id:surahId, start_ayah:start, end_ayah:end, created_at:new Date().toISOString()};
+  submissions.unshift(item);
   writeJson(STORAGE_KEYS.submissions, submissions);
-  renderSubmissions(); updateDashboard(); toast('Setoran disimpan secara lokal.');
+  if(window.HIFZ_CONFIG.apiBase){
+    apiFetch('/api/submissions', {method:'POST', body:JSON.stringify({teacher_id:item.teacher, surah_id:surahId, start_ayah:start, end_ayah:end, audio_url:item.audio_url, note:item.note})}).catch(console.warn);
+  }
+  renderSubmissions(); updateDashboard(); toast('Setoran disimpan. Untuk produksi, audio perlu disimpan ke R2/storage.');
 }
 function renderSubmissions(){
   const data = readJson(STORAGE_KEYS.submissions, []);
-  $('#submissionList').innerHTML = data.length ? data.map(s => `<article class="review-item"><div><strong>${s.note}</strong><p>Guru: ${s.teacher} · Status: ${s.status}</p></div>${s.audio_url ? `<audio controls src="${s.audio_url}"></audio>` : ''}</article>`).join('') : '';
+  $('#submissionList').innerHTML = data.length ? data.map(s => `<article class="review-item"><div><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} · Status: ${escapeHtml(s.status)}</p></div>${s.audio_url ? `<audio controls src="${s.audio_url}"></audio>` : ''}</article>`).join('') : '';
 }
 
 async function updatePrayer(){
@@ -221,18 +313,17 @@ async function updatePrayer(){
   if(!times){
     try{
       if(window.HIFZ_CONFIG.apiBase){
-        const data = await apiFetch(`/api/prayer/today?lat=${cfg.latitude}&lng=${cfg.longitude}&location=${encodeURIComponent(cfg.locationName)}`);
+        const data = await apiFetch(`/api/prayer/today?lat=${cfg.latitude}&lng=${cfg.longitude}&location=${encodeURIComponent(cfg.locationName)}&timezone=${encodeURIComponent(cfg.timezone || 'Asia/Jakarta')}`);
         times = data.times;
       } else {
         times = localPrayerFallback();
       }
       cache[cacheKey] = times; writeJson(STORAGE_KEYS.prayerCache, cache);
-    } catch { times = localPrayerFallback(); }
+    } catch(e) { console.warn(e); times = localPrayerFallback(); }
   }
   startPrayerCountdown(times);
 }
 function localPrayerFallback(){
-  // Fallback statis untuk pratinjau offline. Produksi mengambil data dari Worker/API.
   return {fajr:'04:38', sunrise:'05:55', dhuhr:'11:54', asr:'15:15', maghrib:'17:47', isha:'19:00'};
 }
 function startPrayerCountdown(times){
@@ -242,11 +333,11 @@ function startPrayerCountdown(times){
   clearInterval(state.prayerTimer);
   const tick = () => {
     const now = new Date();
-    const todayDate = now.toISOString().slice(0,10);
+    const todayDate = today();
     let next = labels.map(([name,time]) => ({name,time,date:new Date(`${todayDate}T${time}:00`)})).find(x => x.date > now);
     if(!next){
       const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate()+1);
-      const iso = tomorrow.toISOString().slice(0,10);
+      const iso = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`;
       next = {name:labels[0][0], time:labels[0][1], date:new Date(`${iso}T${labels[0][1]}:00`)};
     }
     const diff = Math.max(0, next.date - now);
@@ -266,6 +357,7 @@ function savePrayerSettings(){
   localStorage.setItem('hifz_location_name', name);
   localStorage.setItem('hifz_latitude', lat);
   localStorage.setItem('hifz_longitude', lng);
+  localStorage.setItem('hifz_timezone', 'Asia/Jakarta');
   window.HIFZ_CONFIG.defaultPrayer = {locationName:name, latitude:lat, longitude:lng, timezone:'Asia/Jakarta'};
   updatePrayer(); toast('Lokasi jadwal shalat disimpan.');
 }
@@ -276,7 +368,7 @@ async function loadPpsa(){
     const res = await fetch(window.HIFZ_CONFIG.ppsaDataUrl);
     const json = await res.json();
     const items = normalizePpsaContent(json);
-    log.innerHTML = `<strong>${json.metadata?.title || 'PPSA'}</strong><br>${items.length} item berhasil dibaca.<br>Contoh: ${items[0]?.title || '-'} — ${items[0]?.arabic?.slice(0,80) || ''}`;
+    log.innerHTML = `<strong>${escapeHtml(json.metadata?.title || 'PPSA')}</strong><br>${items.length} item berhasil dibaca.<br>Contoh: ${escapeHtml(items[0]?.title || '-')} — ${escapeHtml(items[0]?.arabic?.slice(0,80) || '')}`;
   }catch(e){ log.textContent = `Gagal memuat PPSA: ${e.message}`; }
 }
 function normalizePpsaContent(json){
@@ -295,14 +387,14 @@ function updateDashboard(){
   const difficult = readJson(STORAGE_KEYS.difficult, {});
   const reviews = readJson(STORAGE_KEYS.reviews, []);
   const submissions = readJson(STORAGE_KEYS.submissions, []);
-  const totalAyahs = state.quran?.surahs.reduce((sum,s)=>sum+s.ayahs.length,0) || 1;
+  const totalAyahs = state.quran?.surahs.reduce((sum,s)=>sum+s.ayahs.length,0) || 6236;
   const memorized = Object.values(progress).filter(v => v.status === 'memorized').length;
-  const pct = Math.round(memorized / totalAyahs * 100);
+  const pct = Math.min(100, Math.round(memorized / totalAyahs * 100));
   document.documentElement.style.setProperty('--pct', `${pct}%`);
   $('#heroProgress').textContent = `${pct}%`; $('#memorizedCount').textContent = memorized;
   $('#statAyah').textContent = memorized; $('#statDifficult').textContent = Object.keys(difficult).length;
   $('#statReviews').textContent = reviews.filter(r=>r.status==='pending').length; $('#statSubmissions').textContent = submissions.length;
-  $('#dashboardDetail').innerHTML = `<h3>Ayat lemah/sulit</h3>${Object.values(difficult).length ? Object.values(difficult).map(d=>`<span class="badge">${d.surah} ${d.ayah_number}</span>`).join(' ') : '<p>Belum ada ayat sulit.</p>'}`;
+  $('#dashboardDetail').innerHTML = `<h3>Ayat lemah/sulit</h3>${Object.values(difficult).length ? Object.values(difficult).map(d=>`<span class="badge">${escapeHtml(d.surah)} ${d.ayah_number}</span>`).join(' ') : '<p>Belum ada ayat sulit.</p>'}`;
 }
 function switchView(view){
   $$('.view').forEach(v => v.classList.remove('active'));
@@ -316,7 +408,7 @@ function bindEvents(){
   $('#surahSelect').addEventListener('change', () => { populateAyahSelects(); renderReader(); });
   ['startAyah','endAyah','hideMode'].forEach(id => $(`#${id}`).addEventListener('change', renderReader));
   $('#playSequence').addEventListener('click', playSequence);
-  $('#markMemorized').addEventListener('click', markMemorized);
+  $('#markMemorized').addEventListener('click', () => markMemorized().catch(e=>toast(e.message)));
   $('#markDifficult').addEventListener('click', markDifficult);
   $('#generateReview').addEventListener('click', generateReview);
   $('#reviewList').addEventListener('click', e => { if(e.target.dataset.review) handleReviewResult(e.target.dataset.id, e.target.dataset.review); });
@@ -324,7 +416,7 @@ function bindEvents(){
   $('#stopRecord').addEventListener('click', stopRecording);
   $('#saveSubmission').addEventListener('click', saveSubmission);
   $('#savePrayerSettings').addEventListener('click', savePrayerSettings);
-  $('#saveApiBase').addEventListener('click', () => { localStorage.setItem('hifz_api_base', $('#apiBase').value.trim()); window.HIFZ_CONFIG.apiBase = $('#apiBase').value.trim(); toast('Endpoint API disimpan.'); });
+  $('#saveApiBase').addEventListener('click', () => { localStorage.setItem('hifz_api_base', $('#apiBase').value.trim()); window.HIFZ_CONFIG.apiBase = $('#apiBase').value.trim(); updatePrayer(); toast('Endpoint API disimpan.'); });
   $('#loadPpsa').addEventListener('click', loadPpsa);
   $('#reloadQuran').addEventListener('click', () => loadQuran().then(()=>toast('Konten dimuat ulang.')).catch(e=>toast(e.message)));
 }

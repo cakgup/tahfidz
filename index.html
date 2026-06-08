@@ -52,7 +52,7 @@
           <div class="hero-copy">
             <p class="eyebrow">Bismillahirrahmanirrahim</p>
             <h2>Hafalan baru terarah, murajaah lama tetap terjaga.</h2>
-            <p>Aplikasi ini menyiapkan mode ayat-per-ayat, pengulangan audio, mode sembunyikan teks, jadwal murajaah, dan setoran kepada guru. Konten dapat dihubungkan dengan pola data dari repo PPSA.</p>
+            <p>Aplikasi ini menyiapkan mode ayat-per-ayat, pengulangan audio, mode sembunyikan teks, jadwal murajaah, dan setoran kepada guru. Konten utama menggunakan JSON Al-Qur'an Kemenag yang sudah dinormalisasi, dengan pola PWA/offline-first seperti repo PPSA.</p>
             <div class="hero-actions">
               <button class="btn primary" data-jump="hafalan">Mulai Hafalan</button>
               <button class="btn secondary" data-jump="murajaah">Lihat Murajaah Hari Ini</button>
@@ -218,7 +218,7 @@
           </article>
           <article class="info-card">
             <h3>Konten PPSA</h3>
-            <p>Repo PPSA menggunakan data JSON `sections → subsections → items`; adapter di aplikasi ini dapat membaca pola tersebut untuk konten tambahan/doa.</p>
+            <p>Konten Qur'an utama membaca file <code>data/quran-kemenag-combined.json</code>. Repo PPSA tetap dapat dipakai sebagai referensi pola PWA/offline-first dan konten doa tambahan.</p>
             <button class="btn ghost" id="loadPpsa">Coba muat data PPSA</button>
             <div id="ppsaPreview" class="mini-log"></div>
           </article>

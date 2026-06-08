@@ -1,0 +1,50 @@
+{
+  "surah": {
+    "id": 103,
+    "arabic": "العصر",
+    "arabic_harakat": "سُورَةُ العَصۡرِ",
+    "latin": "Al-‘Aṣr",
+    "transliteration": "Al-‘Asr",
+    "translation": "Masa",
+    "num_ayah": 3,
+    "page": 601,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 6177,
+      "surah_id": 103,
+      "ayah": 1,
+      "page": 601,
+      "juz": 30,
+      "arabic": "وَالْعَصْرِۙ",
+      "kitabah": "وَالْعَصْرِۙ",
+      "translation": "Demi masa,",
+      "footnotes": ""
+    },
+    {
+      "id": 6178,
+      "surah_id": 103,
+      "ayah": 2,
+      "page": 601,
+      "juz": 30,
+      "arabic": "اِنَّ الْاِنْسَانَ لَفِيْ خُسْرٍۙ",
+      "kitabah": "اِنَّ الْاِنْسَانَ لَفِيْ خُسْرٍۙ",
+      "translation": "sesungguhnya manusia benar-benar berada dalam kerugian,",
+      "footnotes": ""
+    },
+    {
+      "id": 6179,
+      "surah_id": 103,
+      "ayah": 3,
+      "page": 601,
+      "juz": 30,
+      "arabic": "اِلَّا الَّذِيْنَ اٰمَنُوْا وَعَمِلُوا الصّٰلِحٰتِ وَتَوَاصَوْا بِالْحَقِّ ەۙ وَتَوَاصَوْا بِالصَّبْرِ ࣖ",
+      "kitabah": "اِلَّا الَّذِيْنَ اٰمَنُوْا وَعَمِلُوا الصّٰلِحٰتِ وَتَوَاصَوْا بِالْحَقِّ ەۙ وَتَوَاصَوْا بِالصَّبْرِ ࣖ",
+      "translation": "kecuali orang-orang yang beriman dan beramal saleh serta saling menasihati untuk kebenaran dan kesabaran.",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

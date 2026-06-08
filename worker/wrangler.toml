@@ -5,7 +5,7 @@ compatibility_date = "2026-06-07"
 # Ganti database_id setelah menjalankan:
 # wrangler d1 create hifz-companion-db
 [[d1_databases]]
-binding = "hifz_companion_db"
+binding = "DB"
 database_name = "hifz-companion-db"
 database_id = "4c00c0f4-a651-4363-90f1-48bf0126e752"
 

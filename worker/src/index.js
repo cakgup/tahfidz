@@ -40,7 +40,8 @@ async function prayerToday(request, env){
   const lat = url.searchParams.get('lat') || '-6.2383';
   const lng = url.searchParams.get('lng') || '106.9756';
   const location = url.searchParams.get('location') || 'Bekasi';
-  const date = new Date().toISOString().slice(0,10);
+  const tz = url.searchParams.get('timezone') || 'Asia/Jakarta';
+  const date = localDate(tz);
   const locationKey = `${lat},${lng}`;
   const cached = await env.DB.prepare('SELECT * FROM prayer_times_cache WHERE location_key=? AND prayer_date=?').bind(locationKey, date).first();
   if (cached) return json({ location, date, source: 'd1-cache', times: mapPrayer(cached) });
@@ -59,6 +60,11 @@ async function prayerToday(request, env){
     .bind(crypto.randomUUID(), locationKey, date, times.imsak, times.fajr, times.sunrise, times.dhuhr, times.asr, times.maghrib, times.isha, 'aladhan', new Date().toISOString()).run();
   return json({ location, date, source: 'aladhan', times });
 }
+function localDate(timeZone = 'Asia/Jakarta'){
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone, year:'numeric', month:'2-digit', day:'2-digit' }).formatToParts(new Date());
+  const get = type => parts.find(p => p.type === type)?.value;
+  return `${get('year')}-${get('month')}-${get('day')}`;
+}
 function cleanTime(value){ return String(value || '').split(' ')[0].slice(0,5); }
 function mapPrayer(row){ return { imsak: row.imsak, fajr: row.fajr, sunrise: row.sunrise, dhuhr: row.dhuhr, asr: row.asr, maghrib: row.maghrib, isha: row.isha }; }
 async function listSurahs(env){
@@ -67,7 +73,7 @@ async function listSurahs(env){
 }
 async function listAyahs(url, env){
   const surahId = Number(url.pathname.split('/')[4]);
-  const { results } = await env.DB.prepare('SELECT surah_id, ayah_number, juz, text_ar, translation_id, audio_url FROM ayahs WHERE surah_id=? ORDER BY ayah_number').bind(surahId).all();
+  const { results } = await env.DB.prepare('SELECT surah_id, ayah_number, juz, page, global_ayah_id, text_ar, translation_id, footnotes, audio_url FROM ayahs WHERE surah_id=? ORDER BY ayah_number').bind(surahId).all();
   return json({ ayahs: results });
 }
 function userIdFromRequest(request){
@@ -91,7 +97,9 @@ async function saveProgress(request, env){
 }
 async function getTodayReviews(request, env){
   const userId = userIdFromRequest(request);
-  const date = new Date().toISOString().slice(0,10);
+  const url = new URL(request.url);
+  const tz = url.searchParams.get('timezone') || 'Asia/Jakarta';
+  const date = localDate(tz);
   const { results } = await env.DB.prepare('SELECT * FROM review_schedule WHERE user_id=? AND due_date<=? AND status=? ORDER BY priority ASC, due_date ASC').bind(userId, date, 'pending').all();
   return json({ reviews: results });
 }

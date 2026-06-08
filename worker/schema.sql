@@ -24,8 +24,11 @@ CREATE TABLE IF NOT EXISTS ayahs (
   surah_id INTEGER NOT NULL,
   ayah_number INTEGER NOT NULL,
   juz INTEGER,
+  page INTEGER,
+  global_ayah_id INTEGER,
   text_ar TEXT NOT NULL,
   translation_id TEXT,
+  footnotes TEXT,
   audio_url TEXT,
   UNIQUE(surah_id, ayah_number),
   FOREIGN KEY (surah_id) REFERENCES surahs(id)

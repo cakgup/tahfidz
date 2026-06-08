@@ -1,0 +1,105 @@
+{
+  "surah": {
+    "id": 99,
+    "arabic": "الزّلزلة",
+    "arabic_harakat": "سُورَةُ الزَّلۡزَلَةِ",
+    "latin": "Az-Zalzalah",
+    "transliteration": "Az-Zalzalah",
+    "translation": "Guncangan",
+    "num_ayah": 8,
+    "page": 599,
+    "location": "Madaniyah"
+  },
+  "ayahs": [
+    {
+      "id": 6139,
+      "surah_id": 99,
+      "ayah": 1,
+      "page": 599,
+      "juz": 30,
+      "arabic": "اِذَا زُلْزِلَتِ الْاَرْضُ زِلْزَالَهَاۙ",
+      "kitabah": "اِذَا زُلْزِلَتِ الْاَرْضُ زِلْزَالَهَاۙ",
+      "translation": "Apabila bumi diguncangkan dengan guncangan yang dahsyat,",
+      "footnotes": ""
+    },
+    {
+      "id": 6140,
+      "surah_id": 99,
+      "ayah": 2,
+      "page": 599,
+      "juz": 30,
+      "arabic": "وَاَخْرَجَتِ الْاَرْضُ اَثْقَالَهَاۙ",
+      "kitabah": "وَاَخْرَجَتِ الْاَرْضُ اَثْقَالَهَاۙ",
+      "translation": "bumi mengeluarkan isi perutnya,",
+      "footnotes": ""
+    },
+    {
+      "id": 6141,
+      "surah_id": 99,
+      "ayah": 3,
+      "page": 599,
+      "juz": 30,
+      "arabic": "وَقَالَ الْاِنْسَانُ مَا لَهَاۚ",
+      "kitabah": "وَقَالَ الْاِنْسَانُ مَا لَهَاۚ",
+      "translation": "dan manusia bertanya, “Apa yang terjadi dengannya (bumi)?”",
+      "footnotes": ""
+    },
+    {
+      "id": 6142,
+      "surah_id": 99,
+      "ayah": 4,
+      "page": 599,
+      "juz": 30,
+      "arabic": "يَوْمَىِٕذٍ تُحَدِّثُ اَخْبَارَهَاۙ",
+      "kitabah": "يَوْمَىِٕذٍ تُحَدِّثُ اَخْبَارَهَاۙ",
+      "translation": "Pada hari itu (bumi) menyampaikan berita (tentang apa yang diperbuat manusia di atasnya)",
+      "footnotes": ""
+    },
+    {
+      "id": 6143,
+      "surah_id": 99,
+      "ayah": 5,
+      "page": 599,
+      "juz": 30,
+      "arabic": "بِاَنَّ رَبَّكَ اَوْحٰى لَهَاۗ",
+      "kitabah": "بِاَنَّ رَبَّكَ اَوْحٰى لَهَاۗ",
+      "translation": "karena sesungguhnya Tuhanmu telah memerintahkan (yang demikian itu) kepadanya.",
+      "footnotes": ""
+    },
+    {
+      "id": 6144,
+      "surah_id": 99,
+      "ayah": 6,
+      "page": 599,
+      "juz": 30,
+      "arabic": "يَوْمَىِٕذٍ يَّصْدُرُ النَّاسُ اَشْتَاتًا ەۙ لِّيُرَوْا اَعْمَالَهُمْۗ",
+      "kitabah": "يَوْمَىِٕذٍ يَّصْدُرُ النَّاسُ اَشْتَاتًا ەۙ لِّيُرَوْا اَعْمَالَهُمْۗ",
+      "translation": "Pada hari itu manusia keluar (dari kuburnya) dalam keadaan terpencar untuk diperlihatkan kepada mereka (balasan) semua perbuatan mereka.",
+      "footnotes": ""
+    },
+    {
+      "id": 6145,
+      "surah_id": 99,
+      "ayah": 7,
+      "page": 599,
+      "juz": 30,
+      "arabic": "فَمَنْ يَّعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَّرَهٗۚ",
+      "kitabah": "فَمَنْ يَّعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَّرَهٗۚ",
+      "translation": "Siapa yang mengerjakan kebaikan seberat zarah, dia akan melihat (balasan)-nya.",
+      "footnotes": ""
+    },
+    {
+      "id": 6146,
+      "surah_id": 99,
+      "ayah": 8,
+      "page": 599,
+      "juz": 30,
+      "arabic": "وَمَنْ يَّعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَّرَهٗ ࣖ",
+      "kitabah": "وَمَنْ يَّعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَّرَهٗ ࣖ",
+      "translation": "Siapa yang mengerjakan kejahatan seberat zarah, dia akan melihat (balasan)-nya.",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

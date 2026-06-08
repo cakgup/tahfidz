@@ -1,0 +1,105 @@
+{
+  "surah": {
+    "id": 95,
+    "arabic": "التّين",
+    "arabic_harakat": "سُورَةُ التِّينِ",
+    "latin": "At-Tīn",
+    "transliteration": "At-Tin",
+    "translation": "Buah Tin",
+    "num_ayah": 8,
+    "page": 597,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 6099,
+      "surah_id": 95,
+      "ayah": 1,
+      "page": 597,
+      "juz": 30,
+      "arabic": "وَالتِّيْنِ وَالزَّيْتُوْنِۙ",
+      "kitabah": "وَالتِّيْنِ وَالزَّيْتُوْنِۙ",
+      "translation": "Demi (buah) tin dan (buah) zaitun,",
+      "footnotes": ""
+    },
+    {
+      "id": 6100,
+      "surah_id": 95,
+      "ayah": 2,
+      "page": 597,
+      "juz": 30,
+      "arabic": "وَطُوْرِ سِيْنِيْنَۙ",
+      "kitabah": "وَطُوْرِ سِيْنِيْنَۙ",
+      "translation": "demi gunung Sinai,",
+      "footnotes": ""
+    },
+    {
+      "id": 6101,
+      "surah_id": 95,
+      "ayah": 3,
+      "page": 597,
+      "juz": 30,
+      "arabic": "وَهٰذَا الْبَلَدِ الْاَمِيْنِۙ",
+      "kitabah": "وَهٰذَا الْبَلَدِ الْاَمِيْنِۙ",
+      "translation": "dan demi negeri (Makkah) yang aman ini,",
+      "footnotes": ""
+    },
+    {
+      "id": 6102,
+      "surah_id": 95,
+      "ayah": 4,
+      "page": 597,
+      "juz": 30,
+      "arabic": "لَقَدْ خَلَقْنَا الْاِنْسَانَ فِيْٓ اَحْسَنِ تَقْوِيْمٍۖ",
+      "kitabah": "لَقَدْ خَلَقْنَا الْاِنْسَانَ فِيْٓ اَحْسَنِ تَقْوِيْمٍۖ",
+      "translation": "sungguh, Kami benar-benar telah menciptakan manusia dalam bentuk yang sebaik-baiknya.",
+      "footnotes": ""
+    },
+    {
+      "id": 6103,
+      "surah_id": 95,
+      "ayah": 5,
+      "page": 597,
+      "juz": 30,
+      "arabic": "ثُمَّ رَدَدْنٰهُ اَسْفَلَ سٰفِلِيْنَۙ",
+      "kitabah": "ثُمَّ رَدَدْنٰهُ اَسْفَلَ سٰفِلِيْنَۙ",
+      "translation": "Kemudian, kami kembalikan dia ke tempat yang serendah-rendahnya,",
+      "footnotes": ""
+    },
+    {
+      "id": 6104,
+      "surah_id": 95,
+      "ayah": 6,
+      "page": 597,
+      "juz": 30,
+      "arabic": "اِلَّا الَّذِيْنَ اٰمَنُوْا وَعَمِلُوا الصّٰلِحٰتِ فَلَهُمْ اَجْرٌ غَيْرُ مَمْنُوْنٍۗ",
+      "kitabah": "اِلَّا الَّذِيْنَ اٰمَنُوْا وَعَمِلُوا الصّٰلِحٰتِ فَلَهُمْ اَجْرٌ غَيْرُ مَمْنُوْنٍۗ",
+      "translation": "kecuali orang-orang yang beriman dan mengerjakan kebajikan. Maka, mereka akan mendapat pahala yang tidak putus-putusnya.",
+      "footnotes": ""
+    },
+    {
+      "id": 6105,
+      "surah_id": 95,
+      "ayah": 7,
+      "page": 597,
+      "juz": 30,
+      "arabic": "فَمَا يُكَذِّبُكَ بَعْدُ بِالدِّيْنِۗ",
+      "kitabah": "فَمَا يُكَذِّبُكَ بَعْدُ بِالدِّيْنِۗ",
+      "translation": "Maka, apa alasanmu (wahai orang kafir) mendustakan hari Pembalasan setelah (adanya bukti-bukti) itu?",
+      "footnotes": ""
+    },
+    {
+      "id": 6106,
+      "surah_id": 95,
+      "ayah": 8,
+      "page": 597,
+      "juz": 30,
+      "arabic": "اَلَيْسَ اللّٰهُ بِاَحْكَمِ الْحٰكِمِيْنَ ࣖ",
+      "kitabah": "اَلَيْسَ اللّٰهُ بِاَحْكَمِ الْحٰكِمِيْنَ ࣖ",
+      "translation": "Bukankah Allah hakim yang paling adil?",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

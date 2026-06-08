@@ -1,0 +1,61 @@
+{
+  "surah": {
+    "id": 106,
+    "arabic": "قريش",
+    "arabic_harakat": "سُورَةُ قُرَيۡشٍ",
+    "latin": "Quraisy",
+    "transliteration": "Quraisy",
+    "translation": "Orang Quraisy",
+    "num_ayah": 4,
+    "page": 602,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 6194,
+      "surah_id": 106,
+      "ayah": 1,
+      "page": 602,
+      "juz": 30,
+      "arabic": "لِاِيْلٰفِ قُرَيْشٍۙ",
+      "kitabah": "لِاِيْلٰفِ قُرَيْشٍۙ",
+      "translation": "Disebabkan oleh kebiasaan orang-orang Quraisy,",
+      "footnotes": ""
+    },
+    {
+      "id": 6195,
+      "surah_id": 106,
+      "ayah": 2,
+      "page": 602,
+      "juz": 30,
+      "arabic": "اٖلٰفِهِمْ رِحْلَةَ الشِّتَاۤءِ وَالصَّيْفِۚ",
+      "kitabah": "اٖلٰفِهِمْ رِحْلَةَ الشِّتَاۤءِ وَالصَّيْفِۚ",
+      "translation": "(yaitu) kebiasaan mereka bepergian pada musim dingin dan musim panas (sehingga mendapatkan banyak keuntungan),",
+      "footnotes": ""
+    },
+    {
+      "id": 6196,
+      "surah_id": 106,
+      "ayah": 3,
+      "page": 602,
+      "juz": 30,
+      "arabic": "فَلْيَعْبُدُوْا رَبَّ هٰذَا الْبَيْتِۙ",
+      "kitabah": "فَلْيَعْبُدُوْا رَبَّ هٰذَا الْبَيْتِۙ",
+      "translation": "maka hendaklah mereka menyembah Tuhan (pemilik) rumah ini (Ka‘bah)",
+      "footnotes": ""
+    },
+    {
+      "id": 6197,
+      "surah_id": 106,
+      "ayah": 4,
+      "page": 602,
+      "juz": 30,
+      "arabic": "الَّذِيْٓ اَطْعَمَهُمْ مِّنْ جُوْعٍ ەۙ وَّاٰمَنَهُمْ مِّنْ خَوْفٍ ࣖ",
+      "kitabah": "الَّذِيْٓ اَطْعَمَهُمْ مِّنْ جُوْعٍ ەۙ وَّاٰمَنَهُمْ مِّنْ خَوْفٍ ࣖ",
+      "translation": "yang telah memberi mereka makanan untuk menghilangkan lapar dan mengamankan mereka dari rasa takut.",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

@@ -1,0 +1,138 @@
+{
+  "surah": {
+    "id": 101,
+    "arabic": "القارعة",
+    "arabic_harakat": "سُورَةُ القَارِعَةِ",
+    "latin": "Al-Qāri‘ah",
+    "transliteration": "Al-Qari‘ah",
+    "translation": "Al-Qāri‘ah",
+    "num_ayah": 11,
+    "page": 600,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 6158,
+      "surah_id": 101,
+      "ayah": 1,
+      "page": 600,
+      "juz": 30,
+      "arabic": "اَلْقَارِعَةُۙ",
+      "kitabah": "اَلْقَارِعَةُۙ",
+      "translation": "Al-Qāri‘ah (hari Kiamat yang menggetarkan).",
+      "footnotes": ""
+    },
+    {
+      "id": 6159,
+      "surah_id": 101,
+      "ayah": 2,
+      "page": 600,
+      "juz": 30,
+      "arabic": "مَا الْقَارِعَةُ ۚ",
+      "kitabah": "مَا الْقَارِعَةُ ۚ",
+      "translation": "Apakah al-Qāri‘ah itu?",
+      "footnotes": ""
+    },
+    {
+      "id": 6160,
+      "surah_id": 101,
+      "ayah": 3,
+      "page": 600,
+      "juz": 30,
+      "arabic": "وَمَآ اَدْرٰىكَ مَا الْقَارِعَةُ ۗ",
+      "kitabah": "وَمَآ اَدْرٰىكَ مَا الْقَارِعَةُ ۗ",
+      "translation": "Tahukah kamu apakah al-Qāri‘ah itu?",
+      "footnotes": ""
+    },
+    {
+      "id": 6161,
+      "surah_id": 101,
+      "ayah": 4,
+      "page": 600,
+      "juz": 30,
+      "arabic": "يَوْمَ يَكُوْنُ النَّاسُ كَالْفَرَاشِ الْمَبْثُوْثِۙ",
+      "kitabah": "يَوْمَ يَكُوْنُ النَّاسُ كَالْفَرَاشِ الْمَبْثُوْثِۙ",
+      "translation": "Pada hari itu manusia seperti laron yang beterbangan",
+      "footnotes": ""
+    },
+    {
+      "id": 6162,
+      "surah_id": 101,
+      "ayah": 5,
+      "page": 600,
+      "juz": 30,
+      "arabic": "وَتَكُوْنُ الْجِبَالُ كَالْعِهْنِ الْمَنْفُوْشِۗ",
+      "kitabah": "وَتَكُوْنُ الْجِبَالُ كَالْعِهْنِ الْمَنْفُوْشِۗ",
+      "translation": "dan gunung-gunung seperti bulu yang berhamburan.",
+      "footnotes": ""
+    },
+    {
+      "id": 6163,
+      "surah_id": 101,
+      "ayah": 6,
+      "page": 600,
+      "juz": 30,
+      "arabic": "فَاَمَّا مَنْ ثَقُلَتْ مَوَازِيْنُهٗۙ ",
+      "kitabah": "فَاَمَّا مَنْ ثَقُلَتْ مَوَازِيْنُهٗۙ ",
+      "translation": "Siapa yang berat timbangan (kebaikan)-nya,",
+      "footnotes": ""
+    },
+    {
+      "id": 6164,
+      "surah_id": 101,
+      "ayah": 7,
+      "page": 600,
+      "juz": 30,
+      "arabic": "فَهُوَ فِيْ عِيْشَةٍ رَّاضِيَةٍۗ",
+      "kitabah": "فَهُوَ فِيْ عِيْشَةٍ رَّاضِيَةٍۗ",
+      "translation": "dia berada dalam kehidupan yang menyenangkan.",
+      "footnotes": ""
+    },
+    {
+      "id": 6165,
+      "surah_id": 101,
+      "ayah": 8,
+      "page": 600,
+      "juz": 30,
+      "arabic": "وَاَمَّا مَنْ خَفَّتْ مَوَازِيْنُهٗۙ",
+      "kitabah": "وَاَمَّا مَنْ خَفَّتْ مَوَازِيْنُهٗۙ",
+      "translation": "Adapun orang yang ringan timbangan (kebaikan)-nya,",
+      "footnotes": ""
+    },
+    {
+      "id": 6166,
+      "surah_id": 101,
+      "ayah": 9,
+      "page": 600,
+      "juz": 30,
+      "arabic": "فَاُمُّهٗ هَاوِيَةٌ  ۗ",
+      "kitabah": "فَاُمُّهٗ هَاوِيَةٌ  ۗ",
+      "translation": "tempat kembalinya adalah (neraka) Hawiyah.",
+      "footnotes": ""
+    },
+    {
+      "id": 6167,
+      "surah_id": 101,
+      "ayah": 10,
+      "page": 600,
+      "juz": 30,
+      "arabic": "وَمَآ اَدْرٰىكَ مَا هِيَهْۗ",
+      "kitabah": "وَمَآ اَدْرٰىكَ مَا هِيَهْۗ",
+      "translation": "Tahukah kamu apakah (neraka Hawiyah) itu?",
+      "footnotes": ""
+    },
+    {
+      "id": 6168,
+      "surah_id": 101,
+      "ayah": 11,
+      "page": 600,
+      "juz": 30,
+      "arabic": "نَارٌ حَامِيَةٌ ࣖ",
+      "kitabah": "نَارٌ حَامِيَةٌ ࣖ",
+      "translation": "(Ia adalah) api yang sangat panas.",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

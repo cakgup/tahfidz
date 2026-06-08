@@ -1,0 +1,116 @@
+{
+  "surah": {
+    "id": 104,
+    "arabic": "الهمزة",
+    "arabic_harakat": "سُورَةُ الهُمَزَةِ",
+    "latin": "Al-Humazah",
+    "transliteration": "Al-Humazah",
+    "translation": "Pengumpat",
+    "num_ayah": 9,
+    "page": 601,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 6180,
+      "surah_id": 104,
+      "ayah": 1,
+      "page": 601,
+      "juz": 30,
+      "arabic": "وَيْلٌ لِّكُلِّ هُمَزَةٍ لُّمَزَةٍۙ",
+      "kitabah": "وَيْلٌ لِّكُلِّ هُمَزَةٍ لُّمَزَةٍۙ",
+      "translation": "Celakalah setiap pengumpat lagi pencela",
+      "footnotes": ""
+    },
+    {
+      "id": 6181,
+      "surah_id": 104,
+      "ayah": 2,
+      "page": 601,
+      "juz": 30,
+      "arabic": " ۨالَّذِيْ جَمَعَ مَالًا وَّعَدَّدَهٗۙ",
+      "kitabah": " ۨالَّذِيْ جَمَعَ مَالًا وَّعَدَّدَهٗۙ",
+      "translation": "yang mengumpulkan harta dan menghitung-hitungnya.",
+      "footnotes": ""
+    },
+    {
+      "id": 6182,
+      "surah_id": 104,
+      "ayah": 3,
+      "page": 601,
+      "juz": 30,
+      "arabic": "يَحْسَبُ اَنَّ مَالَهٗٓ اَخْلَدَهٗۚ",
+      "kitabah": "يَحْسَبُ اَنَّ مَالَهٗٓ اَخْلَدَهٗۚ",
+      "translation": "Dia (manusia) mengira bahwa hartanya dapat mengekalkannya.",
+      "footnotes": ""
+    },
+    {
+      "id": 6183,
+      "surah_id": 104,
+      "ayah": 4,
+      "page": 601,
+      "juz": 30,
+      "arabic": "كَلَّا لَيُنْۢبَذَنَّ فِى الْحُطَمَةِۖ",
+      "kitabah": "كَلَّا لَيُنْۢبَذَنَّ فِى الْحُطَمَةِۖ",
+      "translation": "Sekali-kali tidak! Pasti dia akan dilemparkan ke dalam (neraka) Hutamah.",
+      "footnotes": ""
+    },
+    {
+      "id": 6184,
+      "surah_id": 104,
+      "ayah": 5,
+      "page": 601,
+      "juz": 30,
+      "arabic": "وَمَآ اَدْرٰىكَ مَا الْحُطَمَةُ ۗ",
+      "kitabah": "وَمَآ اَدْرٰىكَ مَا الْحُطَمَةُ ۗ",
+      "translation": "Tahukah kamu apakah (neraka) Hutamah?",
+      "footnotes": ""
+    },
+    {
+      "id": 6185,
+      "surah_id": 104,
+      "ayah": 6,
+      "page": 601,
+      "juz": 30,
+      "arabic": "نَارُ اللّٰهِ الْمُوْقَدَةُۙ",
+      "kitabah": "نَارُ اللّٰهِ الْمُوْقَدَةُۙ",
+      "translation": "(Ia adalah) api (azab) Allah yang dinyalakan",
+      "footnotes": ""
+    },
+    {
+      "id": 6186,
+      "surah_id": 104,
+      "ayah": 7,
+      "page": 601,
+      "juz": 30,
+      "arabic": "الَّتِيْ تَطَّلِعُ عَلَى الْاَفْـِٕدَةِۗ",
+      "kitabah": "الَّتِيْ تَطَّلِعُ عَلَى الْاَفْـِٕدَةِۗ",
+      "translation": "yang (membakar) naik sampai ke hati.",
+      "footnotes": ""
+    },
+    {
+      "id": 6187,
+      "surah_id": 104,
+      "ayah": 8,
+      "page": 601,
+      "juz": 30,
+      "arabic": "اِنَّهَا عَلَيْهِمْ مُّؤْصَدَةٌۙ",
+      "kitabah": "اِنَّهَا عَلَيْهِمْ مُّؤْصَدَةٌۙ",
+      "translation": "Sesungguhnya dia (api itu) tertutup rapat (sebagai hukuman) atas mereka,",
+      "footnotes": ""
+    },
+    {
+      "id": 6188,
+      "surah_id": 104,
+      "ayah": 9,
+      "page": 601,
+      "juz": 30,
+      "arabic": "فِيْ عَمَدٍ مُّمَدَّدَةٍ ࣖ",
+      "kitabah": "فِيْ عَمَدٍ مُّمَدَّدَةٍ ࣖ",
+      "translation": "(sedangkan mereka) diikat pada tiang-tiang yang panjang.",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

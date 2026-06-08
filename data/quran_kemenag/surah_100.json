@@ -1,0 +1,138 @@
+{
+  "surah": {
+    "id": 100,
+    "arabic": "العٰديٰت",
+    "arabic_harakat": "سُورَةُ العَادِيَاتِ",
+    "latin": "Al-‘Ādiyāt",
+    "transliteration": "Al-‘Adiyat",
+    "translation": "Kuda Perang Yang Berlari Kencang",
+    "num_ayah": 11,
+    "page": 599,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 6147,
+      "surah_id": 100,
+      "ayah": 1,
+      "page": 599,
+      "juz": 30,
+      "arabic": "وَالْعٰدِيٰتِ ضَبْحًاۙ ",
+      "kitabah": "وَالْعٰدِيٰتِ ضَبْحًاۙ ",
+      "translation": "Demi kuda-kuda perang yang berlari kencang terengah-engah,",
+      "footnotes": ""
+    },
+    {
+      "id": 6148,
+      "surah_id": 100,
+      "ayah": 2,
+      "page": 599,
+      "juz": 30,
+      "arabic": "فَالْمُوْرِيٰتِ قَدْحًاۙ",
+      "kitabah": "فَالْمُوْرِيٰتِ قَدْحًاۙ",
+      "translation": "yang memercikkan bunga api (dengan entakan kakinya),",
+      "footnotes": ""
+    },
+    {
+      "id": 6149,
+      "surah_id": 100,
+      "ayah": 3,
+      "page": 599,
+      "juz": 30,
+      "arabic": "فَالْمُغِيْرٰتِ صُبْحًاۙ",
+      "kitabah": "فَالْمُغِيْرٰتِ صُبْحًاۙ",
+      "translation": "yang menyerang (dengan tiba-tiba) pada waktu pagi",
+      "footnotes": ""
+    },
+    {
+      "id": 6150,
+      "surah_id": 100,
+      "ayah": 4,
+      "page": 599,
+      "juz": 30,
+      "arabic": "فَاَثَرْنَ بِهٖ نَقْعًاۙ",
+      "kitabah": "فَاَثَرْنَ بِهٖ نَقْعًاۙ",
+      "translation": "sehingga menerbangkan debu,",
+      "footnotes": ""
+    },
+    {
+      "id": 6151,
+      "surah_id": 100,
+      "ayah": 5,
+      "page": 599,
+      "juz": 30,
+      "arabic": "فَوَسَطْنَ بِهٖ جَمْعًاۙ",
+      "kitabah": "فَوَسَطْنَ بِهٖ جَمْعًاۙ",
+      "translation": "lalu menyerbu ke tengah-tengah kumpulan musuh,",
+      "footnotes": ""
+    },
+    {
+      "id": 6152,
+      "surah_id": 100,
+      "ayah": 6,
+      "page": 599,
+      "juz": 30,
+      "arabic": "اِنَّ الْاِنْسَانَ لِرَبِّهٖ لَكَنُوْدٌ ۚ",
+      "kitabah": "اِنَّ الْاِنْسَانَ لِرَبِّهٖ لَكَنُوْدٌ ۚ",
+      "translation": "sesungguhnya manusia itu sangatlah ingkar kepada Tuhannya. ",
+      "footnotes": ""
+    },
+    {
+      "id": 6153,
+      "surah_id": 100,
+      "ayah": 7,
+      "page": 599,
+      "juz": 30,
+      "arabic": "وَاِنَّهٗ عَلٰى ذٰلِكَ لَشَهِيْدٌۚ",
+      "kitabah": "وَاِنَّهٗ عَلٰى ذٰلِكَ لَشَهِيْدٌۚ",
+      "translation": "Sesungguhnya dia benar-benar menjadi saksi atas hal itu (keingkarannya).",
+      "footnotes": ""
+    },
+    {
+      "id": 6154,
+      "surah_id": 100,
+      "ayah": 8,
+      "page": 599,
+      "juz": 30,
+      "arabic": "وَاِنَّهٗ لِحُبِّ الْخَيْرِ لَشَدِيْدٌ ۗ",
+      "kitabah": "وَاِنَّهٗ لِحُبِّ الْخَيْرِ لَشَدِيْدٌ ۗ",
+      "translation": "Sesungguhnya cintanya pada harta benar-benar berlebihan.",
+      "footnotes": ""
+    },
+    {
+      "id": 6155,
+      "surah_id": 100,
+      "ayah": 9,
+      "page": 599,
+      "juz": 30,
+      "arabic": "۞ اَفَلَا يَعْلَمُ اِذَا بُعْثِرَ مَا فِى الْقُبُوْرِۙ",
+      "kitabah": "۞ اَفَلَا يَعْلَمُ اِذَا بُعْثِرَ مَا فِى الْقُبُوْرِۙ",
+      "translation": "Maka, tidakkah dia mengetahui (apa yang akan dialaminya) apabila dikeluarkan apa yang ada di dalam kubur",
+      "footnotes": ""
+    },
+    {
+      "id": 6156,
+      "surah_id": 100,
+      "ayah": 10,
+      "page": 600,
+      "juz": 30,
+      "arabic": "وَحُصِّلَ مَا فِى الصُّدُوْرِۙ",
+      "kitabah": "وَحُصِّلَ مَا فِى الصُّدُوْرِۙ",
+      "translation": "dan ditampakkan apa yang tersimpan di dalam dada?",
+      "footnotes": ""
+    },
+    {
+      "id": 6157,
+      "surah_id": 100,
+      "ayah": 11,
+      "page": 600,
+      "juz": 30,
+      "arabic": "اِنَّ رَبَّهُمْ بِهِمْ يَوْمَىِٕذٍ لَّخَبِيْرٌ ࣖ",
+      "kitabah": "اِنَّ رَبَّهُمْ بِهِمْ يَوْمَىِٕذٍ لَّخَبِيْرٌ ࣖ",
+      "translation": "Sesungguhnya Tuhan mereka pada hari itu benar-benar Maha Teliti terhadap (keadaan) mereka.",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

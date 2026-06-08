@@ -1,0 +1,72 @@
+{
+  "surah": {
+    "id": 97,
+    "arabic": "القدر",
+    "arabic_harakat": "سُورَةُ القَدۡرِ",
+    "latin": "Al-Qadr",
+    "transliteration": "Al-Qadr",
+    "translation": "Al-Qadar",
+    "num_ayah": 5,
+    "page": 598,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 6126,
+      "surah_id": 97,
+      "ayah": 1,
+      "page": 598,
+      "juz": 30,
+      "arabic": "اِنَّآ اَنْزَلْنٰهُ فِيْ لَيْلَةِ الْقَدْرِ ",
+      "kitabah": "اِنَّآ اَنْزَلْنٰهُ فِيْ لَيْلَةِ الْقَدْرِ ",
+      "translation": "Sesungguhnya Kami telah menurunkannya (Al-Qur’an) pada Lailatulqadar.",
+      "footnotes": ""
+    },
+    {
+      "id": 6127,
+      "surah_id": 97,
+      "ayah": 2,
+      "page": 598,
+      "juz": 30,
+      "arabic": "وَمَآ اَدْرٰىكَ مَا لَيْلَةُ الْقَدْرِۗ",
+      "kitabah": "وَمَآ اَدْرٰىكَ مَا لَيْلَةُ الْقَدْرِۗ",
+      "translation": "Tahukah kamu apakah Lailatulqadar itu?",
+      "footnotes": ""
+    },
+    {
+      "id": 6128,
+      "surah_id": 97,
+      "ayah": 3,
+      "page": 598,
+      "juz": 30,
+      "arabic": "لَيْلَةُ الْقَدْرِ ەۙ خَيْرٌ مِّنْ اَلْفِ شَهْرٍۗ",
+      "kitabah": "لَيْلَةُ الْقَدْرِ ەۙ خَيْرٌ مِّنْ اَلْفِ شَهْرٍۗ",
+      "translation": "Lailatulqadar itu lebih baik daripada seribu bulan.",
+      "footnotes": ""
+    },
+    {
+      "id": 6129,
+      "surah_id": 97,
+      "ayah": 4,
+      "page": 598,
+      "juz": 30,
+      "arabic": "تَنَزَّلُ الْمَلٰۤىِٕكَةُ وَالرُّوْحُ فِيْهَا بِاِذْنِ رَبِّهِمْۚ مِنْ كُلِّ اَمْرٍۛ",
+      "kitabah": "تَنَزَّلُ الْمَلٰۤىِٕكَةُ وَالرُّوْحُ فِيْهَا بِاِذْنِ رَبِّهِمْۚ مِنْ كُلِّ اَمْرٍۛ",
+      "translation": "Pada malam itu turun para malaikat dan Rūḥ (Jibril) dengan izin Tuhannya untuk mengatur semua urusan.",
+      "footnotes": ""
+    },
+    {
+      "id": 6130,
+      "surah_id": 97,
+      "ayah": 5,
+      "page": 598,
+      "juz": 30,
+      "arabic": "سَلٰمٌ ۛهِيَ حَتّٰى مَطْلَعِ الْفَجْرِ ࣖ",
+      "kitabah": "سَلٰمٌ ۛهِيَ حَتّٰى مَطْلَعِ الْفَجْرِ ࣖ",
+      "translation": "Sejahteralah (malam) itu sampai terbit fajar.",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

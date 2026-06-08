@@ -1,0 +1,50 @@
+{
+  "surah": {
+    "id": 110,
+    "arabic": "النّصر",
+    "arabic_harakat": "سُورَةُ النَّصۡرِ",
+    "latin": "An-Naṣr",
+    "transliteration": "An-Nasr",
+    "translation": "Pertolongan",
+    "num_ayah": 3,
+    "page": 603,
+    "location": "Madaniyah"
+  },
+  "ayahs": [
+    {
+      "id": 6214,
+      "surah_id": 110,
+      "ayah": 1,
+      "page": 603,
+      "juz": 30,
+      "arabic": "اِذَا جَاۤءَ نَصْرُ اللّٰهِ وَالْفَتْحُۙ",
+      "kitabah": "اِذَا جَاۤءَ نَصْرُ اللّٰهِ وَالْفَتْحُۙ",
+      "translation": "Apabila telah datang pertolongan Allah dan kemenangan",
+      "footnotes": ""
+    },
+    {
+      "id": 6215,
+      "surah_id": 110,
+      "ayah": 2,
+      "page": 603,
+      "juz": 30,
+      "arabic": "وَرَاَيْتَ النَّاسَ يَدْخُلُوْنَ فِيْ دِيْنِ اللّٰهِ اَفْوَاجًاۙ",
+      "kitabah": "وَرَاَيْتَ النَّاسَ يَدْخُلُوْنَ فِيْ دِيْنِ اللّٰهِ اَفْوَاجًاۙ",
+      "translation": "dan engkau melihat manusia berbondong-bondong masuk agama Allah,",
+      "footnotes": ""
+    },
+    {
+      "id": 6216,
+      "surah_id": 110,
+      "ayah": 3,
+      "page": 603,
+      "juz": 30,
+      "arabic": "فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُۗ اِنَّهٗ كَانَ تَوَّابًا ࣖ",
+      "kitabah": "فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُۗ اِنَّهٗ كَانَ تَوَّابًا ࣖ",
+      "translation": "bertasbihlah dengan memuji Tuhanmu dan mohonlah ampun kepada-Nya. Sesungguhnya Dia Maha Penerima tobat.",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

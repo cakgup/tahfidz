@@ -1,0 +1,105 @@
+{
+  "surah": {
+    "id": 94,
+    "arabic": "الشّرح",
+    "arabic_harakat": "سُورَةُ الشَّرۡحِ",
+    "latin": "Asy-Syarḥ",
+    "transliteration": "Asy-Syarh",
+    "translation": "Pelapangan",
+    "num_ayah": 8,
+    "page": 596,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 6091,
+      "surah_id": 94,
+      "ayah": 1,
+      "page": 596,
+      "juz": 30,
+      "arabic": "اَلَمْ نَشْرَحْ لَكَ صَدْرَكَۙ",
+      "kitabah": "اَلَمْ نَشْرَحْ لَكَ صَدْرَكَۙ",
+      "translation": "Bukankah Kami telah melapangkan dadamu (Nabi Muhammad),",
+      "footnotes": ""
+    },
+    {
+      "id": 6092,
+      "surah_id": 94,
+      "ayah": 2,
+      "page": 596,
+      "juz": 30,
+      "arabic": "وَوَضَعْنَا عَنْكَ وِزْرَكَۙ",
+      "kitabah": "وَوَضَعْنَا عَنْكَ وِزْرَكَۙ",
+      "translation": "meringankan beban (tugas-tugas kenabian) darimu",
+      "footnotes": ""
+    },
+    {
+      "id": 6093,
+      "surah_id": 94,
+      "ayah": 3,
+      "page": 596,
+      "juz": 30,
+      "arabic": "الَّذِيْٓ اَنْقَضَ ظَهْرَكَۙ",
+      "kitabah": "الَّذِيْٓ اَنْقَضَ ظَهْرَكَۙ",
+      "translation": "yang memberatkan punggungmu,",
+      "footnotes": ""
+    },
+    {
+      "id": 6094,
+      "surah_id": 94,
+      "ayah": 4,
+      "page": 596,
+      "juz": 30,
+      "arabic": "وَرَفَعْنَا لَكَ ذِكْرَكَۗ",
+      "kitabah": "وَرَفَعْنَا لَكَ ذِكْرَكَۗ",
+      "translation": "dan meninggikan (derajat)-mu (dengan selalu) menyebut-nyebut (nama)-mu?",
+      "footnotes": ""
+    },
+    {
+      "id": 6095,
+      "surah_id": 94,
+      "ayah": 5,
+      "page": 596,
+      "juz": 30,
+      "arabic": "فَاِنَّ مَعَ الْعُسْرِ يُسْرًاۙ",
+      "kitabah": "فَاِنَّ مَعَ الْعُسْرِ يُسْرًاۙ",
+      "translation": "Maka, sesungguhnya beserta kesulitan ada kemudahan.",
+      "footnotes": ""
+    },
+    {
+      "id": 6096,
+      "surah_id": 94,
+      "ayah": 6,
+      "page": 596,
+      "juz": 30,
+      "arabic": "اِنَّ مَعَ الْعُسْرِ يُسْرًاۗ",
+      "kitabah": "اِنَّ مَعَ الْعُسْرِ يُسْرًاۗ",
+      "translation": "Sesungguhnya beserta kesulitan ada kemudahan.",
+      "footnotes": ""
+    },
+    {
+      "id": 6097,
+      "surah_id": 94,
+      "ayah": 7,
+      "page": 596,
+      "juz": 30,
+      "arabic": "فَاِذَا فَرَغْتَ فَانْصَبْۙ",
+      "kitabah": "فَاِذَا فَرَغْتَ فَانْصَبْۙ",
+      "translation": "Apabila engkau telah selesai (dengan suatu kebajikan), teruslah bekerja keras (untuk kebajikan yang lain)",
+      "footnotes": ""
+    },
+    {
+      "id": 6098,
+      "surah_id": 94,
+      "ayah": 8,
+      "page": 596,
+      "juz": 30,
+      "arabic": "وَاِلٰى رَبِّكَ فَارْغَبْ ࣖ",
+      "kitabah": "وَاِلٰى رَبِّكَ فَارْغَبْ ࣖ",
+      "translation": "dan hanya kepada Tuhanmu berharaplah!",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

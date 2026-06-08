@@ -1,0 +1,138 @@
+{
+  "surah": {
+    "id": 93,
+    "arabic": "الضّحى",
+    "arabic_harakat": "سُورَةُ الضُّحَىٰ",
+    "latin": "Aḍ-Ḍuḥā",
+    "transliteration": "Ad-Duha",
+    "translation": "Duha",
+    "num_ayah": 11,
+    "page": 596,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 6080,
+      "surah_id": 93,
+      "ayah": 1,
+      "page": 596,
+      "juz": 30,
+      "arabic": "وَالضُّحٰىۙ",
+      "kitabah": "وَالضُّحٰىۙ",
+      "translation": "Demi waktu duha",
+      "footnotes": ""
+    },
+    {
+      "id": 6081,
+      "surah_id": 93,
+      "ayah": 2,
+      "page": 596,
+      "juz": 30,
+      "arabic": "وَالَّيْلِ اِذَا سَجٰىۙ",
+      "kitabah": "وَالَّيْلِ اِذَا سَجٰىۙ",
+      "translation": "dan demi waktu malam apabila telah sunyi,",
+      "footnotes": ""
+    },
+    {
+      "id": 6082,
+      "surah_id": 93,
+      "ayah": 3,
+      "page": 596,
+      "juz": 30,
+      "arabic": "مَا وَدَّعَكَ رَبُّكَ وَمَا قَلٰىۗ",
+      "kitabah": "مَا وَدَّعَكَ رَبُّكَ وَمَا قَلٰىۗ",
+      "translation": "Tuhanmu (Nabi Muhammad) tidak meninggalkan dan tidak (pula) membencimu.",
+      "footnotes": ""
+    },
+    {
+      "id": 6083,
+      "surah_id": 93,
+      "ayah": 4,
+      "page": 596,
+      "juz": 30,
+      "arabic": "وَلَلْاٰخِرَةُ خَيْرٌ لَّكَ مِنَ الْاُوْلٰىۗ",
+      "kitabah": "وَلَلْاٰخِرَةُ خَيْرٌ لَّكَ مِنَ الْاُوْلٰىۗ",
+      "translation": "Sungguh, akhirat itu lebih baik bagimu daripada yang permulaan (dunia).",
+      "footnotes": ""
+    },
+    {
+      "id": 6084,
+      "surah_id": 93,
+      "ayah": 5,
+      "page": 596,
+      "juz": 30,
+      "arabic": "وَلَسَوْفَ يُعْطِيْكَ رَبُّكَ فَتَرْضٰىۗ",
+      "kitabah": "وَلَسَوْفَ يُعْطِيْكَ رَبُّكَ فَتَرْضٰىۗ",
+      "translation": "Sungguh, kelak (di akhirat nanti) Tuhanmu pasti memberikan karunia-Nya kepadamu sehingga engkau rida.",
+      "footnotes": ""
+    },
+    {
+      "id": 6085,
+      "surah_id": 93,
+      "ayah": 6,
+      "page": 596,
+      "juz": 30,
+      "arabic": "اَلَمْ يَجِدْكَ يَتِيْمًا فَاٰوٰىۖ",
+      "kitabah": "اَلَمْ يَجِدْكَ يَتِيْمًا فَاٰوٰىۖ",
+      "translation": "Bukankah Dia mendapatimu sebagai seorang yatim, lalu Dia melindungi(-mu);",
+      "footnotes": ""
+    },
+    {
+      "id": 6086,
+      "surah_id": 93,
+      "ayah": 7,
+      "page": 596,
+      "juz": 30,
+      "arabic": "وَوَجَدَكَ ضَاۤلًّا فَهَدٰىۖ",
+      "kitabah": "وَوَجَدَكَ ضَاۤلًّا فَهَدٰىۖ",
+      "translation": "mendapatimu sebagai seorang yang tidak tahu (tentang syariat), lalu Dia memberimu petunjuk (wahyu);",
+      "footnotes": ""
+    },
+    {
+      "id": 6087,
+      "surah_id": 93,
+      "ayah": 8,
+      "page": 596,
+      "juz": 30,
+      "arabic": "وَوَجَدَكَ عَاۤىِٕلًا فَاَغْنٰىۗ",
+      "kitabah": "وَوَجَدَكَ عَاۤىِٕلًا فَاَغْنٰىۗ",
+      "translation": "dan mendapatimu sebagai seorang yang fakir, lalu Dia memberimu kecukupan?",
+      "footnotes": ""
+    },
+    {
+      "id": 6088,
+      "surah_id": 93,
+      "ayah": 9,
+      "page": 596,
+      "juz": 30,
+      "arabic": "فَاَمَّا الْيَتِيْمَ فَلَا تَقْهَرْۗ",
+      "kitabah": "فَاَمَّا الْيَتِيْمَ فَلَا تَقْهَرْۗ",
+      "translation": "Terhadap anak yatim, janganlah engkau berlaku sewenang-wenang.",
+      "footnotes": ""
+    },
+    {
+      "id": 6089,
+      "surah_id": 93,
+      "ayah": 10,
+      "page": 596,
+      "juz": 30,
+      "arabic": "وَاَمَّا السَّاۤىِٕلَ فَلَا تَنْهَرْ",
+      "kitabah": "وَاَمَّا السَّاۤىِٕلَ فَلَا تَنْهَرْ",
+      "translation": "Terhadap orang yang meminta-minta, janganlah engkau menghardik.",
+      "footnotes": ""
+    },
+    {
+      "id": 6090,
+      "surah_id": 93,
+      "ayah": 11,
+      "page": 596,
+      "juz": 30,
+      "arabic": "وَاَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ ࣖ",
+      "kitabah": "وَاَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ ࣖ",
+      "translation": "Terhadap nikmat Tuhanmu, nyatakanlah (dengan bersyukur).",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

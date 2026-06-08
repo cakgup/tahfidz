@@ -1,0 +1,50 @@
+{
+  "surah": {
+    "id": 108,
+    "arabic": "الكوثر",
+    "arabic_harakat": "سُورَةُ الكَوۡثَرِ",
+    "latin": "Al-Kauṡar",
+    "transliteration": "Al-Kausar",
+    "translation": "Nikmat Yang Banyak",
+    "num_ayah": 3,
+    "page": 602,
+    "location": "Makkiyah"
+  },
+  "ayahs": [
+    {
+      "id": 6205,
+      "surah_id": 108,
+      "ayah": 1,
+      "page": 602,
+      "juz": 30,
+      "arabic": "اِنَّآ اَعْطَيْنٰكَ الْكَوْثَرَۗ",
+      "kitabah": "اِنَّآ اَعْطَيْنٰكَ الْكَوْثَرَۗ",
+      "translation": "Sesungguhnya Kami telah memberimu (Nabi Muhammad) nikmat yang banyak.",
+      "footnotes": ""
+    },
+    {
+      "id": 6206,
+      "surah_id": 108,
+      "ayah": 2,
+      "page": 602,
+      "juz": 30,
+      "arabic": "فَصَلِّ لِرَبِّكَ وَانْحَرْۗ",
+      "kitabah": "فَصَلِّ لِرَبِّكَ وَانْحَرْۗ",
+      "translation": "Maka, laksanakanlah salat karena Tuhanmu dan berkurbanlah!",
+      "footnotes": ""
+    },
+    {
+      "id": 6207,
+      "surah_id": 108,
+      "ayah": 3,
+      "page": 602,
+      "juz": 30,
+      "arabic": "اِنَّ شَانِئَكَ هُوَ الْاَبْتَرُ ࣖ",
+      "kitabah": "اِنَّ شَانِئَكَ هُوَ الْاَبْتَرُ ࣖ",
+      "translation": "Sesungguhnya orang yang membencimu, dialah yang terputus (dari rahmat Allah).",
+      "footnotes": ""
+    }
+  ],
+  "source": "Quran Kemenag RI - web-api.qurankemenag.net",
+  "fetched_at": "2026-06-05T16:58:49Z"
+}

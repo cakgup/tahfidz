@@ -1,6 +1,6 @@
-const CACHE_NAME = 'hifz-companion-v1';
+const CACHE_NAME = 'hifz-companion-v2-kemenag';
 const CORE_ASSETS = [
-  './', './index.html', './css/styles.css', './js/config.js', './js/app.js', './data/quran-sample.json', './manifest.webmanifest', './assets/icon.svg'
+  './', './index.html', './css/styles.css', './js/config.js', './js/app.js', './data/quran-kemenag-combined.json', './data/quran-kemenag-index.json', './manifest.webmanifest', './assets/icon.svg'
 ];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_ASSETS)));
