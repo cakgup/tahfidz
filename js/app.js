@@ -192,6 +192,23 @@ async function playSequence(){
   }catch(e){ toast(`Audio gagal diputar: ${e.message || 'cek koneksi'}`); }
   finally{ $('#playSequence').disabled = false; }
 }
+async function playSequence(){
+  const repeat = Number($('#repeatCount').value);
+  const ayahs = getAyahsInRange();
+  if(!ayahs.some(a => a.audio_url)){ toast('URL audio belum tersedia untuk rentang ayat ini.'); return; }
+  toast(`Memutar rentang ${ayahs.length} ayat sebanyak ${repeat} kali.`);
+  $('#playSequence').disabled = true;
+  try{
+    for(let i=0;i<repeat;i++){
+      for(const ayah of ayahs){
+        if(!ayah.audio_url) continue;
+        await playAudio(ayah.audio_url);
+        await new Promise(r=>setTimeout(r, 550));
+      }
+    }
+  }catch(e){ toast(`Audio gagal diputar: ${e.message || 'cek koneksi'}`); }
+  finally{ $('#playSequence').disabled = false; }
+}
 function playAudio(url){
   return new Promise((resolve, reject) => {
     if(state.lastAudio){ state.lastAudio.pause(); state.lastAudio = null; }
@@ -388,11 +405,14 @@ function startPrayerCountdown(times){
 }
 function openLocationModal(){ $('#locationModal').hidden = false; $('#gpsStatus').textContent = ''; }
 function closeLocationModal(){ $('#locationModal').hidden = true; }
-function setPrayerLocation(name, latitude, longitude){
-  localStorage.setItem('hifz_location_name', name);
-  localStorage.setItem('hifz_latitude', latitude);
-  localStorage.setItem('hifz_longitude', longitude);
-  localStorage.setItem('hifz_timezone', 'Asia/Jakarta');
+function setPrayerLocation(name, latitude, longitude, options = {}){
+  const persist = options.persist ?? true;
+  if(persist){
+    localStorage.setItem('hifz_location_name', name);
+    localStorage.setItem('hifz_latitude', latitude);
+    localStorage.setItem('hifz_longitude', longitude);
+    localStorage.setItem('hifz_timezone', 'Asia/Jakarta');
+  }
   window.HIFZ_CONFIG.defaultPrayer = {locationName:name, latitude:Number(latitude), longitude:Number(longitude), timezone:'Asia/Jakarta'};
   localStorage.removeItem(STORAGE_KEYS.prayerCache);
   updatePrayer();
@@ -404,7 +424,7 @@ function detectGps(){
   navigator.geolocation.getCurrentPosition(pos => {
     const lat = Number(pos.coords.latitude.toFixed(4));
     const lng = Number(pos.coords.longitude.toFixed(4));
-    setPrayerLocation('Lokasi saat ini', lat, lng);
+    setPrayerLocation('Lokasi GPS aktif', lat, lng, {persist:false});
     status.textContent = `Lokasi berhasil diperbarui: ${lat}, ${lng}`;
     toast('Lokasi jadwal shalat berhasil diperbarui.');
   }, err => {
@@ -506,14 +526,14 @@ function updateHome(){
   const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []).filter(r=>r.status==='pending' && r.due_date <= today()).length;
   if(user){
     $('#homeTitle').textContent = `Assalamu’alaikum, ${user.name}`;
-    $('#homeDescription').textContent = reviews ? `Hari ini ada ${reviews} ayat untuk murajaah. Lanjutkan hafalan atau kerjakan murajaah hari ini.` : 'Belum ada murajaah jatuh tempo hari ini. Anda bisa lanjut menambah hafalan atau membuat jadwal murajaah dari hafalan.';
-    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Lanjutkan Hafalan</button><button class="btn secondary" data-jump="murajaah">Kerjakan Murajaah Hari Ini</button><button class="btn ghost" data-jump="dashboard">Lihat Progres</button>`;
-    $('#homeSmallNote').textContent = 'Progres tersimpan untuk akun aktif.';
+    $('#homeDescription').textContent = reviews ? `Hari ini ada ${reviews} ayat untuk dimurajaah. Semoga Allah mudahkan, lanjutkan ziyadah atau tuntaskan murajaah dengan tertib.` : 'Belum ada murajaah jatuh tempo hari ini. Gunakan waktu ini untuk menambah ziyadah atau menyusun jadwal murajaah dari hafalan yang sudah ada.';
+    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Lanjut Ziyadah</button><button class="btn secondary" data-jump="murajaah">Murajaah Hari Ini</button><button class="btn ghost" data-jump="dashboard">Lihat Progres</button>`;
+    $('#homeSmallNote').textContent = 'Semoga Allah menjaga hafalan yang sedang Anda ikhtiarkan.';
   } else {
-    $('#homeTitle').textContent = 'Hafalan baru terarah, murajaah lama tetap terjaga.';
-    $('#homeDescription').textContent = 'Mulai latihan hafalan ayat per ayat. Daftar atau masuk agar progres, jadwal murajaah, dan setoran tersimpan rapi.';
-    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Mulai Latihan Hafalan</button><button class="btn secondary" data-jump="register">Daftar untuk Simpan Progres</button>`;
-    $('#homeSmallNote').textContent = 'Progres pribadi aktif setelah masuk.';
+    $('#homeTitle').textContent = 'Menjaga hafalan, merawat murajaah, meniti kedekatan dengan Al-Qur\'an.';
+    $('#homeDescription').textContent = 'Mulailah menghafal sedikit demi sedikit dengan niat yang lurus. Masuk atau daftar agar catatan hafalan, murajaah, dan setoran tersimpan rapi sebagai ikhtiar untuk istiqamah.';
+    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Mulai Menghafal</button><button class="btn secondary" data-jump="register">Daftar Sebagai Santri</button>`;
+    $('#homeSmallNote').textContent = 'Masuk untuk menyimpan jejak hafalan dan murajaah secara pribadi.';
   }
   bindJumpButtons();
   updateDashboard();

@@ -1,6 +1,6 @@
-const CACHE_NAME = 'hifz-companion-v3-ux-auth';
+const CACHE_NAME = 'hifz-companion-v5-repeat-range';
 const CORE_ASSETS = [
-  './', './index.html', './css/styles.css', './js/config.js', './js/app.js', './data/quran-kemenag-combined.json', './data/quran-kemenag-index.json', './manifest.webmanifest', './assets/icon.svg'
+  './', './index.html', './css/styles.css?v=20260612-forms', './js/config.js?v=20260612-prayer', './js/app.js?v=20260612-repeat-range', './data/quran-kemenag-combined.json', './data/quran-kemenag-index.json', './manifest.webmanifest', './assets/icon.svg'
 ];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_ASSETS)));
