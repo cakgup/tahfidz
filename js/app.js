@@ -358,6 +358,46 @@ function openReviewAyah(key){
   switchView('hafalan');
 }
 
+function generateReview(){
+  if(!requireLogin('Silakan masuk untuk membuat jadwal murajaah.')) return;
+  const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
+  const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
+  const memorized = Object.entries(progress).filter(([, v]) => v.status === 'memorized');
+  if(!memorized.length){
+    $('#reviewList').innerHTML = emptyState('Belum ada hafalan untuk dijadwalkan.', 'Tandai dulu ayat sebagai sudah hafal di menu Hafalan. Setelah itu, jadwal murajaah bisa disusun otomatis.', 'Mulai Hafalan', 'hafalan');
+    toast('Belum ada hafalan yang dapat dijadikan jadwal murajaah.');
+    return;
+  }
+  const reviews = memorized.map(([key, v]) => ({
+    id: crypto.randomUUID(), key, surah: v.surah, surah_id: v.surah_id, ayah_number: v.ayah_number, due_date: today(), status: 'pending', priority: difficult[key] ? 1 : 3
+  }));
+  writeJson(userScopedKey(STORAGE_KEYS.reviews), dedupeReviews([...readJson(userScopedKey(STORAGE_KEYS.reviews), []), ...reviews]));
+  renderReviews(); updateDashboard(); updateHome(); toast('Jadwal murajaah berhasil dibuat dari hafalan Anda.');
+  if(window.HIFZ_CONFIG.apiBase) apiFetch('/api/reviews/generate', { method: 'POST' }).catch(console.warn);
+}
+
+function renderReviews(){
+  if(!isLoggedIn()){
+    $('#reviewList').innerHTML = emptyState('Silakan masuk untuk melihat murajaah.', 'Jadwal murajaah bersifat personal dan dibuat dari ayat yang sudah Anda tandai hafal.', 'Masuk', 'login');
+    return;
+  }
+  const list = readJson(userScopedKey(STORAGE_KEYS.reviews), []).sort((a, b) => a.priority - b.priority || a.due_date.localeCompare(b.due_date));
+  const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
+  const due = list.filter(r => r.status === 'pending' && r.due_date <= today());
+  if(due.length){
+    $('#reviewList').innerHTML = due.map(r => `<article class="review-item">
+      <div><strong>${escapeHtml(r.surah)} ayat ${r.ayah_number}</strong><p>Jatuh tempo: ${escapeHtml(r.due_date)} · Prioritas ${r.priority}</p><p class="form-help">Buka ayat, baca murajaah, lalu pilih hasilnya.</p></div>
+      <div class="action-row"><button class="btn ghost" data-open-review="${r.key}">Buka ayat</button><button class="btn secondary" data-review="lancar" data-id="${r.id}">Lancar</button><button class="btn warning" data-review="ulang" data-id="${r.id}">Perlu ulang</button></div>
+    </article>`).join('');
+    return;
+  }
+  if(Object.values(progress).some(v => v.status === 'memorized')){
+    $('#reviewList').innerHTML = emptyState('Belum ada jadwal murajaah hari ini.', 'Hafalan Anda sudah tersimpan. Tekan tombol susun jadwal agar sistem menyiapkan daftar murajaah untuk hari ini.', 'Susun Jadwal Murajaah', 'generate-review');
+  } else {
+    $('#reviewList').innerHTML = emptyState('Belum ada hafalan untuk dijadwalkan.', 'Tandai ayat sebagai hafal terlebih dahulu, lalu kembali ke sini untuk menyusun murajaah.', 'Mulai Hafalan', 'hafalan');
+  }
+}
+
 async function setupRecorder(){
   if(!navigator.mediaDevices?.getUserMedia) throw new Error('Browser tidak mendukung rekaman audio.');
   const stream = await navigator.mediaDevices.getUserMedia({audio:true});
@@ -715,6 +755,10 @@ function bindEvents(){
   $('#reviewList').addEventListener('click', e => {
     if(e.target.dataset.review) handleReviewResult(e.target.dataset.id, e.target.dataset.review);
     if(e.target.dataset.openReview) openReviewAyah(e.target.dataset.openReview);
+    if(e.target.dataset.jump === 'generate-review'){
+      generateReview();
+      return;
+    }
     if(e.target.dataset.jump) switchView(e.target.dataset.jump);
   });
   $('#startRecord').addEventListener('click', () => startRecording().catch(e=>toast(e.message)));
