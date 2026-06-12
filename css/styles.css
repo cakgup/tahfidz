@@ -107,6 +107,7 @@ input,select{font-weight:400}input::placeholder{font-weight:400}select option{fo
 [data-theme="light"] .theme-toggle:hover{background:rgba(255,255,255,.95)}
 #themeToggleIcon{display:flex;align-items:center;justify-content:center;line-height:1}
 @media (max-width:640px){.theme-toggle{top:14px;right:14px;width:42px;height:42px}}
+.record-preview-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;padding:14px;background:var(--surface-2);border-radius:20px;border:1px solid var(--line)}.record-preview-row audio{flex:1;min-width:0;max-width:100%}.record-discard-btn{color:#ff8f9d!important;border-color:#7f3244!important;white-space:nowrap;flex-shrink:0}.record-discard-btn:hover{background:#3a1d28!important}[data-theme="light"] .record-preview-row{background:var(--surface-2);border-color:var(--line)}[data-theme="light"] .record-discard-btn{color:#92400e!important;border-color:#c8a070!important}[data-theme="light"] .record-discard-btn:hover{background:#fef3e2!important}
 sup.fn-ref{font-size:.65em;vertical-align:super;line-height:0;color:var(--accent);font-weight:600;letter-spacing:0;margin-left:1px}
 
 /* ===== PANEL GURU ===== */

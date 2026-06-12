@@ -191,11 +191,14 @@
             </label>
           </div>
           <div class="action-row">
-            <button class="btn primary" id="startRecord">Mulai Rekam</button>
-            <button class="btn warning" id="stopRecord" disabled>Stop Rekam</button>
+            <button class="btn primary" id="startRecord">▶ Mulai Rekam</button>
+            <button class="btn warning" id="stopRecord" disabled>■ Stop Rekam</button>
             <button class="btn secondary" id="saveSubmission">Simpan Setoran</button>
           </div>
-          <audio id="recordPreview" controls hidden></audio>
+          <div class="record-preview-row" id="recordPreviewRow" hidden>
+            <audio id="recordPreview" controls></audio>
+            <button class="btn ghost record-discard-btn" id="discardRecord" title="Hapus rekaman ini">🗑 Hapus Rekaman</button>
+          </div>
         </div>
         <div id="submissionList" class="review-list"></div>
       </section>

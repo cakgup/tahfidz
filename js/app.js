@@ -75,9 +75,9 @@ function toggleTheme(){
 }
 function submissionStatusLabel(status = ''){
   switch(String(status).toLowerCase()){
-    case 'submitted/r2': return 'Tersimpan di R2';
-    case 'submitted/local': return 'Tersimpan';
-    case 'submitted': return 'Terkirim';
+    case 'submitted/r2':
+    case 'submitted/local':
+    case 'submitted': return 'Tersimpan';
     default: return status || 'Tersimpan';
   }
 }
@@ -435,7 +435,7 @@ async function setupRecorder(){
     state.recordingMimeType = blob.type || 'audio/webm';
     state.recordingUrl = URL.createObjectURL(blob);
     $('#recordPreview').src = state.recordingUrl;
-    $('#recordPreview').hidden = false;
+    $('#recordPreviewRow').hidden = false;
   };
 }
 async function startRecording(){
@@ -443,17 +443,33 @@ async function startRecording(){
   if(state.recordingUrl) URL.revokeObjectURL(state.recordingUrl);
   state.recordingBlob = null;
   state.recordingUrl = null;
-  $('#recordPreview').hidden = true;
+  $('#recordPreviewRow').hidden = true;
   $('#recordPreview').removeAttribute('src');
   await setupRecorder();
   state.recorder.start();
   $('#startRecord').disabled = true; $('#stopRecord').disabled = false;
-  toast('Rekaman dimulai.');
+  toast('Rekaman dimulai. Bacalah dengan tartil.');
 }
 function stopRecording(){
   state.recorder?.stop();
   $('#startRecord').disabled = false; $('#stopRecord').disabled = true;
-  toast('Rekaman dihentikan.');
+  toast('Rekaman selesai. Dengarkan dulu sebelum disimpan.');
+}
+function discardRecording(){
+  if(!state.recordingBlob && !state.recordingUrl){
+    toast('Tidak ada rekaman untuk dihapus.');
+    return;
+  }
+  if(!confirm('Hapus rekaman ini dan rekam ulang?')) return;
+  if(state.recordingUrl) URL.revokeObjectURL(state.recordingUrl);
+  state.recordingBlob = null;
+  state.recordingUrl = null;
+  state.recordingMimeType = 'audio/webm';
+  $('#recordPreview').removeAttribute('src');
+  $('#recordPreviewRow').hidden = true;
+  $('#startRecord').disabled = false;
+  $('#stopRecord').disabled = true;
+  toast('Rekaman dihapus. Silakan rekam ulang.');
 }
 async function saveSubmission(){
   if(!requireSantri('Setoran hafalan hanya tersedia untuk akun santri.')) return;
@@ -1052,6 +1068,7 @@ function bindEvents(){
   });
   $('#startRecord').addEventListener('click', () => startRecording().catch(e=>toast(e.message)));
   $('#stopRecord').addEventListener('click', stopRecording);
+  $('#discardRecord').addEventListener('click', discardRecording);
   $('#saveSubmission').addEventListener('click', () => saveSubmission().catch(e=>toast(e.message)));
   $('#reloadQuran').addEventListener('click', () => loadQuran().then(()=>toast('Konten dimuat ulang.')).catch(e=>toast(e.message)));
   $('#locationButton').addEventListener('click', openLocationModal);
