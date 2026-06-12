@@ -29,6 +29,7 @@ const STORAGE_KEYS = {
   activeTarget: 'hifz_active_target_v1',
   prayerCache: 'hifz_prayer_cache_v3',
   display: 'hifz_display_settings_v1',
+  theme: 'hifz_theme_v1',
   localUsers: 'hifz_local_users_v1'
 };
 
@@ -50,6 +51,18 @@ function readJson(key, fallback){
   try { return JSON.parse(storage.getItem(key)) ?? fallback; } catch { return fallback; }
 }
 function writeJson(key, value){ storage.setItem(key, JSON.stringify(value)); }
+function applyTheme(theme = storage.getItem(STORAGE_KEYS.theme) || 'dark'){
+  const normalized = theme === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = normalized;
+  storage.setItem(STORAGE_KEYS.theme, normalized);
+  if($('#themeToggleIcon')) $('#themeToggleIcon').textContent = normalized === 'light' ? '☾' : '☀';
+  if($('#themeToggleLabel')) $('#themeToggleLabel').textContent = normalized === 'light' ? 'Tema gelap' : 'Tema terang';
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if(metaTheme) metaTheme.setAttribute('content', normalized === 'light' ? '#dfeaff' : '#1A3A6B');
+}
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
+}
 function submissionStatusLabel(status = ''){
   switch(String(status).toLowerCase()){
     case 'submitted/r2': return 'Tersimpan di R2';
@@ -859,6 +872,7 @@ function bindEvents(){
   $('#saveSubmission').addEventListener('click', () => saveSubmission().catch(e=>toast(e.message)));
   $('#reloadQuran').addEventListener('click', () => loadQuran().then(()=>toast('Konten dimuat ulang.')).catch(e=>toast(e.message)));
   $('#locationButton').addEventListener('click', openLocationModal);
+  $('#themeToggle').addEventListener('click', toggleTheme);
   $('#closeLocationModal').addEventListener('click', closeLocationModal);
   $('#locationModal').addEventListener('click', e => { if(e.target.id === 'locationModal') closeLocationModal(); });
   $('#detectGps').addEventListener('click', detectGps);
@@ -871,6 +885,7 @@ function bindEvents(){
   $('#resetLocalData').addEventListener('click', () => resetLocalData().catch(e=>toast(e.message)));
 }
 async function init(){
+  applyTheme();
   bindEvents();
   await loadQuran();
   applyDisplaySettings();
