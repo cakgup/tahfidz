@@ -66,6 +66,7 @@
       <button class="nav-pill" data-view="setoran" data-user-only data-role="santri">Setoran</button>
       <button class="nav-pill" data-view="dashboard" data-user-only data-role="santri">Progres</button>
       <button class="nav-pill" data-view="profile" data-user-only data-role="santri,guru,admin">Profil</button>
+      <button class="nav-pill guru-nav-pill" data-view="guru" data-user-only data-role="guru,admin">Panel Guru</button>
       <button class="nav-pill" data-view="login" data-guest-only>Masuk</button>
       <button class="nav-pill emphasis" data-view="register" data-guest-only>Daftar</button>
       <button class="nav-pill" id="logoutBtn" data-user-only>Keluar</button>
@@ -272,6 +273,43 @@
         </div>
       </section>
 
+      <!-- ====== VIEW: PANEL GURU ====== -->
+      <section class="view" id="view-guru">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Panel Guru</p>
+            <h2>Setoran Santri</h2>
+            <p class="form-help">Tinjau setoran hafalan, putar audio, dan berikan penilaian untuk setiap santri.</p>
+          </div>
+        </div>
+
+        <!-- Kartu ringkasan -->
+        <section class="grid guru-stats" id="guruStats">
+          <article class="stat-card">
+            <span id="statGuruTotal">0</span>
+            <small>Total Setoran</small>
+          </article>
+          <article class="stat-card">
+            <span id="statGuruPending">0</span>
+            <small>Belum Dinilai</small>
+          </article>
+          <article class="stat-card">
+            <span id="statGuruDone">0</span>
+            <small>Sudah Dinilai</small>
+          </article>
+        </section>
+
+        <!-- Filter tab -->
+        <div class="filter-tabs" id="guruFilterTabs">
+          <button class="filter-tab active" data-filter="all">Semua</button>
+          <button class="filter-tab" data-filter="pending">Belum Dinilai</button>
+          <button class="filter-tab" data-filter="graded">Sudah Dinilai</button>
+        </div>
+
+        <!-- Daftar setoran -->
+        <div class="guru-submission-list" id="guruSubmissionList"></div>
+      </section>
+
       <section class="view" id="view-profile">
         <div class="section-heading">
           <div>
@@ -318,6 +356,37 @@
         <button class="btn ghost" id="useDefaultLocation">Gunakan Bekasi</button>
       </div>
       <div class="mini-log" id="gpsStatus"></div>
+    </div>
+  </div>
+
+  <!-- Modal Penilaian Setoran Guru -->
+  <div class="modal-backdrop" id="gradeModal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="gradeModalTitle">
+      <div class="modal-head">
+        <h3 id="gradeModalTitle">Penilaian Setoran</h3>
+        <button class="icon-button" id="closeGradeModal" aria-label="Tutup">✕</button>
+      </div>
+      <input type="hidden" id="gradeSubmissionId" />
+      <div class="grade-info" id="gradeInfo"></div>
+      <div class="control-panel single" style="margin-top:16px">
+        <label>Nilai (0–100)
+          <input type="number" id="gradeScore" min="0" max="100" placeholder="Contoh: 85" />
+        </label>
+        <label>Status Setoran
+          <select id="gradeStatus">
+            <option value="disetujui">✅ Disetujui</option>
+            <option value="perlu-ulang">🔄 Perlu Ulang</option>
+            <option value="ditolak">❌ Ditolak</option>
+          </select>
+        </label>
+        <label>Catatan / Masukan
+          <textarea id="gradeCatatan" rows="4" placeholder="Catatan untuk santri, misalnya: tajwid kurang pada ayat 3, makhraj huruf ع perlu diperbaiki."></textarea>
+        </label>
+      </div>
+      <div class="action-row" style="margin-top:4px">
+        <button class="btn primary" id="saveGradeBtn">Simpan Penilaian</button>
+        <button class="btn ghost" id="cancelGradeBtn">Batal</button>
+      </div>
     </div>
   </div>
 

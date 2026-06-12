@@ -30,7 +30,8 @@ const STORAGE_KEYS = {
   prayerCache: 'hifz_prayer_cache_v3',
   display: 'hifz_display_settings_v1',
   theme: 'hifz_theme_v1',
-  localUsers: 'hifz_local_users_v1'
+  localUsers: 'hifz_local_users_v1',
+  guruReviews: 'hifz_guru_reviews_v1'
 };
 
 const escapeHtml = (value = '') => String(value)
@@ -101,6 +102,7 @@ function canAccessView(view){
   if(role === 'guest') return false;
   if(['profile'].includes(view)) return ['santri', 'guru', 'admin'].includes(role);
   if(['hafalan', 'murajaah', 'setoran', 'dashboard', 'generate-review'].includes(view)) return ['santri', 'admin'].includes(role);
+  if(view === 'guru') return ['guru', 'admin'].includes(role);
   return false;
 }
 function userScopedKey(base){ return `${base}:${currentUser()?.id || 'guest'}`; }
@@ -726,6 +728,165 @@ function renderSubmissions(){
     ? data.map(s => `<article class="review-item"><div><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} - Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div>${s.audio_url ? `<audio controls src="${s.audio_url}"></audio>` : ''}</article>`).join('')
     : emptyState('Belum ada setoran.', 'Pilih target di menu Hafalan, rekam bacaan, lalu simpan setoran agar riwayat dan audio bisa diputar kembali.', null, null);
 }
+
+/* ============================================================
+   PANEL GURU — Fungsi-fungsi khusus guru
+   ============================================================ */
+
+/** Ambil semua setoran dari semua user di localStorage */
+function getAllSubmissions(){
+  const guruReviews = readJson(STORAGE_KEYS.guruReviews, {});
+  const localUsers  = readJson(STORAGE_KEYS.localUsers, []);
+  const allSubs = [];
+
+  // Kumpulkan semua key submissions dari storage
+  const keys = typeof storage.keys === 'function' ? storage.keys() : [];
+  const subPrefix = STORAGE_KEYS.submissions + ':';
+  const subKeys = keys.filter(k => k.startsWith(subPrefix));
+
+  for(const key of subKeys){
+    const userId = key.slice(subPrefix.length);
+    const userObj = localUsers.find(u => u.id === userId);
+    const userName = userObj ? userObj.name : `Santri (${userId.slice(0,6)})`;
+    const subs = readJson(key, []);
+    for(const sub of subs){
+      const grade = guruReviews[sub.id] || null;
+      allSubs.push({ ...sub, _userId: userId, _userName: userName, _grade: grade });
+    }
+  }
+
+  // Urutkan: terbaru dulu
+  return allSubs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
+/** Chip status untuk kartu setoran */
+function statusChipHtml(grade){
+  if(!grade) return '<span class="status-chip pending">⏳ Belum dinilai</span>';
+  const map = {
+    disetujui:   '<span class="status-chip disetujui">✅ Disetujui</span>',
+    'perlu-ulang': '<span class="status-chip perlu-ulang">🔄 Perlu Ulang</span>',
+    ditolak:     '<span class="status-chip ditolak">❌ Ditolak</span>'
+  };
+  return map[grade.status] || '<span class="status-chip pending">⏳ Belum dinilai</span>';
+}
+
+/** Render panel guru */
+function renderGuruPanel(filter = 'all'){
+  if(!isLoggedIn() || !['guru','admin'].includes(currentRole())) return;
+
+  const all = getAllSubmissions();
+
+  // Update stats
+  const pending = all.filter(s => !s._grade);
+  const graded  = all.filter(s =>  s._grade);
+  if($('#statGuruTotal'))   $('#statGuruTotal').textContent   = all.length;
+  if($('#statGuruPending')) $('#statGuruPending').textContent = pending.length;
+  if($('#statGuruDone'))    $('#statGuruDone').textContent    = graded.length;
+
+  // Filter
+  const list = filter === 'pending' ? pending
+             : filter === 'graded'  ? graded
+             : all;
+
+  const container = $('#guruSubmissionList');
+  if(!container) return;
+
+  if(!all.length){
+    container.innerHTML = `<article class="info-card empty-state">
+      <h3>Belum ada setoran masuk</h3>
+      <p>Setoran dari santri akan muncul di sini setelah mereka menyimpan rekaman hafalan.</p>
+    </article>`;
+    return;
+  }
+  if(!list.length){
+    container.innerHTML = `<article class="info-card empty-state">
+      <h3>Tidak ada setoran pada filter ini</h3>
+      <p>Coba pilih filter lain di atas.</p>
+    </article>`;
+    return;
+  }
+
+  container.innerHTML = list.map(sub => {
+    const dateStr = sub.created_at ? new Date(sub.created_at).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'}) : '-';
+    const grade = sub._grade;
+    const gradePanel = grade ? `
+      <div class="grade-panel">
+        <div class="grade-row">
+          <div class="grade-score-badge ${grade.nilai < 60 ? 'low' : grade.nilai < 80 ? 'mid' : ''}">${grade.nilai ?? '-'}</div>
+          <div>
+            <strong>${statusChipHtml(grade)} &nbsp; Nilai: ${grade.nilai ?? '-'}/100</strong>
+            ${grade.catatan ? `<span style="display:block;margin-top:6px">${escapeHtml(grade.catatan)}</span>` : ''}
+            <span style="font-size:.85rem;opacity:.7">Dinilai: ${grade.graded_at ? new Date(grade.graded_at).toLocaleString('id-ID',{dateStyle:'short',timeStyle:'short'}) : '-'}</span>
+          </div>
+        </div>
+      </div>` : '';
+
+    return `<article class="submission-card">
+      <div class="submission-card-header">
+        <div class="submission-card-meta">
+          <strong>👤 ${escapeHtml(sub._userName)}</strong>
+          <span>📖 ${escapeHtml(sub.note || '-')}</span>
+          <span>🕐 ${dateStr} &nbsp;·&nbsp; Guru: ${escapeHtml(sub.teacher || '-')}</span>
+        </div>
+        <div>
+          ${statusChipHtml(grade)}
+        </div>
+      </div>
+      ${sub.audio_url ? `<audio controls src="${sub.audio_url}" style="max-width:100%;width:100%"></audio>` : '<p class="form-help">Audio tidak tersedia (disimpan sementara).</p>'}
+      ${gradePanel}
+      <div class="submission-card-actions">
+        <button class="btn primary" style="min-height:44px;padding:11px 20px" data-grade-id="${escapeHtml(sub.id)}">
+          ${grade ? '✏️ Edit Penilaian' : '📝 Beri Penilaian'}
+        </button>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+/** Buka modal penilaian */
+function openGradeModal(submissionId){
+  const all = getAllSubmissions();
+  const sub = all.find(s => s.id === submissionId);
+  if(!sub){ toast('Setoran tidak ditemukan.'); return; }
+
+  $('#gradeSubmissionId').value = submissionId;
+  $('#gradeInfo').innerHTML = `
+    <strong>👤 ${escapeHtml(sub._userName)}</strong>
+    <span>${escapeHtml(sub.note || '-')} &nbsp;·&nbsp; ${sub.created_at ? new Date(sub.created_at).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'}) : ''}</span>
+  `;
+
+  const existing = sub._grade;
+  $('#gradeScore').value   = existing?.nilai   ?? '';
+  $('#gradeStatus').value  = existing?.status  ?? 'disetujui';
+  $('#gradeCatatan').value = existing?.catatan ?? '';
+
+  $('#gradeModal').hidden = false;
+}
+
+/** Tutup modal penilaian */
+function closeGradeModal(){
+  $('#gradeModal').hidden = true;
+}
+
+/** Simpan penilaian guru */
+function saveGrade(){
+  const submissionId = $('#gradeSubmissionId').value;
+  const nilai  = Number($('#gradeScore').value);
+  const status = $('#gradeStatus').value;
+  const catatan = $('#gradeCatatan').value.trim();
+
+  if(!submissionId){ toast('ID setoran tidak valid.'); return; }
+  if(isNaN(nilai) || nilai < 0 || nilai > 100){ toast('Nilai harus antara 0 dan 100.'); return; }
+
+  const guruReviews = readJson(STORAGE_KEYS.guruReviews, {});
+  guruReviews[submissionId] = { nilai, status, catatan, graded_at: new Date().toISOString(), graded_by: currentUser()?.id };
+  writeJson(STORAGE_KEYS.guruReviews, guruReviews);
+
+  closeGradeModal();
+  const activeFilter = $('.filter-tab.active')?.dataset?.filter || 'all';
+  renderGuruPanel(activeFilter);
+  toast('Penilaian berhasil disimpan.');
+}
 function updateDashboard(){
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
   const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
@@ -756,12 +917,18 @@ function updateHome(){
   const targetSummary = getTargetProgressSummary();
   if(user){
     if(currentRole() === 'guru'){
-      $('#homeTitle').textContent = `Assalamu'alaikum, ${user.name}`;
-      $('#homeDescription').textContent = 'Akun Anda terdaftar sebagai guru. Saat ini akun guru hanya dapat mengakses beranda dan profil, sambil menunggu panel guru diaktifkan.';
-      $('#homeActions').innerHTML = `<button class="btn primary" data-jump="profile">Buka Profil</button>`;
-      $('#homeSmallNote').textContent = 'Menu hafalan, murajaah, setoran, dan progres disembunyikan untuk role guru sampai fitur guru tersedia.';
+      const guruReviews = readJson(STORAGE_KEYS.guruReviews, {});
+      const allSubs     = getAllSubmissions();
+      const ungraded    = allSubs.filter(s => !guruReviews[s.id]).length;
+      $('#homeTitle').textContent = `Assalamu'alaikum, Ustadz/Ustadzah ${user.name}`;
+      $('#homeDescription').textContent = ungraded
+        ? `Ada ${ungraded} setoran santri yang belum dinilai. Segera buka Panel Guru untuk memberikan penilaian dan catatan.`
+        : allSubs.length
+          ? `Semua ${allSubs.length} setoran santri sudah dinilai. Pantau terus perkembangan hafalan santri Anda.`
+          : 'Belum ada setoran santri yang masuk. Setoran akan muncul di Panel Guru setelah santri merekam hafalan.';
+      $('#homeActions').innerHTML = `<button class="btn primary" data-jump="guru">Buka Panel Guru</button><button class="btn ghost" data-jump="profile">Profil</button>`;
+      $('#homeSmallNote').textContent = `Total setoran masuk: ${allSubs.length} · Belum dinilai: ${ungraded}`;
       bindJumpButtons();
-      updateDashboard();
       return;
     }
     $('#homeTitle').textContent = `Assalamu'alaikum, ${user.name}`;
@@ -806,9 +973,12 @@ function updateAuthUi(){
     $$('[data-view="login"], [data-view="register"]').forEach(el => { el.hidden = true; });
   }
   updateHome(); renderReviews(); renderSubmissions(); updateDashboard(); updateProfile();
+  // Jika guru langsung masuk ke panel guru
+  if(logged && role === 'guru') renderGuruPanel('all');
 }
 function switchView(view){
   if(['dashboard','setoran','profile','hafalan','murajaah'].includes(view) && !requireLogin('Silakan masuk terlebih dahulu untuk membuka halaman ini.')) return;
+  if(view === 'guru' && !requireLogin('Silakan masuk untuk mengakses Panel Guru.')) return;
   if(!canAccessView(view)){
     toast(currentRole() === 'guru' ? 'Role guru tidak memiliki akses ke menu ini.' : 'Anda tidak memiliki akses ke menu ini.');
     view = isLoggedIn() ? 'home' : 'login';
@@ -826,6 +996,10 @@ function switchView(view){
   if(view === 'murajaah') renderReviews();
   if(view === 'dashboard') updateDashboard();
   if(view === 'profile') updateProfile();
+  if(view === 'guru'){
+    const activeFilter = $('.filter-tab.active')?.dataset?.filter || 'all';
+    renderGuruPanel(activeFilter);
+  }
   window.scrollTo({top:0, behavior:'smooth'});
 }
 function bindJumpButtons(){ $$('[data-jump]').forEach(b => { b.onclick = () => switchView(b.dataset.jump); }); }
@@ -892,6 +1066,28 @@ function bindEvents(){
   $('#refreshRegisterCaptcha').addEventListener('click', () => loadCaptcha('register'));
   $('#saveDisplaySettings').addEventListener('click', saveDisplaySettings);
   $('#resetLocalData').addEventListener('click', () => resetLocalData().catch(e=>toast(e.message)));
+
+  // ── Panel Guru ──────────────────────────────────────────────
+  // Filter tabs
+  $('#guruFilterTabs').addEventListener('click', e => {
+    const tab = e.target.closest('.filter-tab');
+    if(!tab) return;
+    $$('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderGuruPanel(tab.dataset.filter || 'all');
+  });
+
+  // Tombol beri penilaian pada kartu setoran
+  $('#guruSubmissionList').addEventListener('click', e => {
+    const btn = e.target.closest('[data-grade-id]');
+    if(btn) openGradeModal(btn.dataset.gradeId);
+  });
+
+  // Modal penilaian
+  $('#saveGradeBtn').addEventListener('click', saveGrade);
+  $('#cancelGradeBtn').addEventListener('click', closeGradeModal);
+  $('#closeGradeModal').addEventListener('click', closeGradeModal);
+  $('#gradeModal').addEventListener('click', e => { if(e.target.id === 'gradeModal') closeGradeModal(); });
 }
 async function init(){
   applyTheme();

@@ -75,3 +75,40 @@ input,select{font-weight:400}input::placeholder{font-weight:400}select option{fo
 #themeToggleIcon{display:flex;align-items:center;justify-content:center;line-height:1}
 @media (max-width:640px){.theme-toggle{top:14px;right:14px;width:42px;height:42px}}
 sup.fn-ref{font-size:.65em;vertical-align:super;line-height:0;color:var(--accent);font-weight:600;letter-spacing:0;margin-left:1px}
+
+/* ===== PANEL GURU ===== */
+.guru-nav-pill{background:linear-gradient(135deg,#1a4a2e,#1f6038)!important;color:#7fffa8!important;border-color:#2d7a4a!important}
+.guru-nav-pill:hover,.guru-nav-pill.active{background:linear-gradient(135deg,#236636,#2a8048)!important;color:#fff!important;border-color:#3a9a5c!important}
+.guru-stats{grid-template-columns:repeat(3,1fr);margin-bottom:20px}
+.filter-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.filter-tab{border:1px solid var(--line);background:var(--surface-2);color:var(--text-soft);border-radius:999px;padding:10px 22px;font-weight:700;cursor:pointer;transition:.18s;font-size:.97rem}
+.filter-tab:hover{background:var(--surface-3)}
+.filter-tab.active{background:linear-gradient(135deg,#1a4a2e,#236636);color:#7fffa8;border-color:#2d7a4a}
+.guru-submission-list{display:grid;gap:18px}
+.submission-card{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:24px;display:grid;gap:14px}
+.submission-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.submission-card-meta{display:flex;flex-direction:column;gap:5px}
+.submission-card-meta strong{font-size:1.08rem}
+.submission-card-meta span{color:var(--text-soft);font-size:.93rem}
+.submission-card-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.status-chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:6px 14px;font-size:.88rem;font-weight:600;border:1px solid transparent}
+.status-chip.pending{background:#2b2a1a;color:#ffd27a;border-color:#6b5a1a}
+.status-chip.disetujui{background:#183828;color:#8df0b2;border-color:#2f7a4b}
+.status-chip.perlu-ulang{background:#1a2b4a;color:#7ab8ff;border-color:#2a4a8a}
+.status-chip.ditolak{background:#3a1d28;color:#ff8f9d;border-color:#7f3244}
+.grade-panel{background:var(--surface-2);border-radius:16px;padding:16px;font-size:.97rem;color:var(--text-soft)}
+.grade-panel strong{color:var(--text);display:block;margin-bottom:4px}
+.grade-score-badge{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:999px;background:var(--accent);color:#0b1732;font-size:1.3rem;font-weight:1000;flex-shrink:0}
+.grade-score-badge.low{background:#744a26;color:#ffe7bc}
+.grade-score-badge.mid{background:#2a5a8a;color:#cce4ff}
+.grade-row{display:flex;align-items:center;gap:14px}
+.grade-info{background:var(--surface-2);border-radius:14px;padding:14px;color:var(--text-soft);font-size:.97rem;margin-bottom:4px}
+.grade-info strong{display:block;color:var(--text);margin-bottom:2px}
+textarea{width:100%;margin-top:8px;border:1px solid #455068;background:#0f1726;color:#fff;border-radius:18px;padding:14px 16px;outline:none;resize:vertical;font:inherit;line-height:1.6}
+textarea:focus{border-color:#6679c0;box-shadow:0 0 0 4px rgba(102,121,192,.18)}
+[data-theme="light"] textarea{background:#fff;color:var(--text);border-color:#c8d6ed}
+[data-theme="light"] .filter-tab{background:var(--surface-2);color:var(--text-soft)}
+[data-theme="light"] .filter-tab.active{background:linear-gradient(135deg,#1a4a2e,#236636);color:#7fffa8}
+[data-theme="light"] .submission-card{background:var(--surface)}
+[data-theme="light"] .grade-panel,[data-theme="light"] .grade-info{background:var(--surface-2)}
+@media(max-width:640px){.guru-stats{grid-template-columns:1fr}.submission-card-header{flex-direction:column}.submission-card-actions{width:100%}}
