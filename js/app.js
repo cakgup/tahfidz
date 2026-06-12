@@ -55,8 +55,13 @@ function applyTheme(theme = storage.getItem(STORAGE_KEYS.theme) || 'dark'){
   const normalized = theme === 'light' ? 'light' : 'dark';
   document.documentElement.dataset.theme = normalized;
   storage.setItem(STORAGE_KEYS.theme, normalized);
-  if($('#themeToggleIcon')) $('#themeToggleIcon').textContent = normalized === 'light' ? '☾' : '☀';
-  if($('#themeToggleLabel')) $('#themeToggleLabel').textContent = normalized === 'light' ? 'Tema gelap' : 'Tema terang';
+  const moonEl = $('#iconMoon');
+  const sunEl  = $('#iconSun');
+  const btn    = $('#themeToggle');
+  if(moonEl) moonEl.style.display = normalized === 'light' ? 'none'  : '';
+  if(sunEl)  sunEl.style.display  = normalized === 'light' ? ''      : 'none';
+  if(btn)    btn.title             = normalized === 'light' ? 'Beralih ke tema gelap' : 'Beralih ke tema terang';
+  if(btn)    btn.setAttribute('aria-label', normalized === 'light' ? 'Beralih ke tema gelap' : 'Beralih ke tema terang');
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if(metaTheme) metaTheme.setAttribute('content', normalized === 'light' ? '#dfeaff' : '#1A3A6B');
 }
