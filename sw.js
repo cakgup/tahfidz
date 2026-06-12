@@ -1,6 +1,6 @@
-const CACHE_NAME = 'hifz-companion-v6-storage-fallback';
+const CACHE_NAME = 'hifz-companion-v7-r2-upload';
 const CORE_ASSETS = [
-  './', './index.html', './css/styles.css?v=20260612-forms', './js/config.js?v=20260612-storage-fallback', './js/app.js?v=20260612-storage-fallback', './data/quran-kemenag-combined.json', './data/quran-kemenag-index.json', './manifest.webmanifest', './assets/icon.svg'
+  './', './index.html', './css/styles.css?v=20260612-forms', './js/config.js?v=20260612-r2-upload', './js/app.js?v=20260612-r2-upload', './data/quran-kemenag-combined.json', './data/quran-kemenag-index.json', './manifest.webmanifest', './assets/icon.svg'
 ];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_ASSETS)));

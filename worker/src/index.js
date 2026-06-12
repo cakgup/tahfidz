@@ -21,6 +21,7 @@ export default {
       else if (url.pathname === '/api/reviews/result' && request.method === 'POST') response = await saveReviewResult(request, env);
       else if (url.pathname === '/api/submissions' && request.method === 'GET') response = await listSubmissions(request, env);
       else if (url.pathname === '/api/submissions' && request.method === 'POST') response = await createSubmission(request, env);
+      else if (url.pathname === '/api/submissions/audio' && request.method === 'GET') response = await getSubmissionAudio(url, env);
       else if (url.pathname === '/api/dashboard' && request.method === 'GET') response = await dashboard(request, env);
       else response = json({ error: 'Not found' }, 404);
       for (const [k, v] of Object.entries(cors)) response.headers.set(k, v);
@@ -172,6 +173,17 @@ function localDate(timeZone = 'Asia/Jakarta'){
 }
 function cleanTime(value){ return String(value || '').split(' ')[0].slice(0,5); }
 function mapPrayer(row){ return { imsak: row.imsak, fajr: row.fajr, sunrise: row.sunrise, dhuhr: row.dhuhr, asr: row.asr, maghrib: row.maghrib, isha: row.isha }; }
+function guessAudioExtension(contentType = ''){
+  if(contentType.includes('ogg')) return 'ogg';
+  if(contentType.includes('mpeg')) return 'mp3';
+  if(contentType.includes('mp4')) return 'm4a';
+  if(contentType.includes('wav')) return 'wav';
+  return 'webm';
+}
+function buildSubmissionAudioUrl(request, objectKey){
+  const url = new URL(request.url);
+  return `${url.origin}/api/submissions/audio?key=${encodeURIComponent(objectKey)}`;
+}
 async function listSurahs(env){
   const { results } = await env.DB.prepare('SELECT id, name_ar, name_latin, total_ayah, revelation_type FROM surahs ORDER BY id').all();
   return json({ surahs: results });
@@ -235,18 +247,69 @@ async function saveReviewResult(request, env){
 function localDateFromDate(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 async function createSubmission(request, env){
   const auth = await requireAuth(request, env);
-  const body = await request.json();
+  let teacherId = null;
+  let surahId = null;
+  let startAyah = null;
+  let endAyah = null;
+  let note = '';
+  let audioUrl = null;
+  const contentType = request.headers.get('Content-Type') || '';
+  if(contentType.includes('multipart/form-data')){
+    if(!env.SUBMISSIONS_BUCKET) fail('Bucket R2 untuk setoran belum dikonfigurasi.', 500);
+    const form = await request.formData();
+    const audioFile = form.get('audio');
+    if(!audioFile || typeof audioFile.arrayBuffer !== 'function') fail('File audio setoran wajib dikirim.');
+    const bytes = await audioFile.arrayBuffer();
+    if(!bytes.byteLength) fail('File audio setoran kosong.');
+    teacherId = String(form.get('teacher_id') || '').trim() || null;
+    surahId = Number(form.get('surah_id') || 0) || null;
+    startAyah = Number(form.get('start_ayah') || 0) || null;
+    endAyah = Number(form.get('end_ayah') || 0) || null;
+    note = String(form.get('note') || '').trim();
+    const extension = guessAudioExtension(audioFile.type || 'audio/webm');
+    const objectKey = `submissions/${auth.user.id}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+    await env.SUBMISSIONS_BUCKET.put(objectKey, bytes, {
+      httpMetadata: { contentType: audioFile.type || 'audio/webm' },
+      customMetadata: {
+        user_id: auth.user.id,
+        surah_id: String(surahId || ''),
+        start_ayah: String(startAyah || ''),
+        end_ayah: String(endAyah || '')
+      }
+    });
+    audioUrl = buildSubmissionAudioUrl(request, objectKey);
+  } else {
+    const body = await request.json();
+    teacherId = body.teacher_id || null;
+    surahId = body.surah_id || null;
+    startAyah = body.start_ayah || null;
+    endAyah = body.end_ayah || null;
+    note = body.note || '';
+    audioUrl = body.audio_url || null;
+  }
   const id = crypto.randomUUID();
   await env.DB.prepare(`INSERT INTO submissions
     (id, user_id, teacher_id, surah_id, start_ayah, end_ayah, audio_url, status, note, submitted_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-    .bind(id, auth.user.id, body.teacher_id || null, body.surah_id || null, body.start_ayah || null, body.end_ayah || null, body.audio_url || null, 'submitted', body.note || '', nowIso()).run();
-  return json({ ok: true, id });
+    .bind(id, auth.user.id, teacherId, surahId, startAyah, endAyah, audioUrl, 'submitted', note, nowIso()).run();
+  return json({ ok: true, id, audio_url: audioUrl, status: 'submitted/r2' });
 }
 async function listSubmissions(request, env){
   const auth = await requireAuth(request, env);
   const { results } = await env.DB.prepare('SELECT * FROM submissions WHERE user_id=? ORDER BY submitted_at DESC LIMIT 100').bind(auth.user.id).all();
   return json({ submissions: results });
+}
+async function getSubmissionAudio(url, env){
+  if(!env.SUBMISSIONS_BUCKET) fail('Bucket R2 untuk setoran belum dikonfigurasi.', 500);
+  const objectKey = String(url.searchParams.get('key') || '').trim();
+  if(!objectKey) fail('Kunci audio tidak ditemukan.', 400);
+  const object = await env.SUBMISSIONS_BUCKET.get(objectKey);
+  if(!object) return json({ error: 'Audio tidak ditemukan.' }, 404);
+  const headers = new Headers();
+  object.writeHttpMetadata(headers);
+  headers.set('etag', object.httpEtag);
+  headers.set('cache-control', 'public, max-age=86400');
+  return new Response(object.body, { headers });
 }
 async function dashboard(request, env){
   const auth = await requireAuth(request, env);

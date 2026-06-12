@@ -135,7 +135,7 @@
           </div>
         </div>
         <div class="info-card">
-          <p>Pilih rentang ayat di menu Hafalan, lalu rekam bacaan setoran. Pada produksi, file audio sebaiknya disimpan di Cloudflare R2, sedangkan D1 menyimpan metadata setoran.</p>
+          <p>Pilih rentang ayat di menu Hafalan, lalu rekam bacaan setoran. File audio akan diunggah ke Cloudflare R2, sedangkan D1 menyimpan metadata setoran.</p>
           <div class="control-panel compact">
             <label>Nama guru
               <input id="teacherName" placeholder="Ustadz/Ustadzah" />
@@ -273,7 +273,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="js/config.js?v=20260612-storage-fallback"></script>
-  <script type="module" src="js/app.js?v=20260612-storage-fallback"></script>
+  <script src="js/config.js?v=20260612-r2-upload"></script>
+  <script type="module" src="js/app.js?v=20260612-r2-upload"></script>
 </body>
 </html>

@@ -12,7 +12,9 @@ const state = {
   currentSurah: null,
   recorder: null,
   chunks: [],
+  recordingBlob: null,
   recordingUrl: null,
+  recordingMimeType: 'audio/webm',
   prayerTimer: null,
   lastAudio: null,
   captchas: { login: null, register: null }
@@ -69,13 +71,14 @@ async function apiFetch(path, options={}){
   const base = (window.HIFZ_CONFIG.apiBase || '').replace(/\/$/, '');
   if(!base) throw new Error('API Worker belum dikonfigurasi.');
   const auth = getAuth();
+  const headers = {
+    ...(auth?.token ? { Authorization: `Bearer ${auth.token}` } : {}),
+    ...(options.headers || {})
+  };
+  if(!(options.body instanceof FormData) && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
   const res = await fetch(`${base}${path}`, {
     ...options,
-    headers: {
-      'Content-Type':'application/json',
-      ...(auth?.token ? { Authorization: `Bearer ${auth.token}` } : {}),
-      ...(options.headers || {})
-    }
+    headers
   });
   const text = await res.text();
   const data = text ? JSON.parse(text) : {};
@@ -321,7 +324,10 @@ async function setupRecorder(){
   state.chunks = [];
   state.recorder.ondataavailable = e => state.chunks.push(e.data);
   state.recorder.onstop = () => {
-    const blob = new Blob(state.chunks, {type:'audio/webm'});
+    const blob = new Blob(state.chunks, {type:state.recorder.mimeType || 'audio/webm'});
+    if(state.recordingUrl) URL.revokeObjectURL(state.recordingUrl);
+    state.recordingBlob = blob;
+    state.recordingMimeType = blob.type || 'audio/webm';
     state.recordingUrl = URL.createObjectURL(blob);
     $('#recordPreview').src = state.recordingUrl;
     $('#recordPreview').hidden = false;
@@ -329,6 +335,11 @@ async function setupRecorder(){
 }
 async function startRecording(){
   if(!requireLogin('Silakan masuk untuk mengirim setoran hafalan.')) return;
+  if(state.recordingUrl) URL.revokeObjectURL(state.recordingUrl);
+  state.recordingBlob = null;
+  state.recordingUrl = null;
+  $('#recordPreview').hidden = true;
+  $('#recordPreview').removeAttribute('src');
   await setupRecorder();
   state.recorder.start();
   $('#startRecord').disabled = true; $('#stopRecord').disabled = false;
@@ -339,16 +350,39 @@ function stopRecording(){
   $('#startRecord').disabled = false; $('#stopRecord').disabled = true;
   toast('Rekaman dihentikan.');
 }
-function saveSubmission(){
+async function saveSubmission(){
   if(!requireLogin('Silakan masuk untuk menyimpan setoran hafalan.')) return;
+  if(!state.recordingBlob || !state.recordingUrl) throw new Error('Rekam setoran terlebih dahulu sebelum disimpan.');
   const {surahId, start, end} = getSelectedRange();
   const submissions = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
-  const item = {id:crypto.randomUUID(), teacher:$('#teacherName').value || 'Guru', note:$('#submissionNote').value || `${state.currentSurah.name_latin} ${start}-${end}`, audio_url:state.recordingUrl, status:'submitted/local', surah_id:surahId, start_ayah:start, end_ayah:end, created_at:new Date().toISOString()};
+  const item = {
+    id: crypto.randomUUID(),
+    teacher: $('#teacherName').value || 'Guru',
+    note: $('#submissionNote').value || `${state.currentSurah.name_latin} ${start}-${end}`,
+    audio_url: state.recordingUrl,
+    status: 'submitted/local',
+    surah_id: surahId,
+    start_ayah: start,
+    end_ayah: end,
+    created_at: new Date().toISOString()
+  };
+  if(window.HIFZ_CONFIG.apiBase){
+    const form = new FormData();
+    form.append('teacher_id', item.teacher);
+    form.append('surah_id', String(surahId));
+    form.append('start_ayah', String(start));
+    form.append('end_ayah', String(end));
+    form.append('note', item.note);
+    form.append('audio', state.recordingBlob, `setoran-${Date.now()}.webm`);
+    const saved = await apiFetch('/api/submissions', { method:'POST', body:form });
+    item.id = saved.id || item.id;
+    item.audio_url = saved.audio_url || item.audio_url;
+    item.status = saved.status || 'submitted/r2';
+  }
   submissions.unshift(item);
   writeJson(userScopedKey(STORAGE_KEYS.submissions), submissions);
-  if(window.HIFZ_CONFIG.apiBase){
-    apiFetch('/api/submissions', {method:'POST', body:JSON.stringify({teacher_id:item.teacher, surah_id:surahId, start_ayah:start, end_ayah:end, audio_url:item.audio_url, note:item.note})}).catch(console.warn);
-  }
+  $('#teacherName').value = '';
+  $('#submissionNote').value = '';
   renderSubmissions(); updateDashboard(); updateHome(); toast('Setoran berhasil disimpan.');
 }
 function renderSubmissions(){
@@ -593,7 +627,7 @@ function bindEvents(){
   });
   $('#startRecord').addEventListener('click', () => startRecording().catch(e=>toast(e.message)));
   $('#stopRecord').addEventListener('click', stopRecording);
-  $('#saveSubmission').addEventListener('click', saveSubmission);
+  $('#saveSubmission').addEventListener('click', () => saveSubmission().catch(e=>toast(e.message)));
   $('#reloadQuran').addEventListener('click', () => loadQuran().then(()=>toast('Konten dimuat ulang.')).catch(e=>toast(e.message)));
   $('#locationButton').addEventListener('click', openLocationModal);
   $('#closeLocationModal').addEventListener('click', closeLocationModal);
