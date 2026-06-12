@@ -294,27 +294,10 @@ function dedupeReviews(items){
   for(const item of items) seen.set(`${item.key}:${item.due_date}:${item.status}`, item);
   return [...seen.values()];
 }
-function generateReview(){
-  if(!requireLogin('Silakan masuk untuk membuat jadwal murajaah.')) return;
-  const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
-  const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
-  const memorized = Object.entries(progress).filter(([,v]) => v.status === 'memorized');
-  if(!memorized.length){
-    $('#reviewList').innerHTML = emptyState('Belum ada hafalan untuk dimurajaah.', 'Tandai ayat sebagai sudah hafal terlebih dahulu agar sistem dapat membuat jadwal murajaah.', 'Mulai Hafalan', 'hafalan');
-    toast('Belum ada hafalan yang dapat dijadikan jadwal murajaah.');
-    return;
-  }
-  const reviews = memorized.map(([key,v]) => ({
-    id: crypto.randomUUID(), key, surah:v.surah, surah_id:v.surah_id, ayah_number:v.ayah_number, due_date: today(), status:'pending', priority:difficult[key] ? 1 : 3
-  }));
-  writeJson(userScopedKey(STORAGE_KEYS.reviews), dedupeReviews([...readJson(userScopedKey(STORAGE_KEYS.reviews), []), ...reviews]));
-  renderReviews(); updateDashboard(); updateHome(); toast('Jadwal murajaah berhasil dibuat dari hafalan Anda.');
-  if(window.HIFZ_CONFIG.apiBase) apiFetch('/api/reviews/generate', {method:'POST'}).catch(console.warn);
-}
 function emptyState(title, body, buttonLabel, jump){
   return `<article class="info-card empty-state"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p>${buttonLabel ? `<button class="btn secondary" data-jump="${jump}">${escapeHtml(buttonLabel)}</button>` : ''}</article>`;
 }
-function renderReviews(){
+function renderReviewsLegacy(){
   if(!isLoggedIn()){
     $('#reviewList').innerHTML = emptyState('Silakan masuk untuk melihat murajaah.', 'Jadwal murajaah bersifat personal dan akan mengikuti hafalan yang sudah Anda tandai.', 'Masuk', 'login');
     return;
