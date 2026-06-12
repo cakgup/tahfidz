@@ -39,11 +39,11 @@
 
     <nav class="tab-nav" aria-label="Navigasi utama">
       <button class="nav-pill active" data-view="home">Beranda</button>
-      <button class="nav-pill" data-view="hafalan">Hafalan</button>
-      <button class="nav-pill" data-view="murajaah">Murajaah</button>
-      <button class="nav-pill" data-view="setoran" data-user-only>Setoran</button>
-      <button class="nav-pill" data-view="dashboard" data-user-only>Progres</button>
-      <button class="nav-pill" data-view="profile" data-user-only>Profil</button>
+      <button class="nav-pill" data-view="hafalan" data-role="santri">Hafalan</button>
+      <button class="nav-pill" data-view="murajaah" data-role="santri">Murajaah</button>
+      <button class="nav-pill" data-view="setoran" data-user-only data-role="santri">Setoran</button>
+      <button class="nav-pill" data-view="dashboard" data-user-only data-role="santri">Progres</button>
+      <button class="nav-pill" data-view="profile" data-user-only data-role="santri,guru,admin">Profil</button>
       <button class="nav-pill" data-view="login" data-guest-only>Masuk</button>
       <button class="nav-pill emphasis" data-view="register" data-guest-only>Daftar</button>
       <button class="nav-pill" id="logoutBtn" data-user-only>Keluar</button>
@@ -53,7 +53,6 @@
       <section class="view active" id="view-home">
         <div class="hero-card">
           <div class="hero-copy">
-            <p class="eyebrow">Bismillahirrahmanirrahim</p>
             <h2 id="homeTitle">Menjaga hafalan, merawat murajaah, meniti kedekatan dengan Al-Qur'an.</h2>
             <p id="homeDescription">Mulailah menghafal sedikit demi sedikit dengan niat yang lurus. Masuk atau daftar agar catatan hafalan, murajaah, dan setoran tersimpan rapi sebagai ikhtiar untuk istiqamah.</p>
             <div class="hero-actions" id="homeActions">
@@ -135,7 +134,7 @@
         <div class="action-row sticky-actions">
           <button class="btn primary" id="playSequence">▶ Putar urutan</button>
           <button class="btn secondary" id="markMemorized">Tandai sudah hafal</button>
-          <button class="btn warning" id="markDifficult">Tandai ayat sulit</button>
+          <button class="btn warning" id="markDifficult">Tandai ada ayat sulit</button>
         </div>
       </section>
 
@@ -172,7 +171,7 @@
           </div>
           <div class="action-row">
             <button class="btn primary" id="startRecord">Mulai Rekam</button>
-            <button class="btn warning" id="stopRecord" disabled>Stop</button>
+            <button class="btn warning" id="stopRecord" disabled>Stop Rekam</button>
             <button class="btn secondary" id="saveSubmission">Simpan Setoran</button>
           </div>
           <audio id="recordPreview" controls hidden></audio>

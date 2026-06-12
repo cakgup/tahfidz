@@ -71,6 +71,16 @@ function getAuth(){ return readJson(STORAGE_KEYS.auth, null); }
 function setAuth(auth){ auth ? writeJson(STORAGE_KEYS.auth, auth) : storage.removeItem(STORAGE_KEYS.auth); }
 function isLoggedIn(){ return Boolean(getAuth()?.token && getAuth()?.user); }
 function currentUser(){ return getAuth()?.user || null; }
+function currentRole(){ return currentUser()?.role || 'guest'; }
+function isSantriRole(){ return ['santri', 'admin'].includes(currentRole()); }
+function canAccessView(view){
+  const role = currentRole();
+  if(['home', 'login', 'register'].includes(view)) return true;
+  if(role === 'guest') return false;
+  if(['profile'].includes(view)) return ['santri', 'guru', 'admin'].includes(role);
+  if(['hafalan', 'murajaah', 'setoran', 'dashboard', 'generate-review'].includes(view)) return ['santri', 'admin'].includes(role);
+  return false;
+}
 function userScopedKey(base){ return `${base}:${currentUser()?.id || 'guest'}`; }
 function getActiveTarget(){ return readJson(userScopedKey(STORAGE_KEYS.activeTarget), null); }
 function getSelectedRange(){
@@ -260,8 +270,15 @@ function requireLogin(message = 'Silakan masuk terlebih dahulu agar progres ters
   switchView('login');
   return false;
 }
+function requireSantri(message = 'Menu ini khusus santri. Silakan gunakan akun santri atau ubah role dari admin.'){
+  if(!requireLogin()) return false;
+  if(isSantriRole()) return true;
+  toast(message);
+  switchView('home');
+  return false;
+}
 async function markMemorized(){
-  if(!requireLogin()) return;
+  if(!requireSantri()) return;
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
   const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []);
   const selected = getAyahsInRange();
@@ -282,7 +299,7 @@ async function markMemorized(){
   toast('Alhamdulillah, hafalan ditandai dan masuk jadwal murajaah.');
 }
 function markDifficult(){
-  if(!requireLogin()) return;
+  if(!requireSantri()) return;
   const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
   for(const a of getAyahsInRange()) difficult[ayahKey(state.currentSurah.id, a.number)] = {surah:state.currentSurah.name_latin, surah_id:state.currentSurah.id, ayah_number:a.number, created_at:new Date().toISOString()};
   writeJson(userScopedKey(STORAGE_KEYS.difficult), difficult);
@@ -342,7 +359,7 @@ function openReviewAyah(key){
 }
 
 function generateReview(){
-  if(!requireLogin('Silakan masuk untuk membuat jadwal murajaah.')) return;
+  if(!requireSantri('Jadwal murajaah hanya tersedia untuk akun santri.')) return;
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
   const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
   const memorized = Object.entries(progress).filter(([, v]) => v.status === 'memorized');
@@ -415,7 +432,7 @@ function stopRecording(){
   toast('Rekaman dihentikan.');
 }
 async function saveSubmission(){
-  if(!requireLogin('Silakan masuk untuk menyimpan setoran hafalan.')) return;
+  if(!requireSantri('Setoran hafalan hanya tersedia untuk akun santri.')) return;
   if(!state.recordingBlob || !state.recordingUrl) throw new Error('Rekam setoran terlebih dahulu sebelum disimpan.');
   const {surahId, start, end} = getSelectedRange();
   const submissions = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
@@ -449,7 +466,7 @@ async function saveSubmission(){
   $('#submissionNote').value = '';
   renderSubmissions(); updateDashboard(); updateHome(); toast('Setoran berhasil disimpan.');
 }
-function renderSubmissions(){
+function renderSubmissionsLegacy(){
   if(!isLoggedIn()){ $('#submissionList').innerHTML = ''; return; }
   const data = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
   $('#submissionList').innerHTML = data.length ? data.map(s => `<article class="review-item"><div><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} · Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div>${s.audio_url ? `<audio controls src="${s.audio_url}"></audio>` : ''}</article>`).join('') : emptyState('Belum ada setoran.', 'Rekam bacaan lalu simpan setoran untuk membuat riwayat.', null, null);
@@ -628,7 +645,7 @@ function updateHomeLegacy(){
   bindJumpButtons();
   updateDashboard();
 }
-function updateDashboard(){
+function updateDashboardV1(){
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
   const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
   const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []);
@@ -647,7 +664,7 @@ function updateDashboard(){
   const difficultHtml = Object.values(difficult).length ? Object.values(difficult).slice(0,30).map(d=>`<span class="badge">${escapeHtml(d.surah)} ${d.ayah_number}</span>`).join(' ') : '<p>Belum ada ayat sulit.</p>';
   $('#dashboardDetail').innerHTML = `<h3>Ayat lemah/sulit</h3>${difficultHtml}`;
 }
-function updateHome(){
+function updateHomeV1(){
   const user = currentUser();
   const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []).filter(r=>r.status==='pending' && r.due_date <= today()).length;
   const targetSummary = getTargetProgressSummary();
@@ -672,20 +689,113 @@ function updateHome(){
   bindJumpButtons();
   updateDashboard();
 }
-function updateProfile(){
+function updateProfileV1(){
   const user = currentUser();
   if(!user) return;
   $('#profileCard').innerHTML = `<h3>${escapeHtml(user.name)}</h3><p>${escapeHtml(user.email || '-')}</p><span class="badge">Role: ${escapeHtml(user.role || 'santri')}</span>`;
 }
+function renderSubmissions(){
+  if(!isLoggedIn()){
+    $('#submissionList').innerHTML = '';
+    return;
+  }
+  const data = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
+  $('#submissionList').innerHTML = data.length
+    ? data.map(s => `<article class="review-item"><div><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} - Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div>${s.audio_url ? `<audio controls src="${s.audio_url}"></audio>` : ''}</article>`).join('')
+    : emptyState('Belum ada setoran.', 'Pilih target di menu Hafalan, rekam bacaan, lalu simpan setoran agar riwayat dan audio bisa diputar kembali.', null, null);
+}
+function updateDashboard(){
+  const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
+  const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
+  const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []);
+  const submissions = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
+  const totalMemorized = Object.values(progress).filter(v => v.status === 'memorized').length;
+  const targetSummary = getTargetProgressSummary();
+  const memorized = targetSummary.total ? targetSummary.memorized : totalMemorized;
+  const pct = targetSummary.total ? targetSummary.pct : 0;
+  document.documentElement.style.setProperty('--pct', `${pct}%`);
+  $('#heroProgress').textContent = `${pct}%`;
+  $('#memorizedCount').textContent = memorized;
+  $('#statAyah').textContent = totalMemorized;
+  $('#statDifficult').textContent = Object.keys(difficult).length;
+  $('#statReviews').textContent = reviews.filter(r => r.status === 'pending').length;
+  $('#statSubmissions').textContent = submissions.length;
+  const targetInfo = targetSummary.target?.total
+    ? `<p class="form-help">Target aktif: <strong>${escapeHtml(targetSummary.target.surah)} ayat ${targetSummary.target.start_ayah}-${targetSummary.target.end_ayah}</strong>. Progress target: <strong>${targetSummary.memorized}/${targetSummary.total}</strong> ayat (${targetSummary.pct}%).</p>`
+    : '<p class="form-help">Belum ada target aktif. Buka menu Hafalan untuk memilih surah dan rentang ayat yang ingin difokuskan.</p>';
+  const difficultHtml = Object.values(difficult).length
+    ? Object.values(difficult).slice(0, 30).map(d => `<span class="badge">${escapeHtml(d.surah)} ${d.ayah_number}</span>`).join(' ')
+    : '<p>Belum ada ayat sulit.</p>';
+  $('#dashboardDetail').innerHTML = `<h3>Fokus hafalan saat ini</h3>${targetInfo}<h3>Ayat yang perlu perhatian</h3>${difficultHtml}`;
+}
+function updateHome(){
+  const user = currentUser();
+  const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []).filter(r => r.status === 'pending' && r.due_date <= today()).length;
+  const targetSummary = getTargetProgressSummary();
+  if(user){
+    if(currentRole() === 'guru'){
+      $('#homeTitle').textContent = `Assalamu'alaikum, ${user.name}`;
+      $('#homeDescription').textContent = 'Akun Anda terdaftar sebagai guru. Saat ini akun guru hanya dapat mengakses beranda dan profil, sambil menunggu panel guru diaktifkan.';
+      $('#homeActions').innerHTML = `<button class="btn primary" data-jump="profile">Buka Profil</button>`;
+      $('#homeSmallNote').textContent = 'Menu hafalan, murajaah, setoran, dan progres disembunyikan untuk role guru sampai fitur guru tersedia.';
+      bindJumpButtons();
+      updateDashboard();
+      return;
+    }
+    $('#homeTitle').textContent = `Assalamu'alaikum, ${user.name}`;
+    if(targetSummary.target?.total){
+      $('#homeDescription').textContent = reviews
+        ? `Target aktif ${targetSummary.target.surah} ayat ${targetSummary.target.start_ayah}-${targetSummary.target.end_ayah}: ${targetSummary.memorized} dari ${targetSummary.total} ayat sudah ditandai hafal. Hari ini ada ${reviews} ayat untuk dimurajaah.`
+        : `Target aktif ${targetSummary.target.surah} ayat ${targetSummary.target.start_ayah}-${targetSummary.target.end_ayah}: ${targetSummary.memorized} dari ${targetSummary.total} ayat sudah ditandai hafal. Lanjutkan ziyadah hingga target ini tuntas.`;
+      $('#homeSmallNote').textContent = `Progress dihitung dari target aktif ${targetSummary.target.surah} ayat ${targetSummary.target.start_ayah}-${targetSummary.target.end_ayah}.`;
+      $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Lanjut Target Aktif</button><button class="btn secondary" data-jump="${reviews ? 'murajaah' : 'generate-review'}">${reviews ? 'Murajaah Hari Ini' : 'Susun Murajaah'}</button><button class="btn ghost" data-jump="dashboard">Lihat Progres</button>`;
+    } else {
+      $('#homeDescription').textContent = reviews
+        ? `Hari ini ada ${reviews} ayat untuk dimurajaah. Sebelum menambah hafalan baru, tentukan dulu target aktif Anda di menu Hafalan agar progresnya terukur.`
+        : 'Langkah berikutnya: buka menu Hafalan, pilih surah dan rentang ayat, lalu jadikan rentang itu sebagai target aktif hafalan Anda.';
+      $('#homeSmallNote').textContent = 'Target aktif membantu aplikasi menghitung progres dan menyusun alur belajar dengan lebih jelas.';
+      $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Pilih Target Hafalan</button><button class="btn ghost" data-jump="dashboard">Lihat Progres</button>`;
+    }
+  } else {
+    $('#homeTitle').textContent = 'Menjaga hafalan, merawat murajaah, meniti kedekatan dengan Al-Qur\'an.';
+    $('#homeDescription').textContent = 'Mulailah dengan menetapkan target hafalan aktif, lalu lanjutkan ayat demi ayat. Masuk atau daftar agar progres target, murajaah, dan setoran tersimpan rapi.';
+    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Mulai Menghafal</button><button class="btn secondary" data-jump="register">Daftar Sebagai Santri</button>`;
+    $('#homeSmallNote').textContent = 'Urutan penggunaan aplikasi: pilih target, tandai hafal, susun murajaah, lalu rekam setoran.';
+  }
+  bindJumpButtons();
+  updateDashboard();
+}
+function updateProfile(){
+  const user = currentUser();
+  if(!user) return;
+  $('#profileCard').innerHTML = `<h3>${escapeHtml(user.name)}</h3><p>${escapeHtml(user.email || '-')}</p><span class="badge">Role: ${escapeHtml(user.role || 'santri')}</span><p class="form-help">Gunakan menu ini untuk menyesuaikan tampilan bacaan dan mereset data aplikasi bila diperlukan.</p>`;
+}
 function updateAuthUi(){
   const logged = isLoggedIn();
+  const role = currentRole();
   $$('[data-user-only]').forEach(el => el.hidden = !logged);
   $$('[data-guest-only]').forEach(el => el.hidden = logged);
+  $$('[data-role]').forEach(el => {
+    const allowed = String(el.dataset.role || '').split(',').map(x => x.trim()).filter(Boolean);
+    if(!allowed.length) return;
+    el.hidden = !logged || !allowed.includes(role);
+  });
+  if(logged){
+    $$('[data-view="login"], [data-view="register"]').forEach(el => { el.hidden = true; });
+  }
   updateHome(); renderReviews(); renderSubmissions(); updateDashboard(); updateProfile();
 }
 function switchView(view){
-  if(['dashboard','setoran','profile'].includes(view) && !requireLogin('Silakan masuk terlebih dahulu untuk membuka halaman ini.')) return;
-  if(view === 'generate-review'){ generateReview(); return; }
+  if(['dashboard','setoran','profile','hafalan','murajaah'].includes(view) && !requireLogin('Silakan masuk terlebih dahulu untuk membuka halaman ini.')) return;
+  if(!canAccessView(view)){
+    toast(currentRole() === 'guru' ? 'Role guru tidak memiliki akses ke menu ini.' : 'Anda tidak memiliki akses ke menu ini.');
+    view = isLoggedIn() ? 'home' : 'login';
+  }
+  if(view === 'generate-review'){
+    switchView('murajaah');
+    generateReview();
+    return;
+  }
   $$('.view').forEach(v => v.classList.remove('active'));
   const target = $(`#view-${view}`);
   if(!target) return;
