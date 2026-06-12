@@ -661,9 +661,9 @@ function updateHomeLegacy(){
     $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Lanjut Ziyadah</button><button class="btn secondary" data-jump="murajaah">Murajaah Hari Ini</button><button class="btn ghost" data-jump="dashboard">Lihat Progres</button>`;
     $('#homeSmallNote').textContent = 'Semoga Allah menjaga hafalan yang sedang Anda ikhtiarkan.';
   } else {
-    $('#homeTitle').textContent = 'Menjaga hafalan, merawat murajaah, meniti kedekatan dengan Al-Qur\'an.';
+    $('#homeTitle').textContent = 'Yuk, lebih dekat dengan Al-Qur\'an';
     $('#homeDescription').textContent = 'Mulailah menghafal sedikit demi sedikit dengan niat yang lurus. Masuk atau daftar agar catatan hafalan, murajaah, dan setoran tersimpan rapi sebagai ikhtiar untuk istiqamah.';
-    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Mulai Menghafal</button><button class="btn secondary" data-jump="register">Daftar Sebagai Santri</button>`;
+    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Mulai Menghafal</button><button class="btn secondary" data-jump="register">Daftar Akun</button>`;
     $('#homeSmallNote').textContent = 'Masuk untuk menyimpan jejak hafalan dan murajaah secara pribadi.';
   }
   bindJumpButtons();
@@ -705,9 +705,9 @@ function updateHomeV1(){
     }
     $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Lanjut Ziyadah</button><button class="btn secondary" data-jump="murajaah">Murajaah Hari Ini</button><button class="btn ghost" data-jump="dashboard">Lihat Progres</button>`;
   } else {
-    $('#homeTitle').textContent = 'Menjaga hafalan, merawat murajaah, meniti kedekatan dengan Al-Qur\'an.';
+    $('#homeTitle').textContent = 'Yuk, lebih dekat dengan Al-Qur\'an';
     $('#homeDescription').textContent = 'Mulailah dengan menetapkan target hafalan aktif, lalu jaga istiqamah ayat demi ayat. Masuk atau daftar agar progres target, murajaah, dan setoran tersimpan rapi.';
-    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Mulai Menghafal</button><button class="btn secondary" data-jump="register">Daftar Sebagai Santri</button>`;
+    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Mulai Menghafal</button><button class="btn secondary" data-jump="register">Daftar Akun</button>`;
     $('#homeSmallNote').textContent = 'Progress pada beranda dihitung dari target hafalan aktif yang Anda pilih.';
   }
   bindJumpButtons();
@@ -946,9 +946,9 @@ function updateHome(){
       $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Pilih Target Hafalan</button><button class="btn ghost" data-jump="dashboard">Lihat Progres</button>`;
     }
   } else {
-    $('#homeTitle').textContent = 'Menjaga hafalan, merawat murajaah, meniti kedekatan dengan Al-Qur\'an.';
+    $('#homeTitle').textContent = 'Yuk, lebih dekat dengan Al-Qur\'an';
     $('#homeDescription').textContent = 'Mulailah dengan menetapkan target hafalan aktif, lalu lanjutkan ayat demi ayat. Masuk atau daftar agar progres target, murajaah, dan setoran tersimpan rapi.';
-    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Mulai Menghafal</button><button class="btn secondary" data-jump="register">Daftar Sebagai Santri</button>`;
+    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Mulai Menghafal</button><button class="btn secondary" data-jump="register">Daftar Akun</button>`;
     $('#homeSmallNote').textContent = 'Urutan penggunaan aplikasi: pilih target, tandai hafal, susun murajaah, lalu rekam setoran.';
   }
   bindJumpButtons();
