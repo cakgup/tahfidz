@@ -22,22 +22,22 @@
   --font-arabic:"Amiri Quran","Noto Naskh Arabic","Traditional Arabic","Scheherazade New",serif;
 }
 [data-theme="light"]{
-  --primary:#dce7ff;
-  --primary-2:#c5d8ff;
-  --primary-3:#8da8e6;
-  --accent:#d7a600;
-  --accent-2:#e7c64b;
-  --bg:#eef3fb;
-  --bg-soft:#f7faff;
+  --primary:#1e3a6e;
+  --primary-2:#2952a3;
+  --primary-3:#3b6fd4;
+  --accent:#b8870c;
+  --accent-2:#d4a020;
+  --bg:#f4f1eb;
+  --bg-soft:#faf8f3;
   --surface:#ffffff;
-  --surface-2:#edf3ff;
-  --surface-3:#dbe7ff;
-  --line:#cfdbef;
-  --text:#16233b;
-  --text-soft:#425470;
-  --muted:#61718c;
-  --danger:#8a5a1e;
-  --shadow:0 18px 45px rgba(42,72,120,.12);
+  --surface-2:#f0ede6;
+  --surface-3:#e6e1d8;
+  --line:#dbd6cc;
+  --text:#1a1a2e;
+  --text-soft:#4a5272;
+  --muted:#6b7280;
+  --danger:#92400e;
+  --shadow:0 4px 24px rgba(30,58,110,.09);
 }
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:linear-gradient(180deg,#0b1220 0%,#101a2d 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65}button,input,select{font:inherit}.app-shell{width:min(1400px,100%);margin:0 auto;padding:20px 24px 72px}.app-header{background:linear-gradient(135deg,var(--primary),#263b72);border-radius:0 0 34px 34px;padding:28px 34px;box-shadow:var(--shadow);display:grid;grid-template-columns:1fr minmax(360px,640px);gap:26px;align-items:center}.brand-block{display:flex;gap:20px;align-items:center}.brand-mark{width:76px;height:76px;border-radius:28px;background:var(--accent);color:var(--primary);display:grid;place-items:center;font-size:42px;font-weight:900}.brand-kicker,.eyebrow{text-transform:uppercase;letter-spacing:.18em;color:var(--accent);font-weight:900;margin:0 0 6px}.brand-block h1{margin:0;font-size:clamp(28px,4vw,42px);line-height:1.1}.prayer-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:14px;border:1px solid rgba(255,255,255,.22);border-radius:28px;background:rgba(255,255,255,.08)}.prayer-strip>div{background:rgba(255,255,255,.08);border-radius:20px;padding:14px 16px}.muted-light{display:block;color:var(--text-soft);opacity:.86;font-size:.95rem}.prayer-strip strong{display:block;font-size:1.35rem;line-height:1.35}.accent,.countdown{color:var(--accent)!important}.icon-button{border:0;background:rgba(255,255,255,.11);color:var(--text);width:32px;height:32px;border-radius:999px;cursor:pointer;display:inline-grid;place-items:center}.icon-button:hover{background:rgba(255,255,255,.2)}.location-cell strong{display:flex;align-items:center;gap:8px}.tab-nav{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:24px 0 34px}.nav-pill{border:1px solid var(--line);background:linear-gradient(180deg,#1b2538,#151d2c);color:var(--text-soft);font-weight:900;border-radius:999px;padding:14px 26px;min-height:56px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);transition:.2s}.nav-pill:hover,.nav-pill.active{background:linear-gradient(180deg,var(--primary-3),var(--primary-2));color:#fff;border-color:#6878b6}.nav-pill.emphasis{background:var(--accent);color:#0b1732;border-color:var(--accent)}[hidden]{display:none!important}.view{display:none}.view.active{display:block}.hero-card,.reader-card,.info-card,.stat-card,.auth-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.hero-card{display:grid;grid-template-columns:minmax(0,1.35fr) 300px;gap:28px;padding:34px}.hero-copy h2,.section-heading h2,.auth-card h2{font-size:clamp(34px,5vw,58px);line-height:1.08;margin:0 0 16px}.hero-copy h2{font-size:clamp(48px,6.5vw,78px);line-height:1.05}.hero-copy p{color:var(--text-soft);font-size:1.15rem}.hero-actions,.action-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}.btn{border:0;border-radius:999px;padding:15px 24px;font-weight:900;cursor:pointer;min-height:52px;transition:.2s}.btn.primary,.btn.secondary:hover{background:var(--accent);color:#0b1732}.btn.secondary{background:var(--primary-3);color:#fff}.btn.ghost{background:#1c2942;color:var(--text-soft);border:1px solid var(--line)}.btn.warning{background:#744a26;color:#ffe7bc}.btn:disabled{opacity:.58;cursor:not-allowed}.hero-progress{display:grid;place-items:center;text-align:center;padding:18px;background:var(--surface-2);border-radius:24px}.progress-ring{width:170px;height:170px;border-radius:999px;background:conic-gradient(var(--accent) var(--pct),#2c3a56 0);display:grid;place-items:center}.progress-ring span{width:132px;height:132px;background:var(--surface);border-radius:999px;display:grid;place-items:center;font-size:32px;font-weight:1000}.section-heading{display:flex;justify-content:space-between;gap:18px;align-items:center;margin:16px 0 24px}.section-heading h2{font-size:clamp(34px,5vw,52px)}.control-panel{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:24px}.control-panel.compact{grid-template-columns:repeat(2,minmax(220px,1fr));background:transparent;border:0;padding:0}.control-panel.single{grid-template-columns:1fr;background:transparent;border:0;padding:0}label{font-weight:900;color:var(--text-soft)}input,select{width:100%;margin-top:8px;border:1px solid #455068;background:#0f1726;color:#fff;border-radius:18px;padding:14px 16px;outline:none}input:focus,select:focus{border-color:#6679c0;box-shadow:0 0 0 4px rgba(102,121,192,.18)}select option{background:#111a2b;color:#fff}.reader-card{padding:28px}.surah-title{display:flex;align-items:center;justify-content:space-between;gap:20px;background:linear-gradient(135deg,var(--primary-3),#304a83);border-radius:24px;padding:22px;margin-bottom:22px}.surah-title h3{font-size:1.5rem;margin:8px 0 2px}.surah-title p{margin:0;color:var(--text-soft);font-weight:800}.arabic{font-family:"Amiri","Scheherazade New",serif;font-size:var(--arabic-size);line-height:2.05;text-align:right;direction:rtl;color:#fff}.surah-name{font-size:38px;line-height:1.5}.ayah-card{background:#111b2d;border:1px solid #24334c;border-radius:24px;padding:22px;margin:18px 0}.ayah-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.badge{display:inline-flex;align-items:center;gap:6px;background:#253766;color:#eef4ff;border-radius:999px;padding:7px 12px;font-size:.9rem;font-weight:900;margin:3px}.translation{color:var(--text-soft);font-size:1.08rem}.footnote{color:var(--muted);background:#172238;border-radius:16px;padding:10px 14px}.hidden-placeholder{background:#1c2942;border:1px dashed #526188;border-radius:18px;padding:18px;color:var(--text-soft);font-size:1rem;text-align:center;direction:ltr}.sticky-actions{position:sticky;bottom:14px;background:rgba(13,20,34,.82);backdrop-filter:blur(10px);padding:14px;border-radius:24px;border:1px solid var(--line)}.grid{display:grid;gap:18px}.cards-4{grid-template-columns:repeat(4,1fr)}.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}.info-card{padding:28px}.info-card h3{font-size:1.6rem;margin:0 0 12px}.info-card p,.form-help{color:var(--text-soft);font-size:1.05rem}.stat-card{padding:34px;text-align:center}.stat-card span{display:block;font-size:58px;font-weight:1000}.stat-card small{color:var(--text-soft);font-weight:900}.review-list{display:grid;gap:16px}.review-item{display:flex;align-items:center;justify-content:space-between;gap:18px;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:22px}.review-item p{color:var(--text-soft);margin:.2rem 0 0}.empty-state{text-align:left}.auth-view{max-width:760px;margin:0 auto}.auth-card{padding:34px}.stack-form{display:grid;gap:18px}.captcha-question{color:var(--accent);font-weight:1000}.link-button{border:0;background:none;color:var(--accent);font-weight:900;cursor:pointer;padding:0}.check-row{display:flex;align-items:center;gap:10px}.check-row input{width:auto;margin:0}.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:100;display:grid;place-items:center;padding:22px}.modal-card{width:min(560px,100%);background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:26px;box-shadow:var(--shadow)}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:16px}.modal-head h3{margin:0;font-size:1.5rem}.mini-log{margin-top:16px;background:#1c2942;border-radius:16px;padding:12px;color:var(--text-soft);min-height:46px}.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,140%);background:var(--accent);color:#0b1732;font-weight:1000;border-radius:999px;padding:14px 24px;box-shadow:var(--shadow);z-index:200;transition:.25s}.toast.show{transform:translate(-50%,0)}audio{max-width:260px;width:100%}code{background:#1d2b45;color:#fff;border-radius:10px;padding:2px 8px}
 input,select{font-weight:400}input::placeholder{font-weight:400}select option{font-weight:400}
@@ -52,20 +52,53 @@ input,select{font-weight:400}input::placeholder{font-weight:400}select option{fo
 @media (max-width:980px){.journey-card{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:640px){.journey-card{grid-template-columns:1fr}}
 .arabic,.surah-name{font-family:var(--font-arabic)!important;font-weight:400;letter-spacing:0;word-spacing:0;line-height:2.2;text-rendering:optimizeLegibility}
-[data-theme="light"] body{background:linear-gradient(180deg,#edf3fb 0%,#f8fbff 100%)}
-[data-theme="light"] .app-header{background:linear-gradient(135deg,#dfeaff,#bfd3fb)}
-[data-theme="light"] .prayer-strip{border-color:rgba(22,35,59,.12);background:rgba(255,255,255,.52)}
-[data-theme="light"] .prayer-strip>div{background:rgba(255,255,255,.78)}
-[data-theme="light"] .icon-button{background:rgba(22,35,59,.08)}
-[data-theme="light"] .nav-pill{background:linear-gradient(180deg,#fdfefe,#e9f0fb);color:var(--text-soft);box-shadow:none}
-[data-theme="light"] .nav-pill:hover,[data-theme="light"] .nav-pill.active{color:#fff}
-[data-theme="light"] .btn.ghost{background:#eef3fb}
-[data-theme="light"] input,[data-theme="light"] select{background:#fff;color:var(--text);border-color:#c8d6ed}
+/* Light theme overrides */
+[data-theme="light"] body{background:linear-gradient(160deg,#f0ece2 0%,#f7f4ee 60%,#eef1f8 100%)}
+/* Header: kembali ke navy agar brand identity kuat dan teks tetap terbaca */
+[data-theme="light"] .app-header{background:linear-gradient(135deg,#1e3a6e 0%,#2952a3 60%,#1a3460 100%);box-shadow:0 8px 32px rgba(30,58,110,.22)}
+[data-theme="light"] .brand-kicker,[data-theme="light"] .eyebrow{color:#fbbf24}
+[data-theme="light"] .brand-block h1{color:#fff}
+[data-theme="light"] .brand-mark{background:#fbbf24;color:#1e3a6e}
+[data-theme="light"] .muted-light{color:rgba(255,255,255,.75)}
+[data-theme="light"] .prayer-strip{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.1)}
+[data-theme="light"] .prayer-strip>div{background:rgba(255,255,255,.12)}
+[data-theme="light"] .prayer-strip strong{color:#fff}
+[data-theme="light"] .icon-button{background:rgba(255,255,255,.15);color:#fff}
+[data-theme="light"] .icon-button:hover{background:rgba(255,255,255,.25)}
+/* Nav pills: clean pill dengan border dan hover yang jelas */
+[data-theme="light"] .tab-nav{border-bottom:1px solid var(--line);padding-bottom:18px}
+[data-theme="light"] .nav-pill{background:#fff;color:var(--text-soft);border-color:var(--line);box-shadow:0 1px 4px rgba(30,58,110,.07)}
+[data-theme="light"] .nav-pill:hover{background:var(--surface-2);color:var(--text);border-color:#b0b8d0}
+[data-theme="light"] .nav-pill.active{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;border-color:var(--primary-2);box-shadow:0 4px 14px rgba(30,58,110,.22)}
+/* Buttons */
+[data-theme="light"] .btn.primary{background:var(--accent);color:#fff}
+[data-theme="light"] .btn.secondary{background:var(--primary);color:#fff}
+[data-theme="light"] .btn.secondary:hover{background:var(--accent);color:#fff}
+[data-theme="light"] .btn.ghost{background:#fff;color:var(--text);border:1px solid var(--line)}
+[data-theme="light"] .btn.ghost:hover{background:var(--surface-2)}
+[data-theme="light"] .btn.warning{background:#b45309;color:#fff}
+/* Inputs */
+[data-theme="light"] input,[data-theme="light"] select,[data-theme="light"] textarea{background:#fff;color:var(--text);border-color:#c8c3b8}
+[data-theme="light"] input:focus,[data-theme="light"] select:focus,[data-theme="light"] textarea:focus{border-color:var(--primary-3);box-shadow:0 0 0 3px rgba(59,111,212,.15)}
 [data-theme="light"] select option{background:#fff;color:var(--text)}
-[data-theme="light"] .ayah-card{background:#f7faff;border-color:#d8e4f5}
-[data-theme="light"] .hidden-placeholder,[data-theme="light"] .footnote,[data-theme="light"] .journey-card article{background:#eef4ff}
-[data-theme="light"] .sticky-actions{background:rgba(244,248,255,.92)}
-[data-theme="light"] .progress-ring{background:conic-gradient(var(--accent) var(--pct),#d9e5f7 0)}
+[data-theme="light"] label{color:var(--text)}
+/* Cards */
+[data-theme="light"] .hero-card,[data-theme="light"] .reader-card,[data-theme="light"] .info-card,[data-theme="light"] .stat-card,[data-theme="light"] .auth-card{box-shadow:0 2px 16px rgba(30,58,110,.08);border-color:var(--line)}
+[data-theme="light"] .hero-progress{background:var(--surface-2)}
+[data-theme="light"] .ayah-card{background:#faf8f3;border-color:#dbd6cc}
+[data-theme="light"] .surah-title{background:linear-gradient(135deg,#1e3a6e,#2952a3)}
+[data-theme="light"] .badge{background:#e8e3f8;color:#2952a3}
+[data-theme="light"] .arabic{color:var(--text)}
+[data-theme="light"] .hidden-placeholder,[data-theme="light"] .footnote{background:var(--surface-2);border-color:var(--line)}
+[data-theme="light"] .journey-card article{background:#fff;border-color:var(--line);box-shadow:0 1px 6px rgba(30,58,110,.06)}
+[data-theme="light"] .journey-step{background:var(--accent);color:#fff}
+/* Sticky & misc */
+[data-theme="light"] .sticky-actions{background:rgba(244,241,235,.94);border-color:var(--line)}
+[data-theme="light"] .progress-ring{background:conic-gradient(var(--accent) var(--pct),#d8d3c8 0)}
+[data-theme="light"] .modal-card{box-shadow:0 8px 40px rgba(30,58,110,.16)}
+[data-theme="light"] .mini-log{background:var(--surface-2)}
+[data-theme="light"] .review-item{box-shadow:0 1px 6px rgba(30,58,110,.06)}
+[data-theme="light"] .control-panel{box-shadow:0 1px 8px rgba(30,58,110,.06)}
 .app-header{position:relative}
 .theme-toggle{position:absolute;top:18px;right:20px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.13);color:var(--text);display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:999px;cursor:pointer;backdrop-filter:blur(12px);transition:background .2s,transform .2s,box-shadow .2s;z-index:2;box-shadow:0 4px 16px rgba(0,0,0,.18);padding:0}
 .theme-toggle:hover{background:rgba(255,255,255,.24);transform:rotate(18deg) scale(1.08);box-shadow:0 6px 24px rgba(0,0,0,.28)}
