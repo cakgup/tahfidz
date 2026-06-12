@@ -166,7 +166,10 @@ function renderReader(){
     return `<article class="ayah-card">
       <div class="ayah-top">
         <span class="badge">${escapeHtml(state.currentSurah.name_latin)} · ayat ${a.number}${a.juz ? ` · juz ${a.juz}` : ''}</span>
-        <span class="badge">${isMemorized ? '✅ Hafal' : '○ Belum'} ${isDifficult ? ' · ⚠ Sulit' : ''}</span>
+        <div class="status-badges">
+          <span class="badge status-badge ${isMemorized ? 'status-hafal' : 'status-belum'}">${isMemorized ? '✅ Hafal' : '○ Belum'}</span>
+          ${isDifficult ? '<span class="badge status-badge status-sulit">⚠ Sulit</span>' : ''}
+        </div>
       </div>
       <div class="arabic">${arabic}</div>
       ${translation ? `<p class="translation">${translation}</p>` : ''}
@@ -175,23 +178,6 @@ function renderReader(){
   }).join('');
 }
 
-async function playSequence(){
-  const repeat = Number($('#repeatCount').value);
-  const ayahs = getAyahsInRange();
-  if(!ayahs.some(a => a.audio_url)){ toast('URL audio belum tersedia untuk rentang ayat ini.'); return; }
-  toast(`Memutar ${ayahs.length} ayat × ${repeat} pengulangan.`);
-  $('#playSequence').disabled = true;
-  try{
-    for(const ayah of ayahs){
-      if(!ayah.audio_url) continue;
-      for(let i=0;i<repeat;i++){
-        await playAudio(ayah.audio_url);
-        await new Promise(r=>setTimeout(r, 550));
-      }
-    }
-  }catch(e){ toast(`Audio gagal diputar: ${e.message || 'cek koneksi'}`); }
-  finally{ $('#playSequence').disabled = false; }
-}
 async function playSequence(){
   const repeat = Number($('#repeatCount').value);
   const ayahs = getAyahsInRange();
@@ -624,3 +610,4 @@ async function init(){
   if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 init().catch(err => { console.error(err); toast(err.message); });
+
