@@ -40,6 +40,10 @@ const escapeHtml = (value = '') => String(value)
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#039;');
 
+// Ubah pola "angka)" menjadi superscript, misalnya "lurus.3)" → "lurus.<sup>3</sup>"
+const formatFootnoteRefs = (escaped = '') =>
+  escaped.replace(/(\d+)\)/g, '<sup class="fn-ref">$1</sup>');
+
 function toast(message){
   const el = $('#toast');
   if(!el) return;
@@ -249,8 +253,8 @@ function renderReader(){
         </div>
       </div>
       <div class="arabic">${arabic}</div>
-      ${translation ? `<p class="translation">${translation}</p>` : ''}
-      ${footnotes ? `<details class="footnote"><summary>Catatan Kemenag</summary><p>${escapeHtml(footnotes)}</p></details>` : ''}
+      ${translation ? `<p class="translation">${formatFootnoteRefs(translation)}</p>` : ''}
+      ${footnotes ? `<details class="footnote"><summary>Catatan Kemenag</summary><p>${formatFootnoteRefs(escapeHtml(footnotes))}</p></details>` : ''}
     </article>`;
   }).join('');
 }
