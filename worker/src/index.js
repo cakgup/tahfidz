@@ -22,6 +22,7 @@ export default {
       else if (url.pathname === '/api/submissions' && request.method === 'GET') response = await listSubmissions(request, env);
       else if (url.pathname === '/api/submissions' && request.method === 'POST') response = await createSubmission(request, env);
       else if (url.pathname === '/api/submissions/audio' && request.method === 'GET') response = await getSubmissionAudio(url, env);
+      else if (url.pathname === '/api/account/reset-data' && request.method === 'POST') response = await resetAccountData(request, env);
       else if (url.pathname === '/api/dashboard' && request.method === 'GET') response = await dashboard(request, env);
       else response = json({ error: 'Not found' }, 404);
       for (const [k, v] of Object.entries(cors)) response.headers.set(k, v);
@@ -184,6 +185,15 @@ function buildSubmissionAudioUrl(request, objectKey){
   const url = new URL(request.url);
   return `${url.origin}/api/submissions/audio?key=${encodeURIComponent(objectKey)}`;
 }
+function extractSubmissionObjectKey(audioUrl){
+  if(!audioUrl) return null;
+  try {
+    const url = new URL(audioUrl);
+    return url.searchParams.get('key');
+  } catch {
+    return null;
+  }
+}
 async function listSurahs(env){
   const { results } = await env.DB.prepare('SELECT id, name_ar, name_latin, total_ayah, revelation_type FROM surahs ORDER BY id').all();
   return json({ surahs: results });
@@ -310,6 +320,24 @@ async function getSubmissionAudio(url, env){
   headers.set('etag', object.httpEtag);
   headers.set('cache-control', 'public, max-age=86400');
   return new Response(object.body, { headers });
+}
+async function resetAccountData(request, env){
+  const auth = await requireAuth(request, env);
+  const { results: submissions } = await env.DB.prepare('SELECT id, audio_url FROM submissions WHERE user_id=?').bind(auth.user.id).all();
+  if(env.SUBMISSIONS_BUCKET){
+    for (const submission of submissions || []) {
+      const objectKey = extractSubmissionObjectKey(submission.audio_url);
+      if(objectKey) await env.SUBMISSIONS_BUCKET.delete(objectKey);
+    }
+  }
+  await env.DB.prepare('DELETE FROM submission_notes WHERE submission_id IN (SELECT id FROM submissions WHERE user_id=?)').bind(auth.user.id).run();
+  await env.DB.prepare('DELETE FROM submissions WHERE user_id=?').bind(auth.user.id).run();
+  await env.DB.prepare('DELETE FROM review_logs WHERE user_id=?').bind(auth.user.id).run();
+  await env.DB.prepare('DELETE FROM review_schedule WHERE user_id=?').bind(auth.user.id).run();
+  await env.DB.prepare('DELETE FROM memorization_progress WHERE user_id=?').bind(auth.user.id).run();
+  await env.DB.prepare('DELETE FROM memorization_targets WHERE user_id=?').bind(auth.user.id).run();
+  await env.DB.prepare('DELETE FROM user_prayer_settings WHERE user_id=?').bind(auth.user.id).run();
+  return json({ ok:true, deleted_submissions: (submissions || []).length });
 }
 async function dashboard(request, env){
   const auth = await requireAuth(request, env);

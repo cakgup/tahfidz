@@ -49,6 +49,14 @@ function readJson(key, fallback){
   try { return JSON.parse(storage.getItem(key)) ?? fallback; } catch { return fallback; }
 }
 function writeJson(key, value){ storage.setItem(key, JSON.stringify(value)); }
+function submissionStatusLabel(status = ''){
+  switch(String(status).toLowerCase()){
+    case 'submitted/r2': return 'Tersimpan di R2';
+    case 'submitted/local': return 'Tersimpan';
+    case 'submitted': return 'Terkirim';
+    default: return status || 'Tersimpan';
+  }
+}
 function today(){
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -360,7 +368,7 @@ async function saveSubmission(){
     teacher: $('#teacherName').value || 'Guru',
     note: $('#submissionNote').value || `${state.currentSurah.name_latin} ${start}-${end}`,
     audio_url: state.recordingUrl,
-    status: 'submitted/local',
+    status: 'Tersimpan',
     surah_id: surahId,
     start_ayah: start,
     end_ayah: end,
@@ -388,7 +396,7 @@ async function saveSubmission(){
 function renderSubmissions(){
   if(!isLoggedIn()){ $('#submissionList').innerHTML = ''; return; }
   const data = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
-  $('#submissionList').innerHTML = data.length ? data.map(s => `<article class="review-item"><div><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} · Status: ${escapeHtml(s.status)}</p></div>${s.audio_url ? `<audio controls src="${s.audio_url}"></audio>` : ''}</article>`).join('') : emptyState('Belum ada setoran.', 'Rekam bacaan lalu simpan setoran untuk membuat riwayat.', null, null);
+  $('#submissionList').innerHTML = data.length ? data.map(s => `<article class="review-item"><div><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} · Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div>${s.audio_url ? `<audio controls src="${s.audio_url}"></audio>` : ''}</article>`).join('') : emptyState('Belum ada setoran.', 'Rekam bacaan lalu simpan setoran untuk membuat riwayat.', null, null);
 }
 
 async function updatePrayer(){
@@ -600,15 +608,21 @@ function saveDisplaySettings(){
   writeJson(STORAGE_KEYS.display, data);
   applyDisplaySettings(); renderReader(); toast('Pengaturan tampilan disimpan.');
 }
-function resetLocalData(){
-  if(!confirm('Hapus data progres, murajaah, setoran, dan ayat sulit di perangkat ini?')) return;
+async function resetLocalData(){
+  const message = isLoggedIn()
+    ? 'Hapus data hafalan, murajaah, setoran, dan ayat sulit pada perangkat ini serta di server? Audio setoran di R2 juga akan dihapus.'
+    : 'Hapus data hafalan, murajaah, setoran, dan ayat sulit pada perangkat ini?';
+  if(!confirm(message)) return;
+  if(isLoggedIn() && window.HIFZ_CONFIG.apiBase){
+    await apiFetch('/api/account/reset-data', { method:'POST', body:JSON.stringify({ confirm:true }) });
+  }
   const preserve = new Set([STORAGE_KEYS.auth, STORAGE_KEYS.display, STORAGE_KEYS.localUsers]);
   const prefixes = [STORAGE_KEYS.progress, STORAGE_KEYS.reviews, STORAGE_KEYS.submissions, STORAGE_KEYS.difficult, STORAGE_KEYS.prayerCache];
   const keys = typeof storage.keys === 'function' ? storage.keys() : [];
   keys.forEach(k => {
     if(!preserve.has(k) && prefixes.some(prefix => k === prefix || k.startsWith(`${prefix}:`))) storage.removeItem(k);
   });
-  updateDashboard(); renderReviews(); renderSubmissions(); renderReader(); updateHome(); toast('Data lokal sudah direset.');
+  updateDashboard(); renderReviews(); renderSubmissions(); renderReader(); updateHome(); toast(isLoggedIn() ? 'Data aplikasi di perangkat dan server berhasil direset.' : 'Data aplikasi pada perangkat berhasil direset.');
 }
 function bindEvents(){
   $$('.nav-pill[data-view]').forEach(b => b.addEventListener('click', () => switchView(b.dataset.view)));
@@ -639,7 +653,7 @@ function bindEvents(){
   $('#refreshLoginCaptcha').addEventListener('click', () => loadCaptcha('login'));
   $('#refreshRegisterCaptcha').addEventListener('click', () => loadCaptcha('register'));
   $('#saveDisplaySettings').addEventListener('click', saveDisplaySettings);
-  $('#resetLocalData').addEventListener('click', resetLocalData);
+  $('#resetLocalData').addEventListener('click', () => resetLocalData().catch(e=>toast(e.message)));
 }
 async function init(){
   bindEvents();

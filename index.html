@@ -136,6 +136,7 @@
         </div>
         <div class="info-card">
           <p>Pilih rentang ayat di menu Hafalan, lalu rekam bacaan setoran. File audio akan diunggah ke Cloudflare R2, sedangkan D1 menyimpan metadata setoran.</p>
+          <p class="form-help">Catatan: audio setoran disimpan sementara dan otomatis dihapus dari R2 setelah 3 hari.</p>
           <div class="control-panel compact">
             <label>Nama guru
               <input id="teacherName" placeholder="Ustadz/Ustadzah" />
@@ -244,9 +245,9 @@
             <button class="btn secondary" id="saveDisplaySettings">Simpan Tampilan</button>
           </article>
           <article class="info-card">
-            <h3>Data lokal</h3>
-            <p>Gunakan reset jika data demo/localStorage perlu dibersihkan pada perangkat ini.</p>
-            <button class="btn warning" id="resetLocalData">Reset Data Lokal</button>
+            <h3>Data aplikasi</h3>
+            <p>Gunakan reset untuk membersihkan data hafalan, murajaah, dan setoran. Saat Anda sedang masuk, data terkait di server juga akan dihapus.</p>
+            <button class="btn warning" id="resetLocalData">Reset Data Aplikasi</button>
           </article>
           <article class="info-card">
             <h3>Tentang aplikasi</h3>
