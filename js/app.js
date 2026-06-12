@@ -26,6 +26,7 @@ const STORAGE_KEYS = {
   reviews: 'hifz_reviews_v3',
   submissions: 'hifz_submissions_v3',
   difficult: 'hifz_difficult_v3',
+  activeTarget: 'hifz_active_target_v1',
   prayerCache: 'hifz_prayer_cache_v3',
   display: 'hifz_display_settings_v1',
   localUsers: 'hifz_local_users_v1'
@@ -71,8 +72,38 @@ function setAuth(auth){ auth ? writeJson(STORAGE_KEYS.auth, auth) : storage.remo
 function isLoggedIn(){ return Boolean(getAuth()?.token && getAuth()?.user); }
 function currentUser(){ return getAuth()?.user || null; }
 function userScopedKey(base){ return `${base}:${currentUser()?.id || 'guest'}`; }
+function getActiveTarget(){ return readJson(userScopedKey(STORAGE_KEYS.activeTarget), null); }
 function getSelectedRange(){
   return { surahId: Number($('#surahSelect').value), start: Number($('#startAyah').value), end: Number($('#endAyah').value) };
+}
+function saveActiveTarget(range = getSelectedRange()){
+  if(!state.quran?.surahs?.length || !range?.surahId || !range?.start || !range?.end) return;
+  const surah = state.quran.surahs.find(s => s.id === Number(range.surahId));
+  if(!surah) return;
+  const start = Math.min(Number(range.start), Number(range.end));
+  const end = Math.max(Number(range.start), Number(range.end));
+  writeJson(userScopedKey(STORAGE_KEYS.activeTarget), {
+    surah_id: surah.id,
+    surah: surah.name_latin,
+    start_ayah: start,
+    end_ayah: end,
+    total_ayah: (end - start) + 1
+  });
+}
+function getTargetProgressSummary(){
+  const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
+  const target = getActiveTarget();
+  if(!target?.surah_id || !target?.start_ayah || !target?.end_ayah) return { target:null, memorized:0, total:0, pct:0 };
+  const start = Math.min(Number(target.start_ayah), Number(target.end_ayah));
+  const end = Math.max(Number(target.start_ayah), Number(target.end_ayah));
+  const total = Number(target.total_ayah) || ((end - start) + 1);
+  const memorized = Object.values(progress).filter(v =>
+    v.status === 'memorized' &&
+    Number(v.surah_id) === Number(target.surah_id) &&
+    Number(v.ayah_number) >= start &&
+    Number(v.ayah_number) <= end
+  ).length;
+  return { target, memorized, total, pct: total ? Math.min(100, Math.round((memorized / total) * 100)) : 0 };
 }
 
 async function apiFetch(path, options={}){
@@ -152,6 +183,7 @@ function populateAyahSelects(){
   $('#startAyah').innerHTML = options;
   $('#endAyah').innerHTML = options;
   $('#endAyah').value = state.currentSurah.ayahs.at(-1)?.number || 1;
+  saveActiveTarget();
 }
 function getAyahsInRange(){
   const {start,end} = getSelectedRange();
@@ -240,6 +272,7 @@ async function markMemorized(){
   }
   writeJson(userScopedKey(STORAGE_KEYS.progress), progress);
   writeJson(userScopedKey(STORAGE_KEYS.reviews), dedupeReviews(reviews));
+  saveActiveTarget();
   renderReader(); renderReviews(); updateDashboard(); updateHome();
   if(window.HIFZ_CONFIG.apiBase){
     Promise.allSettled(selected.map(a => apiFetch('/api/progress', {
@@ -572,6 +605,50 @@ function updateHome(){
   bindJumpButtons();
   updateDashboard();
 }
+function updateDashboard(){
+  const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
+  const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
+  const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []);
+  const submissions = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
+  const totalMemorized = Object.values(progress).filter(v => v.status === 'memorized').length;
+  const targetSummary = getTargetProgressSummary();
+  const memorized = targetSummary.total ? targetSummary.memorized : totalMemorized;
+  const pct = targetSummary.total ? targetSummary.pct : 0;
+  document.documentElement.style.setProperty('--pct', `${pct}%`);
+  $('#heroProgress').textContent = `${pct}%`;
+  $('#memorizedCount').textContent = memorized;
+  $('#statAyah').textContent = totalMemorized;
+  $('#statDifficult').textContent = Object.keys(difficult).length;
+  $('#statReviews').textContent = reviews.filter(r=>r.status==='pending').length;
+  $('#statSubmissions').textContent = submissions.length;
+  const difficultHtml = Object.values(difficult).length ? Object.values(difficult).slice(0,30).map(d=>`<span class="badge">${escapeHtml(d.surah)} ${d.ayah_number}</span>`).join(' ') : '<p>Belum ada ayat sulit.</p>';
+  $('#dashboardDetail').innerHTML = `<h3>Ayat lemah/sulit</h3>${difficultHtml}`;
+}
+function updateHome(){
+  const user = currentUser();
+  const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []).filter(r=>r.status==='pending' && r.due_date <= today()).length;
+  const targetSummary = getTargetProgressSummary();
+  if(user){
+    $('#homeTitle').textContent = `Assalamuâ€™alaikum, ${user.name}`;
+    if(targetSummary.target?.total){
+      $('#homeDescription').textContent = reviews
+        ? `Target aktif ${targetSummary.target.surah} ayat ${targetSummary.target.start_ayah}-${targetSummary.target.end_ayah}: ${targetSummary.memorized} dari ${targetSummary.total} ayat sudah ditandai hafal. Hari ini ada ${reviews} ayat untuk dimurajaah.`
+        : `Target aktif ${targetSummary.target.surah} ayat ${targetSummary.target.start_ayah}-${targetSummary.target.end_ayah}: ${targetSummary.memorized} dari ${targetSummary.total} ayat sudah ditandai hafal. Lanjutkan ziyadah hingga target ini tuntas.`;
+      $('#homeSmallNote').textContent = `Progress dihitung dari target aktif ${targetSummary.target.surah} ayat ${targetSummary.target.start_ayah}-${targetSummary.target.end_ayah}.`;
+    } else {
+      $('#homeDescription').textContent = reviews ? `Hari ini ada ${reviews} ayat untuk dimurajaah. Semoga Allah mudahkan, lanjutkan ziyadah atau tuntaskan murajaah dengan tertib.` : 'Tentukan rentang hafalan aktif Anda di menu Hafalan, lalu lanjutkan hafalan sedikit demi sedikit dengan istiqamah.';
+      $('#homeSmallNote').textContent = 'Pilih rentang ayat pada menu Hafalan untuk menjadikannya target aktif.';
+    }
+    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Lanjut Ziyadah</button><button class="btn secondary" data-jump="murajaah">Murajaah Hari Ini</button><button class="btn ghost" data-jump="dashboard">Lihat Progres</button>`;
+  } else {
+    $('#homeTitle').textContent = 'Menjaga hafalan, merawat murajaah, meniti kedekatan dengan Al-Qur\'an.';
+    $('#homeDescription').textContent = 'Mulailah dengan menetapkan target hafalan aktif, lalu jaga istiqamah ayat demi ayat. Masuk atau daftar agar progres target, murajaah, dan setoran tersimpan rapi.';
+    $('#homeActions').innerHTML = `<button class="btn primary" data-jump="hafalan">Mulai Menghafal</button><button class="btn secondary" data-jump="register">Daftar Sebagai Santri</button>`;
+    $('#homeSmallNote').textContent = 'Progress pada beranda dihitung dari target hafalan aktif yang Anda pilih.';
+  }
+  bindJumpButtons();
+  updateDashboard();
+}
 function updateProfile(){
   const user = currentUser();
   if(!user) return;
@@ -628,8 +705,9 @@ function bindEvents(){
   $$('.nav-pill[data-view]').forEach(b => b.addEventListener('click', () => switchView(b.dataset.view)));
   bindJumpButtons();
   $('#logoutBtn').addEventListener('click', logout);
-  $('#surahSelect').addEventListener('change', () => { populateAyahSelects(); renderReader(); });
-  ['startAyah','endAyah','hideMode'].forEach(id => $(`#${id}`).addEventListener('change', renderReader));
+  $('#surahSelect').addEventListener('change', () => { populateAyahSelects(); saveActiveTarget(); renderReader(); updateHome(); });
+  ['startAyah','endAyah'].forEach(id => $(`#${id}`).addEventListener('change', () => { saveActiveTarget(); renderReader(); updateHome(); }));
+  $('#hideMode').addEventListener('change', renderReader);
   $('#playSequence').addEventListener('click', playSequence);
   $('#markMemorized').addEventListener('click', () => markMemorized().catch(e=>toast(e.message)));
   $('#markDifficult').addEventListener('click', markDifficult);
