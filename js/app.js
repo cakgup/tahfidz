@@ -1,5 +1,11 @@
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
+const storage = window.HIFZ_STORAGE || {
+  getItem(){ return null; },
+  setItem(){},
+  removeItem(){},
+  keys(){ return []; }
+};
 
 const state = {
   quran: null,
@@ -38,9 +44,9 @@ function toast(message){
   setTimeout(() => el.classList.remove('show'), 2800);
 }
 function readJson(key, fallback){
-  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+  try { return JSON.parse(storage.getItem(key)) ?? fallback; } catch { return fallback; }
 }
-function writeJson(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+function writeJson(key, value){ storage.setItem(key, JSON.stringify(value)); }
 function today(){
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -51,7 +57,7 @@ function nextDate(days){
 }
 function ayahKey(surahId, ayahNumber){ return `${surahId}:${ayahNumber}`; }
 function getAuth(){ return readJson(STORAGE_KEYS.auth, null); }
-function setAuth(auth){ auth ? writeJson(STORAGE_KEYS.auth, auth) : localStorage.removeItem(STORAGE_KEYS.auth); }
+function setAuth(auth){ auth ? writeJson(STORAGE_KEYS.auth, auth) : storage.removeItem(STORAGE_KEYS.auth); }
 function isLoggedIn(){ return Boolean(getAuth()?.token && getAuth()?.user); }
 function currentUser(){ return getAuth()?.user || null; }
 function userScopedKey(base){ return `${base}:${currentUser()?.id || 'guest'}`; }
@@ -394,13 +400,13 @@ function closeLocationModal(){ $('#locationModal').hidden = true; }
 function setPrayerLocation(name, latitude, longitude, options = {}){
   const persist = options.persist ?? true;
   if(persist){
-    localStorage.setItem('hifz_location_name', name);
-    localStorage.setItem('hifz_latitude', latitude);
-    localStorage.setItem('hifz_longitude', longitude);
-    localStorage.setItem('hifz_timezone', 'Asia/Jakarta');
+    storage.setItem('hifz_location_name', name);
+    storage.setItem('hifz_latitude', latitude);
+    storage.setItem('hifz_longitude', longitude);
+    storage.setItem('hifz_timezone', 'Asia/Jakarta');
   }
   window.HIFZ_CONFIG.defaultPrayer = {locationName:name, latitude:Number(latitude), longitude:Number(longitude), timezone:'Asia/Jakarta'};
-  localStorage.removeItem(STORAGE_KEYS.prayerCache);
+  storage.removeItem(STORAGE_KEYS.prayerCache);
   updatePrayer();
 }
 function detectGps(){
@@ -564,8 +570,9 @@ function resetLocalData(){
   if(!confirm('Hapus data progres, murajaah, setoran, dan ayat sulit di perangkat ini?')) return;
   const preserve = new Set([STORAGE_KEYS.auth, STORAGE_KEYS.display, STORAGE_KEYS.localUsers]);
   const prefixes = [STORAGE_KEYS.progress, STORAGE_KEYS.reviews, STORAGE_KEYS.submissions, STORAGE_KEYS.difficult, STORAGE_KEYS.prayerCache];
-  Object.keys(localStorage).forEach(k => {
-    if(!preserve.has(k) && prefixes.some(prefix => k === prefix || k.startsWith(`${prefix}:`))) localStorage.removeItem(k);
+  const keys = typeof storage.keys === 'function' ? storage.keys() : [];
+  keys.forEach(k => {
+    if(!preserve.has(k) && prefixes.some(prefix => k === prefix || k.startsWith(`${prefix}:`))) storage.removeItem(k);
   });
   updateDashboard(); renderReviews(); renderSubmissions(); renderReader(); updateHome(); toast('Data lokal sudah direset.');
 }
