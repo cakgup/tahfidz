@@ -596,7 +596,7 @@ async function logout(){
   toast('Anda sudah keluar.');
 }
 
-function updateDashboard(){
+function updateDashboardLegacy(){
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
   const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
   const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []);
@@ -611,7 +611,7 @@ function updateDashboard(){
   const difficultHtml = Object.values(difficult).length ? Object.values(difficult).slice(0,30).map(d=>`<span class="badge">${escapeHtml(d.surah)} ${d.ayah_number}</span>`).join(' ') : '<p>Belum ada ayat sulit.</p>';
   $('#dashboardDetail').innerHTML = `<h3>Ayat lemah/sulit</h3>${difficultHtml}`;
 }
-function updateHome(){
+function updateHomeLegacy(){
   const user = currentUser();
   const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []).filter(r=>r.status==='pending' && r.due_date <= today()).length;
   if(user){

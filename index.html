@@ -8,7 +8,7 @@
   <title>Hifz Companion</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="css/styles.css?v=20260612-forms" />
+  <link rel="stylesheet" href="css/styles.css?v=20260612-ux-flow" />
 </head>
 <body>
   <div class="app-shell">
@@ -42,7 +42,7 @@
       <button class="nav-pill" data-view="hafalan">Hafalan</button>
       <button class="nav-pill" data-view="murajaah">Murajaah</button>
       <button class="nav-pill" data-view="setoran" data-user-only>Setoran</button>
-      <button class="nav-pill" data-view="dashboard" data-user-only>Dashboard</button>
+      <button class="nav-pill" data-view="dashboard" data-user-only>Progres</button>
       <button class="nav-pill" data-view="profile" data-user-only>Profil</button>
       <button class="nav-pill" data-view="login" data-guest-only>Masuk</button>
       <button class="nav-pill emphasis" data-view="register" data-guest-only>Daftar</button>
@@ -67,13 +67,36 @@
             <small id="homeSmallNote">Masuk untuk menyimpan jejak hafalan dan murajaah secara pribadi.</small>
           </div>
         </div>
+        <section class="journey-card" aria-label="Alur penggunaan aplikasi">
+          <article>
+            <span class="journey-step">1</span>
+            <h3>Tentukan target hafalan</h3>
+            <p>Pilih surah, ayat awal, dan ayat akhir di menu Hafalan agar aplikasi tahu target aktif Anda.</p>
+          </article>
+          <article>
+            <span class="journey-step">2</span>
+            <h3>Tandai hasil hafalan</h3>
+            <p>Putar bacaan bila perlu, lalu tandai ayat yang sudah hafal atau masih sulit.</p>
+          </article>
+          <article>
+            <span class="journey-step">3</span>
+            <h3>Susun murajaah</h3>
+            <p>Masuk ke menu Murajaah untuk membuat jadwal dari ayat yang sudah ditandai hafal.</p>
+          </article>
+          <article>
+            <span class="journey-step">4</span>
+            <h3>Rekam setoran</h3>
+            <p>Jika sudah siap, rekam bacaan dan simpan setoran agar bisa diputar ulang bersama guru.</p>
+          </article>
+        </section>
       </section>
 
       <section class="view" id="view-hafalan">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Mode Hafalan</p>
-            <h2>Ayat per ayat</h2>
+            <h2>Tentukan target, lalu baca berulang</h2>
+            <p class="form-help">Mulai dari memilih surah dan rentang ayat. Rentang inilah yang dihitung sebagai target hafalan aktif Anda.</p>
           </div>
           <button class="btn ghost" id="reloadQuran">Muat ulang konten</button>
         </div>
@@ -133,6 +156,7 @@
           <div>
             <p class="eyebrow">Setoran</p>
             <h2>Rekam dan kirim ke guru</h2>
+            <p class="form-help">Gunakan menu ini setelah Anda memilih target di Hafalan dan siap merekam bacaan setoran.</p>
           </div>
         </div>
         <div class="info-card">
@@ -159,8 +183,9 @@
       <section class="view" id="view-dashboard">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Dashboard</p>
-            <h2>Ringkasan progres</h2>
+            <p class="eyebrow">Progres</p>
+            <h2>Ringkasan hafalan dan murajaah</h2>
+            <p class="form-help">Donat progres pada beranda mengikuti target hafalan aktif. Kartu di bawah menampilkan total data hafalan Anda.</p>
           </div>
         </div>
         <section class="grid cards-4">
@@ -230,7 +255,8 @@
         <div class="section-heading">
           <div>
             <p class="eyebrow">Profil</p>
-            <h2>Profil dan pengaturan ringan</h2>
+            <h2>Akun dan pengaturan aplikasi</h2>
+            <p class="form-help">Atur tampilan bacaan, lihat akun aktif, dan kelola data aplikasi dari sini.</p>
           </div>
         </div>
         <div class="settings-grid">
@@ -275,7 +301,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="js/config.js?v=20260612-target-progress"></script>
-  <script type="module" src="js/app.js?v=20260612-target-progress"></script>
+  <script src="js/config.js?v=20260612-ux-flow"></script>
+  <script type="module" src="js/app.js?v=20260612-ux-flow"></script>
 </body>
 </html>
