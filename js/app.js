@@ -1008,6 +1008,8 @@ function switchView(view){
   const target = $(`#view-${view}`);
   if(!target) return;
   target.classList.add('active');
+  const shell = document.querySelector('.app-shell');
+  if(shell) shell.dataset.currentView = view;
   $$('.nav-pill').forEach(b => b.classList.toggle('active', b.dataset.view === view));
   if(view === 'murajaah') renderReviews();
   if(view === 'dashboard') updateDashboard();

@@ -1,6 +1,14 @@
-const CACHE_NAME = 'hifz-companion-v8-target-progress';
+const CACHE_NAME = 'hifz-companion-v9-auth-fix';
 const CORE_ASSETS = [
-  './', './index.html', './css/styles.css?v=20260612-forms', './js/config.js?v=20260612-target-progress', './js/app.js?v=20260612-target-progress', './data/quran-kemenag-combined.json', './data/quran-kemenag-index.json', './manifest.webmanifest', './assets/icon.svg'
+  './',
+  './index.html',
+  './css/styles.css?v=20260613-auth-fix',
+  './js/config.js?v=20260613-auth-fix',
+  './js/app.js?v=20260613-auth-fix',
+  './data/quran-kemenag-combined.json',
+  './data/quran-kemenag-index.json',
+  './manifest.webmanifest',
+  './assets/icon.svg'
 ];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_ASSETS)));

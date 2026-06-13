@@ -252,18 +252,20 @@ select option { font-weight: 400; }
 }
 
 .auth-card {
-  padding: 28px;
+  padding: 26px;
 }
 
 .auth-card h2 {
   max-width: 14ch;
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  letter-spacing: -.03em;
 }
 
 .stack-form.auth-form {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
-  margin-top: 24px;
+  gap: 14px;
+  margin-top: 22px;
 }
 
 .auth-field {
@@ -284,7 +286,7 @@ select option { font-weight: 400; }
 .auth-form input {
   width: 100%;
   margin-top: 0;
-  min-height: 56px;
+  min-height: 54px;
   border-radius: 18px;
 }
 
@@ -335,11 +337,16 @@ select option { font-weight: 400; }
 }
 
 .auth-actions {
-  margin-top: 4px;
+  margin-top: 8px;
+  gap: 12px;
 }
 
 .auth-actions .btn {
   width: 100%;
+}
+
+.auth-actions .btn.ghost {
+  min-height: 50px;
 }
 
 .form-help {
@@ -368,6 +375,55 @@ select option { font-weight: 400; }
   outline: 2px solid rgba(255,214,77,.45);
   outline-offset: 4px;
   border-radius: 6px;
+}
+
+.app-shell[data-current-view="login"] .app-header,
+.app-shell[data-current-view="register"] .app-header {
+  padding: 18px 18px 20px;
+  gap: 12px;
+  border-radius: 0 0 24px 24px;
+}
+
+.app-shell[data-current-view="login"] .brand-block,
+.app-shell[data-current-view="register"] .brand-block {
+  gap: 10px;
+}
+
+.app-shell[data-current-view="login"] .brand-mark,
+.app-shell[data-current-view="register"] .brand-mark {
+  width: 50px;
+  height: 50px;
+  border-radius: 18px;
+  font-size: 28px;
+}
+
+.app-shell[data-current-view="login"] .brand-block h1,
+.app-shell[data-current-view="register"] .brand-block h1 {
+  font-size: 22px;
+}
+
+.app-shell[data-current-view="login"] .prayer-strip,
+.app-shell[data-current-view="register"] .prayer-strip {
+  gap: 10px;
+  padding: 10px;
+  border-radius: 18px;
+}
+
+.app-shell[data-current-view="login"] .prayer-strip > div,
+.app-shell[data-current-view="register"] .prayer-strip > div {
+  padding: 10px 12px;
+  border-radius: 14px;
+}
+
+.app-shell[data-current-view="login"] .tab-nav,
+.app-shell[data-current-view="register"] .tab-nav {
+  padding: 14px 0 18px;
+}
+
+.app-shell[data-current-view="login"] .nav-pill,
+.app-shell[data-current-view="register"] .nav-pill {
+  min-height: 46px;
+  padding: 10px 18px;
 }
 
 .ayah-card {
