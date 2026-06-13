@@ -343,7 +343,12 @@ async function listTeachers(request, env){
 }
 async function listSubmissions(request, env){
   const auth = await requireAuth(request, env);
-  const { results } = await env.DB.prepare('SELECT * FROM submissions WHERE user_id=? ORDER BY submitted_at DESC LIMIT 100').bind(auth.user.id).all();
+  const { results } = await env.DB.prepare(`SELECT s.*, t.name AS teacher_name
+    FROM submissions s
+    LEFT JOIN users t ON t.id = s.teacher_id
+    WHERE s.user_id=?
+    ORDER BY s.submitted_at DESC
+    LIMIT 100`).bind(auth.user.id).all();
   return json({ submissions: results });
 }
 async function getSubmissionAudio(url, env){

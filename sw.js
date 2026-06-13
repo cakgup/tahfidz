@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v18-stat-spacing';
+const CACHE_NAME = 'hifz-companion-v19-submission-sync';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260613-stat-spacing',
-  './js/config.js?v=20260613-stat-spacing',
-  './js/app.js?v=20260613-stat-spacing',
+  './css/styles.css?v=20260613-submission-sync',
+  './js/config.js?v=20260613-submission-sync',
+  './js/app.js?v=20260613-submission-sync',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',

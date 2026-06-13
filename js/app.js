@@ -189,6 +189,28 @@ async function refreshRemoteSessionUser(){
     }
   }catch{}
 }
+function normalizeRemoteSubmission(item = {}){
+  return {
+    id: item.id || crypto.randomUUID(),
+    teacher: item.teacher_name || item.teacher || 'Guru',
+    teacher_id: item.teacher_id || '',
+    note: item.note || '-',
+    audio_url: item.audio_url || '',
+    status: item.status || 'submitted',
+    surah_id: Number(item.surah_id || 0) || null,
+    start_ayah: Number(item.start_ayah || 0) || null,
+    end_ayah: Number(item.end_ayah || 0) || null,
+    created_at: item.submitted_at || item.created_at || new Date().toISOString()
+  };
+}
+async function syncRemoteSubmissions({ silent = true } = {}){
+  if(!window.HIFZ_CONFIG.apiBase || !isLoggedIn() || isLocalAuthToken()) return [];
+  const data = await apiFetch('/api/submissions');
+  const normalized = (data.submissions || []).map(normalizeRemoteSubmission);
+  writeJson(userScopedKey(STORAGE_KEYS.submissions), normalized);
+  if(!silent) toast('Riwayat setoran berhasil disinkronkan dari server.');
+  return normalized;
+}
 async function fetchTeacherUsers(){
   if(!isLoggedIn()) return [];
   if(window.HIFZ_CONFIG.apiBase && !isLocalAuthToken()){
@@ -749,6 +771,7 @@ async function handleRegister(e){
     const payload = {name,email,password,captchaId:cap.id,captchaAnswer:$('#registerCaptchaAnswer').value.trim()};
     const data = cap.local ? await localRegister({name,email,password}) : await apiFetch('/api/auth/register', {method:'POST', body:JSON.stringify(payload)});
     setAuth({token:data.token, user:data.user});
+    if(!cap.local) await syncRemoteSubmissions({ silent:true }).catch(()=>{});
     updateAuthUi();
     toast('Akun berhasil dibuat. Mari mulai menentukan hafalan pertama.');
     switchView('hafalan');
@@ -763,6 +786,7 @@ async function handleLogin(e){
     const payload = {email,password,captchaId:cap.id,captchaAnswer:$('#loginCaptchaAnswer').value.trim()};
     const data = cap.local ? await localLogin({email,password}) : await apiFetch('/api/auth/login', {method:'POST', body:JSON.stringify(payload)});
     setAuth({token:data.token, user:data.user});
+    if(!cap.local) await syncRemoteSubmissions({ silent:true }).catch(()=>{});
     updateAuthUi();
     toast(`Selamat datang, ${data.user.name}.`);
     switchView('home');
@@ -1200,6 +1224,11 @@ function updateAuthUi(){
     $$('[data-view="login"], [data-view="register"]').forEach(el => { el.hidden = true; });
   }
   renderTeacherOptions($('#teacherName')?.value || '').catch(()=>{});
+  if(logged) syncRemoteSubmissions({ silent:true }).then(() => {
+    renderSubmissions();
+    updateDashboard();
+    updateHome();
+  }).catch(()=>{});
   updateHome(); renderReviews(); renderSubmissions(); updateDashboard(); updateProfile();
   // Jika guru langsung masuk ke panel guru
   if(logged && ['guru','admin'].includes(role)) renderGuruPanel('all');
@@ -1226,7 +1255,13 @@ function switchView(view){
   if(view === 'murajaah') renderReviews();
   if(view === 'dashboard') updateDashboard();
   if(view === 'profile') updateProfile();
-  if(view === 'setoran') renderTeacherOptions($('#teacherName')?.value || '').catch(e => toast(e.message));
+  if(view === 'setoran'){
+    renderTeacherOptions($('#teacherName')?.value || '').catch(e => toast(e.message));
+    if(isLoggedIn()) syncRemoteSubmissions({ silent:true }).then(() => {
+      renderSubmissions();
+      updateDashboard();
+    }).catch(()=>{});
+  }
   if(view === 'guru'){
     const activeFilter = $('.filter-tab.active')?.dataset?.filter || 'all';
     renderGuruPanel(activeFilter);
@@ -1352,6 +1387,7 @@ async function init(){
   applyDisplaySettings();
   await Promise.all([loadCaptcha('login'), loadCaptcha('register')]);
   await refreshRemoteSessionUser();
+  await syncRemoteSubmissions({ silent:true }).catch(()=>{});
   updateAuthUi();
   updatePrayer();
   if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
