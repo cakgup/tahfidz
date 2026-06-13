@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v17-recording-indicator';
+const CACHE_NAME = 'hifz-companion-v18-stat-spacing';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260613-recording-indicator',
-  './js/config.js?v=20260613-recording-indicator',
-  './js/app.js?v=20260613-recording-indicator',
+  './css/styles.css?v=20260613-stat-spacing',
+  './js/config.js?v=20260613-stat-spacing',
+  './js/app.js?v=20260613-stat-spacing',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',
