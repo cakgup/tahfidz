@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v12-teacher-dropdown';
+const CACHE_NAME = 'hifz-companion-v16-ayah-card-refresh';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260613-teacher-dropdown',
-  './js/config.js?v=20260613-teacher-dropdown',
-  './js/app.js?v=20260613-teacher-dropdown',
+  './css/styles.css?v=20260613-ayah-card-refresh',
+  './js/config.js?v=20260613-ayah-card-refresh',
+  './js/app.js?v=20260613-ayah-card-refresh',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',

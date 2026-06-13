@@ -332,13 +332,17 @@ function renderReader(){
     if(mode === 'blank') { arabic = '<div class="hidden-placeholder">Tes hafalan: baca tanpa melihat teks</div>'; translation = ''; }
     return `<article class="ayah-card">
       <div class="ayah-top">
-        <span class="badge">${escapeHtml(state.currentSurah.name_latin)} · ayat ${a.number}${a.juz ? ` · juz ${a.juz}` : ''}</span>
+        <div class="ayah-meta">
+          <span class="ayah-index-badge">${a.number}</span>
+          ${a.juz ? `<span class="ayah-juz-badge">Juz ${a.juz}</span>` : ''}
+        </div>
         <div class="status-badges">
-          <span class="badge status-badge ${isMemorized ? 'status-hafal' : 'status-belum'}">${isMemorized ? '✅ Hafal' : '○ Belum'}</span>
-          ${isDifficult ? '<span class="badge status-badge status-sulit">⚠ Sulit</span>' : ''}
+          <span class="badge status-badge ${isMemorized ? 'status-hafal' : 'status-belum'}">${isMemorized ? 'Hafal' : 'Belum'}</span>
+          ${isDifficult ? '<span class="badge status-badge status-sulit">Sulit</span>' : ''}
         </div>
       </div>
-      <div class="arabic">${arabic}</div>
+      <div class="ayah-copy-meta">${escapeHtml(state.currentSurah.name_latin)} · ayat ${a.number}</div>
+      <div class="arabic arabic-block">${arabic}</div>
       ${translation ? `<p class="translation">${formatFootnoteRefs(translation)}</p>` : ''}
       ${footnotes ? `<details class="footnote"><summary>Catatan Kemenag</summary><p>${formatFootnoteRefs(escapeHtml(footnotes))}</p></details>` : ''}
     </article>`;
@@ -1098,6 +1102,7 @@ async function setManagedUserRole(userId, role){
 }
 async function renderAdminUserList(){
   const container = $('#adminUserList');
+  const searchInput = $('#adminUserSearch');
   if(!container || currentRole() !== 'admin'){
     if(container) container.innerHTML = '';
     return;
@@ -1108,8 +1113,19 @@ async function renderAdminUserList(){
     container.innerHTML = '<p class="form-help">Belum ada pengguna yang dapat dikelola.</p>';
     return;
   }
+  const query = String(searchInput?.value || '').trim().toLowerCase();
+  const filteredUsers = !query ? users : users.filter(user => {
+    const haystack = [user.name, user.email, user.role]
+      .map(value => String(value || '').toLowerCase())
+      .join(' ');
+    return haystack.includes(query);
+  });
+  if(!filteredUsers.length){
+    container.innerHTML = '<p class="form-help">Tidak ada pengguna yang cocok dengan pencarian ini.</p>';
+    return;
+  }
   const currentId = currentUser()?.id;
-  container.innerHTML = users.map(user => {
+  container.innerHTML = filteredUsers.map(user => {
     const roleLabel = user.role === 'admin' ? 'Admin' : user.role === 'guru' ? 'Guru' : 'Santri';
     const isCurrent = user.id === currentId;
     const roleButton = user.role === 'santri'
@@ -1251,6 +1267,12 @@ function bindEvents(){
   $('#refreshRegisterCaptcha').addEventListener('click', () => loadCaptcha('register'));
   $('#saveDisplaySettings').addEventListener('click', saveDisplaySettings);
   $('#resetLocalData').addEventListener('click', () => resetLocalData().catch(e=>toast(e.message)));
+  $('#adminUserSearch')?.addEventListener('input', () => {
+    renderAdminUserList().catch(err => {
+      const container = $('#adminUserList');
+      if(container && currentRole() === 'admin') container.innerHTML = `<p class="form-help">${escapeHtml(err.message || 'Daftar pengguna tidak dapat dimuat.')}</p>`;
+    });
+  });
   $('#adminUserList')?.addEventListener('click', async e => {
     const btn = e.target.closest('[data-role-target]');
     if(!btn) return;

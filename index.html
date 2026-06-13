@@ -121,17 +121,17 @@
           <button class="btn ghost" id="reloadQuran">Muat ulang konten</button>
         </div>
 
-        <div class="control-panel">
-          <label>Surah
+        <div class="control-panel hafalan-controls">
+          <label class="hafalan-field hafalan-field-wide">Surah
             <select id="surahSelect"></select>
           </label>
-          <label>Ayat awal
+          <label class="hafalan-field hafalan-field-small">Ayat awal
             <select id="startAyah"></select>
           </label>
-          <label>Ayat akhir
+          <label class="hafalan-field hafalan-field-small">Ayat akhir
             <select id="endAyah"></select>
           </label>
-          <label>Pengulangan
+          <label class="hafalan-field hafalan-field-small">Pengulangan
             <select id="repeatCount">
               <option value="3">3x</option>
               <option value="5" selected>5x</option>
@@ -139,7 +139,7 @@
               <option value="10">10x</option>
             </select>
           </label>
-          <label>Mode Tampilan
+          <label class="hafalan-field hafalan-field-wide">Mode Tampilan
             <select id="hideMode">
               <option value="full">Arab + Terjemahan</option>
               <option value="translationHidden">Arab saja</option>
@@ -179,20 +179,22 @@
             <p class="form-help">Gunakan menu ini setelah Anda memilih target di Hafalan dan siap merekam bacaan setoran.</p>
           </div>
         </div>
-        <div class="info-card">
-          <p>Pilih rentang ayat di menu Hafalan, lalu rekam bacaan setoran. Audio akan disimpan secara aman dan dapat diputar ulang bersama guru.</p>
-          <p class="form-help">Catatan: rekaman setoran disimpan sementara dan akan otomatis dihapus setelah 3 hari.</p>
-          <div class="control-panel compact">
-            <label>Nama guru
+        <div class="info-card setoran-card">
+          <div class="setoran-copy">
+            <p class="setoran-lead">Pilih rentang ayat di menu Hafalan, lalu rekam bacaan setoran. Audio akan disimpan secara aman dan dapat diputar ulang bersama guru.</p>
+            <p class="setoran-note">Catatan: rekaman setoran disimpan sementara dan akan otomatis dihapus setelah 3 hari.</p>
+          </div>
+          <div class="control-panel compact setoran-fields">
+            <label class="setoran-field">Nama guru
               <select id="teacherName">
                 <option value="">Memuat daftar guru...</option>
               </select>
             </label>
-            <label>Catatan setoran
+            <label class="setoran-field">Catatan setoran
               <input id="submissionNote" placeholder="Contoh: Al-Fatihah 1-7" />
             </label>
           </div>
-          <div class="action-row">
+          <div class="action-row setoran-actions">
             <button class="btn primary" id="startRecord">▶ Mulai Rekam</button>
             <button class="btn warning" id="stopRecord" disabled>■ Stop Rekam</button>
             <button class="btn secondary" id="saveSubmission">Simpan Setoran</button>
@@ -363,6 +365,10 @@
           <article class="info-card" data-role="admin">
             <h3>Kelola role pengguna</h3>
             <p class="form-help">Khusus admin: ubah akun santri menjadi guru agar bisa menilai setoran. Akses admin juga otomatis bisa membuka Panel Guru.</p>
+            <label class="admin-user-search">
+              <span>Cari pengguna</span>
+              <input id="adminUserSearch" type="search" placeholder="Cari nama, email, atau role" autocomplete="off" />
+            </label>
             <div class="admin-user-list" id="adminUserList">
               <p class="form-help">Memuat daftar pengguna...</p>
             </div>
@@ -423,7 +429,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="js/config.js?v=20260613-teacher-dropdown"></script>
-  <script type="module" src="js/app.js?v=20260613-teacher-dropdown"></script>
+  <script src="js/config.js?v=20260613-ayah-card-refresh"></script>
+  <script type="module" src="js/app.js?v=20260613-ayah-card-refresh"></script>
 </body>
 </html>
