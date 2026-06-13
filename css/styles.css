@@ -623,6 +623,40 @@ select option { font-weight: 400; }
 .record-discard-btn { color: #ff8f9d !important; border-color: #7f3244 !important; white-space: nowrap; flex-shrink: 0; }
 .record-discard-btn:hover { background: #3a1d28 !important; }
 
+.recording-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(186, 73, 99, .12);
+  border: 1px solid rgba(186, 73, 99, .28);
+  color: #ffb3c0;
+}
+
+.recording-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #ff5f7c;
+  box-shadow: 0 0 0 0 rgba(255, 95, 124, .55);
+  animation: recording-pulse 1.4s ease-out infinite;
+}
+
+.recording-timer {
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+
+@keyframes recording-pulse {
+  0% { transform: scale(.95); box-shadow: 0 0 0 0 rgba(255, 95, 124, .52); }
+  70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(255, 95, 124, 0); }
+  100% { transform: scale(.95); box-shadow: 0 0 0 0 rgba(255, 95, 124, 0); }
+}
+
 .setoran-card {
   display: grid;
   gap: 18px;
@@ -931,6 +965,8 @@ textarea:focus { border-color: #6679c0; box-shadow: 0 0 0 4px rgba(102,121,192,.
 [data-theme="light"] .admin-user-card { background: var(--surface-2); }
 [data-theme="light"] .grade-panel, [data-theme="light"] .grade-info { background: var(--surface-2); }
 [data-theme="light"] .setoran-note { background: #fdf3d8; border-color: #ecd6a0; color: #5f4b1d; }
+[data-theme="light"] .recording-indicator { background: #ffe5ea; border-color: #f3b7c3; color: #a6324d; }
+[data-theme="light"] .recording-timer { color: #6e1830; }
 [data-theme="light"] textarea { background: #fff; color: var(--text); border-color: #c8d6ed; }
 
 /* ========== TABLET BREAKPOINT (min-width: 641px) ========== */

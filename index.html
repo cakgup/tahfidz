@@ -199,6 +199,11 @@
             <button class="btn warning" id="stopRecord" disabled>■ Stop Rekam</button>
             <button class="btn secondary" id="saveSubmission">Simpan Setoran</button>
           </div>
+          <div class="recording-indicator" id="recordingIndicator" hidden aria-live="polite">
+            <span class="recording-dot" aria-hidden="true"></span>
+            <strong>Sedang merekam</strong>
+            <span class="recording-timer" id="recordingTimer">00:00</span>
+          </div>
           <div class="record-preview-row" id="recordPreviewRow" hidden>
             <audio id="recordPreview" controls></audio>
             <button class="btn ghost record-discard-btn" id="discardRecord" title="Hapus rekaman ini">🗑 Hapus Rekaman</button>
@@ -429,7 +434,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="js/config.js?v=20260613-ayah-card-refresh"></script>
-  <script type="module" src="js/app.js?v=20260613-ayah-card-refresh"></script>
+  <script src="js/config.js?v=20260613-recording-indicator"></script>
+  <script type="module" src="js/app.js?v=20260613-recording-indicator"></script>
 </body>
 </html>

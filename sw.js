@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v16-ayah-card-refresh';
+const CACHE_NAME = 'hifz-companion-v17-recording-indicator';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260613-ayah-card-refresh',
-  './js/config.js?v=20260613-ayah-card-refresh',
-  './js/app.js?v=20260613-ayah-card-refresh',
+  './css/styles.css?v=20260613-recording-indicator',
+  './js/config.js?v=20260613-recording-indicator',
+  './js/app.js?v=20260613-recording-indicator',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',

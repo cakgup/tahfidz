@@ -15,6 +15,8 @@ const state = {
   recordingBlob: null,
   recordingUrl: null,
   recordingMimeType: 'audio/webm',
+  recordingStartedAt: null,
+  recordingTimerId: null,
   prayerTimer: null,
   lastAudio: null,
   captchas: { login: null, register: null }
@@ -526,6 +528,32 @@ async function setupRecorder(){
     $('#recordPreviewRow').hidden = false;
   };
 }
+function formatRecordingDuration(seconds = 0){
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+}
+function setRecordingUi(isRecording){
+  const indicator = $('#recordingIndicator');
+  const timer = $('#recordingTimer');
+  if(timer) timer.textContent = '00:00';
+  if(indicator) indicator.hidden = !isRecording;
+  if(state.recordingTimerId){
+    clearInterval(state.recordingTimerId);
+    state.recordingTimerId = null;
+  }
+  if(!isRecording){
+    state.recordingStartedAt = null;
+    return;
+  }
+  state.recordingStartedAt = Date.now();
+  const tick = () => {
+    const elapsed = Math.max(0, Math.floor((Date.now() - state.recordingStartedAt) / 1000));
+    if(timer) timer.textContent = formatRecordingDuration(elapsed);
+  };
+  tick();
+  state.recordingTimerId = setInterval(tick, 1000);
+}
 async function startRecording(){
   if(!requireLogin('Silakan masuk untuk mengirim setoran hafalan.')) return;
   if(state.recordingUrl) URL.revokeObjectURL(state.recordingUrl);
@@ -535,11 +563,13 @@ async function startRecording(){
   $('#recordPreview').removeAttribute('src');
   await setupRecorder();
   state.recorder.start();
+  setRecordingUi(true);
   $('#startRecord').disabled = true; $('#stopRecord').disabled = false;
   toast('Rekaman dimulai. Bacalah dengan tartil.');
 }
 function stopRecording(){
   state.recorder?.stop();
+  setRecordingUi(false);
   $('#startRecord').disabled = false; $('#stopRecord').disabled = true;
   toast('Rekaman selesai. Dengarkan dulu sebelum disimpan.');
 }
@@ -555,6 +585,7 @@ function discardRecording(){
   state.recordingMimeType = 'audio/webm';
   $('#recordPreview').removeAttribute('src');
   $('#recordPreviewRow').hidden = true;
+  setRecordingUi(false);
   $('#startRecord').disabled = false;
   $('#stopRecord').disabled = true;
   toast('Rekaman dihapus. Silakan rekam ulang.');
