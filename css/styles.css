@@ -60,7 +60,7 @@ select option { font-weight: 400; }
 [data-theme="light"] body { background: #e8e2d6; }
 
 /* ========== MOBILE-FIRST BASE STYLES ========== */
-.app-shell { width: 100%; margin: 0 auto; padding: 0 12px 56px; }
+.app-shell { width: 100%; margin: 0 auto; padding: 0 12px 120px; }
 
 .app-header {
   background: linear-gradient(135deg, var(--primary), #263b72);
@@ -210,6 +210,21 @@ select option { font-weight: 400; }
 .hero-copy h2, .section-heading h2, .auth-card h2 { font-size: 32px; line-height: 1.08; margin: 0 0 16px; }
 .hero-copy p { color: var(--text-soft); font-size: 1rem; }
 .hero-actions, .action-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+
+.sticky-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 14px 12px;
+  background: rgba(13, 20, 34, .96);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -4px 20px rgba(0,0,0,.3);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
 .btn {
   border: 0;
@@ -971,7 +986,7 @@ textarea:focus { border-color: #6679c0; box-shadow: 0 0 0 4px rgba(102,121,192,.
 [data-theme="light"] .journey-card article h3 { color: #18181b; }
 [data-theme="light"] .journey-card article p { color: #44475a; }
 
-[data-theme="light"] .sticky-actions { background: rgba(232,226,214,.96); border-color: #cdc8be; }
+[data-theme="light"] .sticky-actions { background: rgba(232,226,214,.96); border-top-color: #cdc8be; box-shadow: 0 -4px 20px rgba(30,58,110,.15); }
 [data-theme="light"] .modal-card { background: #f7f4ee; box-shadow: 0 8px 40px rgba(30,58,110,.18); }
 [data-theme="light"] .mini-log { background: #ede9e0; color: #44475a; }
 [data-theme="light"] .review-item { background: #f7f4ee; border-color: #cdc8be; box-shadow: 0 1px 4px rgba(30,58,110,.06); }
@@ -995,7 +1010,7 @@ textarea:focus { border-color: #6679c0; box-shadow: 0 0 0 4px rgba(102,121,192,.
 
 /* ========== TABLET BREAKPOINT (min-width: 641px) ========== */
 @media (min-width: 641px) {
-  .app-shell { padding: 20px 24px 72px; }
+  .app-shell { padding: 20px 24px 140px; }
 
   .app-header {
     border-radius: 0 0 34px 34px;

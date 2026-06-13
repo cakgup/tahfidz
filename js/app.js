@@ -593,7 +593,13 @@ function stopRecording(){
   state.recorder?.stop();
   setRecordingUi(false);
   $('#startRecord').disabled = false; $('#stopRecord').disabled = true;
-  toast('Rekaman selesai. Dengarkan dulu sebelum disimpan.');
+  toast('Rekaman selesai. Menyimpan...');
+  // Auto-save submission setelah recording berhenti
+  saveSubmission().catch(e => {
+    // Jika ada error, tampilkan tapi jangan throw
+    console.warn('Auto-save error:', e);
+    toast('Rekaman disimpan lokal. Klik tombol lagi jika perlu menyimpan manual.');
+  });
 }
 function discardRecording(){
   if(!state.recordingBlob && !state.recordingUrl){
@@ -888,7 +894,7 @@ function renderSubmissions(){
   }
   const data = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
   $('#submissionList').innerHTML = data.length
-    ? data.map(s => `<article class="review-item"><div><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} - Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div><div style="display:flex;align-items:center;gap:10px;margin-top:10px;width:100%">${s.audio_url ? `<audio controls src="${s.audio_url}" style="flex:1;min-width:0"></audio>` : '<p style="color:var(--text-soft);font-size:0.9rem;margin:0">Audio tidak tersedia</p>'}<button class="btn ghost" style="min-height:44px;padding:8px 12px;white-space:nowrap;flex-shrink:0" data-delete-submission="${escapeHtml(s.id)}" title="Hapus setoran ini">🗑️ Hapus</button></div></article>`).join('')
+    ? data.map(s => `<article class="review-item"><div><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} - Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div><div style="display:flex;align-items:center;gap:8px;margin-top:10px;width:100%">${s.audio_url ? `<audio controls src="${s.audio_url}" style="flex:1;min-width:0"></audio>` : '<p style="color:var(--text-soft);font-size:0.9rem;margin:0">Audio tidak tersedia</p>'}<button class="icon-button" style="flex-shrink:0;font-size:20px" data-delete-submission="${escapeHtml(s.id)}" title="Hapus setoran ini" aria-label="Hapus setoran">🗑️</button></div></article>`).join('')
     : emptyState('Belum ada setoran.', 'Pilih target di menu Hafalan, rekam bacaan, lalu simpan setoran agar riwayat dan audio bisa diputar kembali.', null, null);
 }
 
@@ -1343,7 +1349,6 @@ function bindEvents(){
   $('#startRecord').addEventListener('click', () => startRecording().catch(e=>toast(e.message)));
   $('#stopRecord').addEventListener('click', stopRecording);
   $('#discardRecord').addEventListener('click', discardRecording);
-  $('#saveSubmission').addEventListener('click', () => saveSubmission().catch(e=>toast(e.message)));
   $('#reloadQuran').addEventListener('click', () => loadQuran().then(()=>toast('Konten dimuat ulang.')).catch(e=>toast(e.message)));
   $('#locationButton').addEventListener('click', openLocationModal);
   $('#themeToggle').addEventListener('click', toggleTheme);
