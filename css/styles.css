@@ -594,6 +594,48 @@ sup.fn-ref { font-size: .65em; vertical-align: super; line-height: 0; color: var
 .submission-card-meta span { color: var(--text-soft); font-size: .93rem; }
 .submission-card-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; width: 100%; }
 
+.admin-user-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.admin-user-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.admin-user-head {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-user-head strong { font-size: 1rem; }
+.admin-user-meta { color: var(--text-soft); font-size: .93rem; }
+
+.admin-user-role-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-user-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-user-actions .btn {
+  min-height: 46px;
+  padding-inline: 18px;
+}
+
 .status-chip {
   display: inline-flex;
   align-items: center;
@@ -728,6 +770,7 @@ textarea:focus { border-color: #6679c0; box-shadow: 0 0 0 4px rgba(102,121,192,.
 [data-theme="light"] .filter-tab { background: var(--surface-2); color: var(--text-soft); }
 [data-theme="light"] .filter-tab.active { background: linear-gradient(135deg, #1a4a2e, #236636); color: #7fffa8; }
 [data-theme="light"] .submission-card { background: var(--surface); }
+[data-theme="light"] .admin-user-card { background: var(--surface-2); }
 [data-theme="light"] .grade-panel, [data-theme="light"] .grade-info { background: var(--surface-2); }
 [data-theme="light"] textarea { background: #fff; color: var(--text); border-color: #c8d6ed; }
 

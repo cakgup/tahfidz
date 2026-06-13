@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v9-auth-fix';
+const CACHE_NAME = 'hifz-companion-v12-teacher-dropdown';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260613-auth-fix',
-  './js/config.js?v=20260613-auth-fix',
-  './js/app.js?v=20260613-auth-fix',
+  './css/styles.css?v=20260613-teacher-dropdown',
+  './js/config.js?v=20260613-teacher-dropdown',
+  './js/app.js?v=20260613-teacher-dropdown',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',

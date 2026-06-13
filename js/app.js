@@ -33,6 +33,7 @@ const STORAGE_KEYS = {
   localUsers: 'hifz_local_users_v1',
   guruReviews: 'hifz_guru_reviews_v1'
 };
+const SUPER_ADMIN_EMAIL = 'cakgup@guru.tahfidz';
 
 const escapeHtml = (value = '') => String(value)
   .replace(/&/g, '&amp;')
@@ -95,6 +96,24 @@ function setAuth(auth){ auth ? writeJson(STORAGE_KEYS.auth, auth) : storage.remo
 function isLoggedIn(){ return Boolean(getAuth()?.token && getAuth()?.user); }
 function currentUser(){ return getAuth()?.user || null; }
 function currentRole(){ return currentUser()?.role || 'guest'; }
+function isLocalAuthToken(token = getAuth()?.token){ return String(token || '').startsWith('local-'); }
+function isSpecialAdminEmail(email = ''){ return String(email || '').trim().toLowerCase() === SUPER_ADMIN_EMAIL; }
+function localPromoteSpecialAdmin(){
+  const users = readJson(STORAGE_KEYS.localUsers, []);
+  let changed = false;
+  const nextUsers = users.map(user => {
+    if(isSpecialAdminEmail(user.email) && user.role !== 'admin'){
+      changed = true;
+      return {...user, role:'admin'};
+    }
+    return user;
+  });
+  if(changed) writeJson(STORAGE_KEYS.localUsers, nextUsers);
+  const auth = getAuth();
+  if(auth?.user && isLocalAuthToken(auth.token) && isSpecialAdminEmail(auth.user.email) && auth.user.role !== 'admin'){
+    setAuth({...auth, user:{...auth.user, role:'admin'}});
+  }
+}
 function isSantriRole(){ return ['santri', 'admin'].includes(currentRole()); }
 function canAccessView(view){
   const role = currentRole();
@@ -157,6 +176,71 @@ async function apiFetch(path, options={}){
   const data = text ? JSON.parse(text) : {};
   if(!res.ok) throw new Error(data.error || text || 'Request gagal.');
   return data;
+}
+async function refreshRemoteSessionUser(){
+  if(!window.HIFZ_CONFIG.apiBase || !isLoggedIn() || isLocalAuthToken()) return;
+  try{
+    const data = await apiFetch('/api/auth/me');
+    if(data?.user){
+      const auth = getAuth();
+      if(auth?.token) setAuth({ ...auth, user: data.user });
+    }
+  }catch{}
+}
+async function fetchTeacherUsers(){
+  if(!isLoggedIn()) return [];
+  if(window.HIFZ_CONFIG.apiBase && !isLocalAuthToken()){
+    const data = await apiFetch('/api/teachers');
+    return (data.teachers || []).filter(user => ['guru', 'admin'].includes(user.role));
+  }
+  localPromoteSpecialAdmin();
+  return readJson(STORAGE_KEYS.localUsers, [])
+    .map(({password, ...user}) => user)
+    .filter(user => ['guru', 'admin'].includes(user.role))
+    .sort((a, b) => {
+      const roleRank = (a.role === 'admin' ? 0 : 1) - (b.role === 'admin' ? 0 : 1);
+      return roleRank || String(a.name || '').localeCompare(String(b.name || ''), 'id');
+    });
+}
+function setTeacherSelectState(optionsHtml, disabled = false){
+  const select = $('#teacherName');
+  if(!select) return;
+  select.innerHTML = optionsHtml;
+  select.disabled = disabled;
+}
+async function renderTeacherOptions(preferredTeacherId = ''){
+  const select = $('#teacherName');
+  if(!select) return;
+  if(!isLoggedIn()){
+    setTeacherSelectState('<option value="">Masuk untuk memilih guru</option>', true);
+    return;
+  }
+  setTeacherSelectState('<option value="">Memuat daftar guru...</option>', true);
+  try{
+    const teachers = await fetchTeacherUsers();
+    if(!teachers.length){
+      setTeacherSelectState('<option value="">Belum ada akun guru tersedia</option>', true);
+      return;
+    }
+    const options = teachers.map(teacher => {
+      const roleLabel = teacher.role === 'admin' ? 'Admin' : 'Guru';
+      const selected = preferredTeacherId && preferredTeacherId === teacher.id ? ' selected' : '';
+      return `<option value="${escapeHtml(teacher.id)}"${selected}>${escapeHtml(teacher.name)} (${roleLabel})</option>`;
+    }).join('');
+    setTeacherSelectState(options, false);
+  }catch(err){
+    setTeacherSelectState('<option value="">Daftar guru tidak dapat dimuat</option>', true);
+    throw err;
+  }
+}
+function getSelectedTeacher(){
+  const select = $('#teacherName');
+  if(!select || !select.value) throw new Error('Pilih guru tujuan setoran terlebih dahulu.');
+  const option = select.options[select.selectedIndex];
+  return {
+    id: select.value,
+    name: option ? option.text.replace(/\s+\((Guru|Admin)\)\s*$/u, '') : 'Guru'
+  };
 }
 
 function normalizeQuran(raw){
@@ -476,9 +560,11 @@ async function saveSubmission(){
   if(!state.recordingBlob || !state.recordingUrl) throw new Error('Rekam setoran terlebih dahulu sebelum disimpan.');
   const {surahId, start, end} = getSelectedRange();
   const submissions = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
+  const teacher = getSelectedTeacher();
   const item = {
     id: crypto.randomUUID(),
-    teacher: $('#teacherName').value || 'Guru',
+    teacher: teacher.name,
+    teacher_id: teacher.id,
     note: $('#submissionNote').value || `${state.currentSurah.name_latin} ${start}-${end}`,
     audio_url: state.recordingUrl,
     status: 'Tersimpan',
@@ -489,7 +575,7 @@ async function saveSubmission(){
   };
   if(window.HIFZ_CONFIG.apiBase){
     const form = new FormData();
-    form.append('teacher_id', item.teacher);
+    form.append('teacher_id', item.teacher_id);
     form.append('surah_id', String(surahId));
     form.append('start_ayah', String(start));
     form.append('end_ayah', String(end));
@@ -502,7 +588,7 @@ async function saveSubmission(){
   }
   submissions.unshift(item);
   writeJson(userScopedKey(STORAGE_KEYS.submissions), submissions);
-  $('#teacherName').value = '';
+  $('#teacherName').selectedIndex = 0;
   $('#submissionNote').value = '';
   renderSubmissions(); updateDashboard(); updateHome(); toast('Setoran berhasil disimpan.');
 }
@@ -603,12 +689,14 @@ async function localRegister({name,email,password}){
   validateLocalCaptcha('register');
   const users = readJson(STORAGE_KEYS.localUsers, []);
   if(users.some(u => u.email.toLowerCase() === email.toLowerCase())) throw new Error('Email sudah terdaftar di perangkat ini.');
-  const user = {id:crypto.randomUUID(), name, email:email.toLowerCase(), role:'santri', created_at:new Date().toISOString()};
+  const userRole = isSpecialAdminEmail(email) ? 'admin' : 'santri';
+  const user = {id:crypto.randomUUID(), name, email:email.toLowerCase(), role:userRole, created_at:new Date().toISOString()};
   users.push({...user, password}); writeJson(STORAGE_KEYS.localUsers, users);
   return {token:`local-${crypto.randomUUID()}`, user};
 }
 async function localLogin({email,password}){
   validateLocalCaptcha('login');
+  localPromoteSpecialAdmin();
   const user = readJson(STORAGE_KEYS.localUsers, []).find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
   if(!user) throw new Error('Email atau password tidak sesuai.');
   const {password:_, ...safeUser} = user;
@@ -974,8 +1062,84 @@ function updateProfile(){
   const user = currentUser();
   if(!user) return;
   $('#profileCard').innerHTML = `<h3>${escapeHtml(user.name)}</h3><p>${escapeHtml(user.email || '-')}</p><span class="badge">Role: ${escapeHtml(user.role || 'santri')}</span><p class="form-help">Gunakan menu ini untuk menyesuaikan tampilan bacaan dan mereset data aplikasi bila diperlukan.</p>`;
+  renderAdminUserList().catch(err => {
+    const container = $('#adminUserList');
+    if(container && currentRole() === 'admin') container.innerHTML = `<p class="form-help">${escapeHtml(err.message || 'Daftar pengguna tidak dapat dimuat.')}</p>`;
+  });
+}
+async function fetchManagedUsers(){
+  if(window.HIFZ_CONFIG.apiBase && !isLocalAuthToken()){
+    const data = await apiFetch('/api/admin/users');
+    return data.users || [];
+  }
+  localPromoteSpecialAdmin();
+  return readJson(STORAGE_KEYS.localUsers, [])
+    .map(({password, ...user}) => user)
+    .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'id'));
+}
+async function setManagedUserRole(userId, role){
+  if(window.HIFZ_CONFIG.apiBase && !isLocalAuthToken()){
+    const data = await apiFetch(`/api/admin/users/${encodeURIComponent(userId)}/role`, {
+      method:'PATCH',
+      body:JSON.stringify({ role })
+    });
+    return data.user;
+  }
+  const users = readJson(STORAGE_KEYS.localUsers, []);
+  let found = false;
+  const nextUsers = users.map(user => {
+    if(user.id !== userId) return user;
+    found = true;
+    return {...user, role};
+  });
+  if(!found) throw new Error('Pengguna tidak ditemukan.');
+  writeJson(STORAGE_KEYS.localUsers, nextUsers);
+  return nextUsers.find(user => user.id === userId);
+}
+async function renderAdminUserList(){
+  const container = $('#adminUserList');
+  if(!container || currentRole() !== 'admin'){
+    if(container) container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = `<p class="form-help">Memuat daftar pengguna...</p>`;
+  const users = await fetchManagedUsers();
+  if(!users.length){
+    container.innerHTML = '<p class="form-help">Belum ada pengguna yang dapat dikelola.</p>';
+    return;
+  }
+  const currentId = currentUser()?.id;
+  container.innerHTML = users.map(user => {
+    const roleLabel = user.role === 'admin' ? 'Admin' : user.role === 'guru' ? 'Guru' : 'Santri';
+    const isCurrent = user.id === currentId;
+    const roleButton = user.role === 'santri'
+      ? `<button class="btn primary" type="button" data-role-target="${escapeHtml(user.id)}" data-next-role="guru">Jadikan Guru</button>`
+      : user.role === 'guru'
+        ? `<button class="btn ghost" type="button" data-role-target="${escapeHtml(user.id)}" data-next-role="santri">Jadikan Santri</button>`
+        : '';
+    const note = isCurrent
+      ? '<span class="form-help">Akun aktif Anda.</span>'
+      : user.role === 'admin'
+        ? '<span class="form-help">Admin memiliki akses Panel Guru dan pengelolaan role.</span>'
+        : '';
+    return `<article class="admin-user-card">
+      <div class="admin-user-head">
+        <strong>${escapeHtml(user.name || '-')}</strong>
+        <div class="admin-user-meta">${escapeHtml(user.email || '-')}</div>
+      </div>
+      <div class="admin-user-role-row">
+        <span class="badge">Role: ${escapeHtml(roleLabel)}</span>
+        <div class="admin-user-actions">
+          ${!isCurrent ? roleButton : ''}
+        </div>
+      </div>
+      ${note}
+    </article>`;
+  }).join('');
+  await renderTeacherOptions($('#teacherName')?.value || '');
 }
 function updateAuthUi(){
+  localPromoteSpecialAdmin();
   const logged = isLoggedIn();
   const role = currentRole();
   $$('[data-user-only]').forEach(el => el.hidden = !logged);
@@ -988,9 +1152,10 @@ function updateAuthUi(){
   if(logged){
     $$('[data-view="login"], [data-view="register"]').forEach(el => { el.hidden = true; });
   }
+  renderTeacherOptions($('#teacherName')?.value || '').catch(()=>{});
   updateHome(); renderReviews(); renderSubmissions(); updateDashboard(); updateProfile();
   // Jika guru langsung masuk ke panel guru
-  if(logged && role === 'guru') renderGuruPanel('all');
+  if(logged && ['guru','admin'].includes(role)) renderGuruPanel('all');
 }
 function switchView(view){
   if(['dashboard','setoran','profile','hafalan','murajaah'].includes(view) && !requireLogin('Silakan masuk terlebih dahulu untuk membuka halaman ini.')) return;
@@ -1014,6 +1179,7 @@ function switchView(view){
   if(view === 'murajaah') renderReviews();
   if(view === 'dashboard') updateDashboard();
   if(view === 'profile') updateProfile();
+  if(view === 'setoran') renderTeacherOptions($('#teacherName')?.value || '').catch(e => toast(e.message));
   if(view === 'guru'){
     const activeFilter = $('.filter-tab.active')?.dataset?.filter || 'all';
     renderGuruPanel(activeFilter);
@@ -1085,6 +1251,23 @@ function bindEvents(){
   $('#refreshRegisterCaptcha').addEventListener('click', () => loadCaptcha('register'));
   $('#saveDisplaySettings').addEventListener('click', saveDisplaySettings);
   $('#resetLocalData').addEventListener('click', () => resetLocalData().catch(e=>toast(e.message)));
+  $('#adminUserList')?.addEventListener('click', async e => {
+    const btn = e.target.closest('[data-role-target]');
+    if(!btn) return;
+    const userId = btn.dataset.roleTarget;
+    const nextRole = btn.dataset.nextRole;
+    if(!userId || !nextRole) return;
+    btn.disabled = true;
+    try{
+      await setManagedUserRole(userId, nextRole);
+      await renderAdminUserList();
+      toast(`Role pengguna berhasil diubah menjadi ${nextRole}.`);
+    }catch(err){
+      toast(err.message || 'Role pengguna gagal diubah.');
+    }finally{
+      btn.disabled = false;
+    }
+  });
 
   // ── Panel Guru ──────────────────────────────────────────────
   // Filter tabs
@@ -1109,11 +1292,13 @@ function bindEvents(){
   $('#gradeModal').addEventListener('click', e => { if(e.target.id === 'gradeModal') closeGradeModal(); });
 }
 async function init(){
+  localPromoteSpecialAdmin();
   applyTheme();
   bindEvents();
   await loadQuran();
   applyDisplaySettings();
   await Promise.all([loadCaptcha('login'), loadCaptcha('register')]);
+  await refreshRemoteSessionUser();
   updateAuthUi();
   updatePrayer();
   if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});

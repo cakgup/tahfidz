@@ -184,7 +184,9 @@
           <p class="form-help">Catatan: rekaman setoran disimpan sementara dan akan otomatis dihapus setelah 3 hari.</p>
           <div class="control-panel compact">
             <label>Nama guru
-              <input id="teacherName" placeholder="Ustadz/Ustadzah" />
+              <select id="teacherName">
+                <option value="">Memuat daftar guru...</option>
+              </select>
             </label>
             <label>Catatan setoran
               <input id="submissionNote" placeholder="Contoh: Al-Fatihah 1-7" />
@@ -358,6 +360,13 @@
             <p>Gunakan reset untuk membersihkan data hafalan, murajaah, dan setoran. Saat Anda sedang masuk, data terkait di server juga akan dihapus.</p>
             <button class="btn warning" id="resetLocalData">Reset Data Aplikasi</button>
           </article>
+          <article class="info-card" data-role="admin">
+            <h3>Kelola role pengguna</h3>
+            <p class="form-help">Khusus admin: ubah akun santri menjadi guru agar bisa menilai setoran. Akses admin juga otomatis bisa membuka Panel Guru.</p>
+            <div class="admin-user-list" id="adminUserList">
+              <p class="form-help">Memuat daftar pengguna...</p>
+            </div>
+          </article>
           <article class="info-card">
             <h3>Tentang aplikasi</h3>
             <p>Sumber konten utama: <strong>Al-Qur’an Kemenag RI</strong>. Aplikasi ini adalah alat bantu, bukan pengganti bimbingan guru tahsin/tahfiz.</p>
@@ -414,7 +423,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="js/config.js?v=20260613-auth-fix"></script>
-  <script type="module" src="js/app.js?v=20260613-auth-fix"></script>
+  <script src="js/config.js?v=20260613-teacher-dropdown"></script>
+  <script type="module" src="js/app.js?v=20260613-teacher-dropdown"></script>
 </body>
 </html>

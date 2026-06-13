@@ -11,6 +11,8 @@ export default {
       else if (url.pathname === '/api/auth/login' && request.method === 'POST') response = await loginUser(request, env);
       else if (url.pathname === '/api/auth/logout' && request.method === 'POST') response = await logoutUser(request, env);
       else if (url.pathname === '/api/auth/me' && request.method === 'GET') response = await authMe(request, env);
+      else if (url.pathname === '/api/admin/users' && request.method === 'GET') response = await listAdminUsers(request, env);
+      else if (url.pathname.match(/^\/api\/admin\/users\/[^/]+\/role$/) && request.method === 'PATCH') response = await updateAdminUserRole(request, url, env);
       else if (url.pathname === '/api/prayer/today') response = await prayerToday(request, env);
       else if (url.pathname === '/api/quran/surahs') response = await listSurahs(env);
       else if (url.pathname.match(/^\/api\/quran\/surahs\/\d+\/ayahs$/)) response = await listAyahs(url, env);
@@ -22,6 +24,7 @@ export default {
       else if (url.pathname === '/api/submissions' && request.method === 'GET') response = await listSubmissions(request, env);
       else if (url.pathname === '/api/submissions' && request.method === 'POST') response = await createSubmission(request, env);
       else if (url.pathname === '/api/submissions/audio' && request.method === 'GET') response = await getSubmissionAudio(url, env);
+      else if (url.pathname === '/api/teachers' && request.method === 'GET') response = await listTeachers(request, env);
       else if (url.pathname === '/api/account/reset-data' && request.method === 'POST') response = await resetAccountData(request, env);
       else if (url.pathname === '/api/dashboard' && request.method === 'GET') response = await dashboard(request, env);
       else response = json({ error: 'Not found' }, 404);
@@ -80,6 +83,11 @@ async function requireAuth(request, env){
     .bind(tokenHash, nowIso()).first();
   if(!row) fail('Sesi login tidak valid atau sudah kedaluwarsa.', 401);
   return { user: publicUser(row), sessionId: row.session_id, tokenHash };
+}
+async function requireAdmin(request, env){
+  const auth = await requireAuth(request, env);
+  if(auth.user.role !== 'admin') fail('Akses khusus admin.', 403);
+  return auth;
 }
 
 async function createCaptcha(env){
@@ -143,6 +151,27 @@ async function logoutUser(request, env){
 async function authMe(request, env){
   const auth = await requireAuth(request, env);
   return json({ user: auth.user });
+}
+async function listAdminUsers(request, env){
+  await requireAdmin(request, env);
+  const { results } = await env.DB.prepare(`SELECT id, name, email, role, status, created_at, updated_at
+    FROM users
+    ORDER BY datetime(created_at) DESC, lower(name) ASC`).all();
+  return json({ users: results.map(publicUser) });
+}
+async function updateAdminUserRole(request, url, env){
+  const auth = await requireAdmin(request, env);
+  const userId = decodeURIComponent(url.pathname.split('/')[4] || '').trim();
+  if(!userId) fail('ID pengguna tidak valid.');
+  if(userId === auth.user.id) fail('Role akun admin aktif tidak dapat diubah dari panel ini.');
+  const body = await request.json();
+  const role = String(body.role || '').trim().toLowerCase();
+  if(!['santri', 'guru', 'admin'].includes(role)) fail('Role yang dipilih tidak valid.');
+  const existing = await env.DB.prepare('SELECT id, name, email, role, status FROM users WHERE id = ?').bind(userId).first();
+  if(!existing) fail('Pengguna tidak ditemukan.', 404);
+  await env.DB.prepare('UPDATE users SET role = ?, updated_at = ? WHERE id = ?').bind(role, nowIso(), userId).run();
+  const updated = await env.DB.prepare('SELECT id, name, email, role, status FROM users WHERE id = ?').bind(userId).first();
+  return json({ ok: true, user: publicUser(updated) });
 }
 
 async function prayerToday(request, env){
@@ -303,6 +332,14 @@ async function createSubmission(request, env){
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
     .bind(id, auth.user.id, teacherId, surahId, startAyah, endAyah, audioUrl, 'submitted', note, nowIso()).run();
   return json({ ok: true, id, audio_url: audioUrl, status: 'submitted/r2' });
+}
+async function listTeachers(request, env){
+  await requireAuth(request, env);
+  const { results } = await env.DB.prepare(`SELECT id, name, email, role, status
+    FROM users
+    WHERE status = 'active' AND role IN ('guru', 'admin')
+    ORDER BY CASE role WHEN 'admin' THEN 0 ELSE 1 END, lower(name) ASC`).all();
+  return json({ teachers: results.map(publicUser) });
 }
 async function listSubmissions(request, env){
   const auth = await requireAuth(request, env);
