@@ -399,3 +399,7 @@ WHERE lower(email) = 'admin@example.com';
 <p align="center">
   <strong>Dirancang agar mudah dipakai, mudah dikembangkan, dan mudah diteruskan oleh orang berikutnya.</strong>
 </p>
+
+<p align="center">
+  <sub>developed with ❤️ by cakgup</sub>
+</p>
