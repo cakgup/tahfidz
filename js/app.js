@@ -888,7 +888,7 @@ function renderSubmissions(){
   }
   const data = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
   $('#submissionList').innerHTML = data.length
-    ? data.map(s => `<article class="review-item"><div><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} - Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div>${s.audio_url ? `<audio controls src="${s.audio_url}"></audio>` : ''}</article>`).join('')
+    ? data.map(s => `<article class="review-item"><div><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} - Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div><div style="display:flex;align-items:center;gap:10px;margin-top:10px;width:100%">${s.audio_url ? `<audio controls src="${s.audio_url}" style="flex:1;min-width:0"></audio>` : '<p style="color:var(--text-soft);font-size:0.9rem;margin:0">Audio tidak tersedia</p>'}<button class="btn ghost" style="min-height:44px;padding:8px 12px;white-space:nowrap;flex-shrink:0" data-delete-submission="${escapeHtml(s.id)}" title="Hapus setoran ini">🗑️ Hapus</button></div></article>`).join('')
     : emptyState('Belum ada setoran.', 'Pilih target di menu Hafalan, rekam bacaan, lalu simpan setoran agar riwayat dan audio bisa diputar kembali.', null, null);
 }
 
@@ -1049,6 +1049,30 @@ function saveGrade(){
   const activeFilter = $('.filter-tab.active')?.dataset?.filter || 'all';
   renderGuruPanel(activeFilter);
   toast('Penilaian berhasil disimpan.');
+}
+
+/** Hapus setoran dari storage */
+function deleteSubmission(submissionId){
+  if(!confirm('Hapus setoran ini? Audio dan data setoran akan dihapus secara permanen.')) return;
+  
+  const key = userScopedKey(STORAGE_KEYS.submissions);
+  const data = readJson(key, []);
+  const idx = data.findIndex(s => s.id === submissionId);
+  
+  if(idx < 0){ toast('Setoran tidak ditemukan.'); return; }
+  
+  data.splice(idx, 1);
+  writeJson(key, data);
+  
+  renderSubmissions();
+  updateDashboard();
+  updateHome();
+  toast('Setoran berhasil dihapus dan storage terbebas.');
+  
+  // Sync dengan server jika online
+  if(window.HIFZ_CONFIG.apiBase){
+    apiFetch('/api/submissions', { method:'POST', body:JSON.stringify({deleted:submissionId}) }).catch(console.warn);
+  }
 }
 function updateDashboard(){
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
@@ -1371,6 +1395,12 @@ function bindEvents(){
   $('#guruSubmissionList').addEventListener('click', e => {
     const btn = e.target.closest('[data-grade-id]');
     if(btn) openGradeModal(btn.dataset.gradeId);
+  });
+
+  // Tombol hapus setoran
+  $('#submissionList').addEventListener('click', e => {
+    const btn = e.target.closest('[data-delete-submission]');
+    if(btn) deleteSubmission(btn.dataset.deleteSubmission);
   });
 
   // Modal penilaian
