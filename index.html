@@ -225,17 +225,27 @@
           <p class="eyebrow">Masuk</p>
           <h2>Masuk ke akun hafalan</h2>
           <p class="form-help">Gunakan akun agar progres hafalan, murajaah, dan setoran tersimpan.</p>
-          <form id="loginForm" class="stack-form">
-            <label>Email
+          <form id="loginForm" class="stack-form auth-form">
+            <div class="auth-field">
+              <label for="loginEmail">Email</label>
               <input type="email" id="loginEmail" autocomplete="email" required placeholder="nama@email.com" />
-            </label>
-            <label>Password
-              <input type="password" id="loginPassword" autocomplete="current-password" required placeholder="Password" />
-            </label>
-            <label>Captcha: <span class="captcha-question" id="loginCaptchaQuestion">Memuat...</span>
-              <input id="loginCaptchaAnswer" inputmode="numeric" required placeholder="Jawaban" />
-            </label>
-            <div class="action-row">
+            </div>
+            <div class="auth-field">
+              <label for="loginPassword">Password</label>
+              <input type="password" id="loginPassword" autocomplete="current-password" required placeholder="Masukkan password" />
+            </div>
+            <div class="auth-field auth-field-full">
+              <label for="loginCaptchaAnswer">Captcha</label>
+              <div class="captcha-box">
+                <p class="captcha-copy">Jawab soal berikut untuk melanjutkan.</p>
+                <div class="captcha-question-row">
+                  <span class="captcha-question-label">Soal</span>
+                  <span class="captcha-question" id="loginCaptchaQuestion">Memuat...</span>
+                </div>
+              </div>
+              <input id="loginCaptchaAnswer" inputmode="numeric" required placeholder="Tulis jawaban captcha" />
+            </div>
+            <div class="action-row auth-actions">
               <button class="btn primary" type="submit">Masuk</button>
               <button class="btn ghost" type="button" id="refreshLoginCaptcha">Ganti soal</button>
             </div>
@@ -249,23 +259,35 @@
           <p class="eyebrow">Daftar</p>
           <h2>Buat akun santri</h2>
           <p class="form-help">Role awal pengguna adalah santri. Role guru/admin dapat diatur kemudian dari database atau fitur admin.</p>
-          <form id="registerForm" class="stack-form">
-            <label>Nama lengkap
+          <form id="registerForm" class="stack-form auth-form">
+            <div class="auth-field">
+              <label for="registerName">Nama lengkap</label>
               <input id="registerName" autocomplete="name" required placeholder="Nama lengkap" />
-            </label>
-            <label>Email
+            </div>
+            <div class="auth-field">
+              <label for="registerEmail">Email</label>
               <input type="email" id="registerEmail" autocomplete="email" required placeholder="nama@email.com" />
-            </label>
-            <label>Password
+            </div>
+            <div class="auth-field">
+              <label for="registerPassword">Password</label>
               <input type="password" id="registerPassword" autocomplete="new-password" minlength="6" required placeholder="Minimal 6 karakter" />
-            </label>
-            <label>Konfirmasi password
+            </div>
+            <div class="auth-field">
+              <label for="registerPasswordConfirm">Konfirmasi password</label>
               <input type="password" id="registerPasswordConfirm" autocomplete="new-password" minlength="6" required placeholder="Ulangi password" />
-            </label>
-            <label>Captcha: <span class="captcha-question" id="registerCaptchaQuestion">Memuat...</span>
-              <input id="registerCaptchaAnswer" inputmode="numeric" required placeholder="Jawaban" />
-            </label>
-            <div class="action-row">
+            </div>
+            <div class="auth-field auth-field-full">
+              <label for="registerCaptchaAnswer">Captcha</label>
+              <div class="captcha-box">
+                <p class="captcha-copy">Jawab soal berikut untuk memastikan pendaftaran dilakukan oleh manusia.</p>
+                <div class="captcha-question-row">
+                  <span class="captcha-question-label">Soal</span>
+                  <span class="captcha-question" id="registerCaptchaQuestion">Memuat...</span>
+                </div>
+              </div>
+              <input id="registerCaptchaAnswer" inputmode="numeric" required placeholder="Tulis jawaban captcha" />
+            </div>
+            <div class="action-row auth-actions">
               <button class="btn primary" type="submit">Daftar</button>
               <button class="btn ghost" type="button" id="refreshRegisterCaptcha">Ganti soal</button>
             </div>
