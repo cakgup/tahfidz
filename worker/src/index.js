@@ -14,6 +14,7 @@ export default {
       else if (url.pathname === '/api/admin/users' && request.method === 'GET') response = await listAdminUsers(request, env);
       else if (url.pathname.match(/^\/api\/admin\/users\/[^/]+\/role$/) && request.method === 'PATCH') response = await updateAdminUserRole(request, url, env);
       else if (url.pathname === '/api/prayer/today') response = await prayerToday(request, env);
+      else if (url.pathname === '/api/location/reverse' && request.method === 'GET') response = await reverseLocation(url, env);
       else if (url.pathname === '/api/quran/surahs') response = await listSurahs(env);
       else if (url.pathname.match(/^\/api\/quran\/surahs\/\d+\/ayahs$/)) response = await listAyahs(url, env);
       else if (url.pathname === '/api/progress' && request.method === 'GET') response = await getProgress(request, env);
@@ -203,6 +204,43 @@ function localDate(timeZone = 'Asia/Jakarta'){
 }
 function cleanTime(value){ return String(value || '').split(' ')[0].slice(0,5); }
 function mapPrayer(row){ return { imsak: row.imsak, fajr: row.fajr, sunrise: row.sunrise, dhuhr: row.dhuhr, asr: row.asr, maghrib: row.maghrib, isha: row.isha }; }
+function pickLocationLabel(address = {}, fallback = 'Lokasi GPS aktif'){
+  const primary = [
+    address.city,
+    address.town,
+    address.municipality,
+    address.county,
+    address.city_district,
+    address.suburb,
+    address.village
+  ].map(value => String(value || '').trim()).filter(Boolean);
+  const province = String(address.state || address.province || '').trim();
+  const location = primary[0] || '';
+  if(location && province && !location.toLowerCase().includes(province.toLowerCase())) return `${location}, ${province}`;
+  return location || province || fallback;
+}
+async function reverseLocation(url, env){
+  const lat = Number(url.searchParams.get('lat'));
+  const lng = Number(url.searchParams.get('lng'));
+  if(!Number.isFinite(lat) || !Number.isFinite(lng)) fail('Koordinat lokasi tidak valid.');
+  const endpoint = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&addressdetails=1&accept-language=id`;
+  const res = await fetch(endpoint, {
+    headers: {
+      'Accept': 'application/json',
+      'User-Agent': 'HifzCompanion/1.0 (reverse geocoding for prayer location)'
+    },
+    cf: { cacheTtl: 86400 }
+  });
+  if(!res.ok) fail('Nama lokasi GPS tidak dapat diambil.', 502);
+  const data = await res.json();
+  const label = pickLocationLabel(data.address || {}, 'Lokasi GPS aktif');
+  return json({
+    ok: true,
+    locationName: label,
+    displayName: data.display_name || label,
+    address: data.address || {}
+  });
+}
 function guessAudioExtension(contentType = ''){
   if(contentType.includes('ogg')) return 'ogg';
   if(contentType.includes('mpeg')) return 'mp3';
@@ -343,12 +381,25 @@ async function listTeachers(request, env){
 }
 async function listSubmissions(request, env){
   const auth = await requireAuth(request, env);
-  const { results } = await env.DB.prepare(`SELECT s.*, t.name AS teacher_name
+  let query = `SELECT s.*,
+      t.name AS teacher_name,
+      u.name AS student_name,
+      u.email AS student_email
     FROM submissions s
     LEFT JOIN users t ON t.id = s.teacher_id
-    WHERE s.user_id=?
-    ORDER BY s.submitted_at DESC
-    LIMIT 100`).bind(auth.user.id).all();
+    LEFT JOIN users u ON u.id = s.user_id`;
+  let bindings;
+  if(auth.user.role === 'admin'){
+    query += ` ORDER BY s.submitted_at DESC LIMIT 200`;
+    bindings = [];
+  }else if(auth.user.role === 'guru'){
+    query += ` WHERE s.teacher_id=? ORDER BY s.submitted_at DESC LIMIT 200`;
+    bindings = [auth.user.id];
+  }else{
+    query += ` WHERE s.user_id=? ORDER BY s.submitted_at DESC LIMIT 100`;
+    bindings = [auth.user.id];
+  }
+  const { results } = await env.DB.prepare(query).bind(...bindings).all();
   return json({ submissions: results });
 }
 async function getSubmissionAudio(url, env){

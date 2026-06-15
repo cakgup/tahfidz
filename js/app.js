@@ -216,8 +216,9 @@ async function refreshRemoteSessionUser(){
 function normalizeRemoteSubmission(item = {}){
   return {
     id: item.id || crypto.randomUUID(),
-    student_name: item.student_name || item.user_name || currentUser()?.name || 'Santri',
-    student_email: item.student_email || currentUser()?.email || '',
+    user_id: item.user_id || item.student_id || '',
+    student_name: item.student_name || item.user_name || '',
+    student_email: item.student_email || '',
     teacher: item.teacher_name || item.teacher || 'Guru',
     teacher_id: item.teacher_id || '',
     note: item.note || '-',
@@ -851,15 +852,26 @@ function setPrayerLocation(name, latitude, longitude, options = {}){
   storage.removeItem(STORAGE_KEYS.prayerCache);
   updatePrayer();
 }
+async function resolvePrayerLocationName(latitude, longitude){
+  if(!window.HIFZ_CONFIG.apiBase) return 'Lokasi GPS aktif';
+  try{
+    const data = await apiFetch(`/api/location/reverse?lat=${encodeURIComponent(latitude)}&lng=${encodeURIComponent(longitude)}`);
+    return String(data.locationName || data.displayName || '').trim() || 'Lokasi GPS aktif';
+  }catch{
+    return 'Lokasi GPS aktif';
+  }
+}
 function detectGps(){
   const status = $('#gpsStatus');
   if(!navigator.geolocation){ status.textContent = 'Browser tidak mendukung GPS. Aplikasi tetap memakai lokasi default.'; return; }
   status.textContent = 'Meminta izin lokasi...';
-  navigator.geolocation.getCurrentPosition(pos => {
+  navigator.geolocation.getCurrentPosition(async pos => {
     const lat = Number(pos.coords.latitude.toFixed(4));
     const lng = Number(pos.coords.longitude.toFixed(4));
-    setPrayerLocation('Lokasi GPS aktif', lat, lng, {persist:false});
-    status.textContent = `Lokasi berhasil diperbarui: ${lat}, ${lng}`;
+    status.textContent = 'Mengambil nama wilayah GPS...';
+    const locationName = await resolvePrayerLocationName(lat, lng);
+    setPrayerLocation(locationName, lat, lng, {persist:false});
+    status.textContent = `Lokasi berhasil diperbarui: ${locationName} (${lat}, ${lng})`;
     toast('Lokasi jadwal shalat berhasil diperbarui.');
   }, err => {
     status.textContent = `Lokasi tidak dapat dideteksi: ${err.message}. Aplikasi tetap memakai lokasi sebelumnya.`;
@@ -1065,12 +1077,23 @@ function formatDisplayName(name = ''){
     .replace(/\b\w/g, char => char.toUpperCase());
 }
 
+function isGenericStudentName(name = ''){
+  const normalized = String(name || '').trim();
+  if(!normalized) return true;
+  return /^santri$/i.test(normalized)
+    || /^santri\s+[0-9a-f]{4,}$/i.test(normalized)
+    || /^id\s*[0-9a-f]{4,}$/i.test(normalized);
+}
+
 function resolveSubmissionStudentName(submission = {}, userObj = null, userId = ''){
   const directName = [
     submission.student_name,
     submission.user_name,
     userObj?.name
-  ].find(value => String(value || '').trim());
+  ].find(value => {
+    const candidate = String(value || '').trim();
+    return candidate && !isGenericStudentName(candidate);
+  });
   if(directName) return formatDisplayName(directName);
 
   const emailSource = String(submission.student_email || userObj?.email || '').trim();
@@ -1095,13 +1118,17 @@ function getAllSubmissions(){
 
   for(const key of subKeys){
     const userId = key.slice(subPrefix.length);
-    const userObj = localUsers.find(u => u.id === userId);
     const subs = readJson(key, []);
     for(const sub of subs){
       if(!hasValidSubmissionAudio(sub)) continue;
+      const submissionUserId = String(sub.user_id || sub.student_id || userId || '').trim();
+      const userObj = localUsers.find(u =>
+        u.id === submissionUserId
+        || (sub.student_email && u.email && String(u.email).toLowerCase() === String(sub.student_email).toLowerCase())
+      );
       const grade = guruReviews[sub.id] || null;
-      const resolvedName = resolveSubmissionStudentName(sub, userObj, userId);
-      allSubs.push({ ...sub, _userId: userId, _userName: resolvedName, _grade: grade });
+      const resolvedName = resolveSubmissionStudentName(sub, userObj, submissionUserId);
+      allSubs.push({ ...sub, _userId: submissionUserId || userId, _userName: resolvedName, _grade: grade });
     }
   }
 
