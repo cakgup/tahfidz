@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v27-network-first-shell';
+const CACHE_NAME = 'hifz-companion-v28-delete-fix';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260615-nav-fix',
-  './js/config.js?v=20260615-nav-fix',
-  './js/app.js?v=20260615-nav-fix',
+  './css/styles.css?v=20260615-delete-fix',
+  './js/config.js?v=20260615-delete-fix',
+  './js/app.js?v=20260615-delete-fix',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',
