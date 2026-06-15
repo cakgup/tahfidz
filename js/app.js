@@ -785,7 +785,7 @@ async function saveSubmission(){
   $('#submissionNote').value = '';
   renderSubmissions(); updateDashboard(); updateHome(); toast('Setoran berhasil disimpan.');
 }
-function renderSubmissionsLegacy(){
+function renderSubmissionsLegacyOld(){
   if(!isLoggedIn()){ $('#submissionList').innerHTML = ''; return; }
   const data = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
   $('#submissionList').innerHTML = data.length ? data.map(s => `<article class="review-item"><div><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} · Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div>${s.audio_url ? `<audio controls src="${s.audio_url}"></audio>` : ''}</article>`).join('') : emptyState('Belum ada setoran.', 'Rekam bacaan lalu simpan setoran untuk membuat riwayat.', null, null);
