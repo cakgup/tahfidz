@@ -3,12 +3,32 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <meta name="theme-color" content="#1A3A6B" />
   <meta name="description" content="Hifz Companion: asisten hafalan Qur'an dengan murajaah, jadwal shalat, login, dan setoran guru." />
   <title>Hifz Companion</title>
+  <script>
+    window.__HIFZ_DISABLE_SW__ = true;
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.getRegistrations()
+        .then(registrations => Promise.all(registrations.map(reg => reg.unregister())))
+        .catch(() => {});
+    }
+    if('caches' in window){
+      caches.keys()
+        .then(keys => Promise.all(
+          keys
+            .filter(key => key.startsWith('hifz-companion'))
+            .map(key => caches.delete(key))
+        ))
+        .catch(() => {});
+    }
+  </script>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="css/styles.css?v=20260615-location-modal" />
+  <link rel="stylesheet" href="css/styles.css?v=20260615-nav-fix" />
 </head>
 <body>
   <div class="app-shell">
@@ -61,8 +81,8 @@
 
     <nav class="tab-nav" aria-label="Navigasi utama">
       <button class="nav-pill active" data-view="home">Beranda</button>
-      <button class="nav-pill" data-view="hafalan" data-role="santri">Hafalan</button>
-      <button class="nav-pill" data-view="murajaah" data-role="santri">Murajaah</button>
+      <button class="nav-pill" data-view="hafalan" data-user-only data-role="santri">Hafalan</button>
+      <button class="nav-pill" data-view="murajaah" data-user-only data-role="santri">Murajaah</button>
       <button class="nav-pill" data-view="setoran" data-user-only data-role="santri">Setoran</button>
       <button class="nav-pill" data-view="dashboard" data-user-only data-role="santri">Progres</button>
       <button class="nav-pill" data-view="profile" data-user-only data-role="santri,guru,admin">Profil</button>
@@ -111,7 +131,7 @@
         </section>
       </section>
 
-      <section class="view" id="view-hafalan">
+      <section class="view" id="view-hafalan" hidden>
         <div class="section-heading">
           <div>
             <p class="eyebrow">Mode Hafalan</p>
@@ -159,7 +179,7 @@
         </div>
       </section>
 
-      <section class="view" id="view-murajaah">
+      <section class="view" id="view-murajaah" hidden>
         <div class="section-heading">
           <div>
             <p class="eyebrow">Murajaah</p>
@@ -174,7 +194,7 @@
         <div class="review-list" id="reviewList"></div>
       </section>
 
-      <section class="view" id="view-setoran">
+      <section class="view" id="view-setoran" hidden>
         <div class="section-heading">
           <div>
             <p class="eyebrow">Setoran</p>
@@ -214,7 +234,7 @@
         <div id="submissionList" class="review-list"></div>
       </section>
 
-      <section class="view" id="view-dashboard">
+      <section class="view" id="view-dashboard" hidden>
         <div class="section-heading">
           <div>
             <p class="eyebrow">Progres</p>
@@ -231,7 +251,7 @@
         <div class="reader-card compact" id="dashboardDetail"></div>
       </section>
 
-      <section class="view auth-view" id="view-login">
+      <section class="view auth-view" id="view-login" hidden>
         <div class="auth-card">
           <p class="eyebrow">Masuk</p>
           <h2>Masuk ke akun hafalan</h2>
@@ -265,7 +285,7 @@
         </div>
       </section>
 
-      <section class="view auth-view" id="view-register">
+      <section class="view auth-view" id="view-register" hidden>
         <div class="auth-card">
           <p class="eyebrow">Daftar</p>
           <h2>Buat akun santri</h2>
@@ -308,7 +328,7 @@
       </section>
 
       <!-- ====== VIEW: PANEL GURU ====== -->
-      <section class="view" id="view-guru">
+      <section class="view" id="view-guru" hidden>
         <div class="section-heading">
           <div>
             <p class="eyebrow">Panel Guru</p>
@@ -344,7 +364,7 @@
         <div class="guru-submission-list" id="guruSubmissionList"></div>
       </section>
 
-      <section class="view" id="view-profile">
+      <section class="view" id="view-profile" hidden>
         <div class="section-heading">
           <div>
             <p class="eyebrow">Profil</p>
@@ -442,7 +462,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="js/config.js?v=20260615-location-modal"></script>
-  <script type="module" src="js/app.js?v=20260615-location-modal"></script>
+  <script src="js/config.js?v=20260615-nav-fix"></script>
+  <script type="module" src="js/app.js?v=20260615-nav-fix"></script>
 </body>
 </html>

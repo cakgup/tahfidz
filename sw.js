@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v26-location-modal';
+const CACHE_NAME = 'hifz-companion-v27-network-first-shell';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260615-location-modal',
-  './js/config.js?v=20260615-location-modal',
-  './js/app.js?v=20260615-location-modal',
+  './css/styles.css?v=20260615-nav-fix',
+  './js/config.js?v=20260615-nav-fix',
+  './js/app.js?v=20260615-nav-fix',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',
@@ -20,9 +20,20 @@ self.addEventListener('activate', event => {
 });
 self.addEventListener('fetch', event => {
   if(event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  const isLocal = url.origin === location.origin;
+  const isNavigation = event.request.mode === 'navigate' || (event.request.destination === 'document' && isLocal);
+  if(isNavigation){
+    event.respondWith(fetch(event.request).then(res => {
+      const copy = res.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
+      return res;
+    }).catch(() => caches.match('./index.html')));
+    return;
+  }
   event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request).then(res => {
     const copy = res.clone();
-    if(new URL(event.request.url).origin === location.origin) caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+    if(isLocal) caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
     return res;
   }).catch(() => caches.match('./index.html'))));
 });

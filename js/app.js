@@ -114,6 +114,13 @@ function rememberKnownUser(user){
   writeJson(STORAGE_KEYS.localUsers, users);
 }
 function currentRole(){ return currentUser()?.role || 'guest'; }
+function setElementVisibility(el, hidden){
+  if(!el) return;
+  el.hidden = hidden;
+  el.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+  if(hidden) el.style.display = 'none';
+  else el.style.removeProperty('display');
+}
 function isLocalAuthToken(token = getAuth()?.token){ return String(token || '').startsWith('local-'); }
 function isSpecialAdminEmail(email = ''){ return String(email || '').trim().toLowerCase() === SUPER_ADMIN_EMAIL; }
 function localPromoteSpecialAdmin(){
@@ -1415,15 +1422,15 @@ function updateAuthUi(){
   const logged = isLoggedIn();
   const role = currentRole();
   if(logged && currentUser()) rememberKnownUser(currentUser());
-  $$('[data-user-only]').forEach(el => el.hidden = !logged);
-  $$('[data-guest-only]').forEach(el => el.hidden = logged);
+  $$('[data-user-only]').forEach(el => setElementVisibility(el, !logged));
+  $$('[data-guest-only]').forEach(el => setElementVisibility(el, logged));
   $$('[data-role]').forEach(el => {
     const allowed = String(el.dataset.role || '').split(',').map(x => x.trim()).filter(Boolean);
     if(!allowed.length) return;
-    el.hidden = !logged || !allowed.includes(role);
+    setElementVisibility(el, !logged || !allowed.includes(role));
   });
   if(logged){
-    $$('[data-view="login"], [data-view="register"]').forEach(el => { el.hidden = true; });
+    $$('[data-view="login"], [data-view="register"]').forEach(el => setElementVisibility(el, true));
   }
   renderTeacherOptions($('#teacherName')?.value || '').catch(()=>{});
   if(logged) syncRemoteSubmissions({ silent:true }).then(() => {
@@ -1447,10 +1454,14 @@ function switchView(view){
     generateReview();
     return;
   }
-  $$('.view').forEach(v => v.classList.remove('active'));
+  $$('.view').forEach(v => {
+    v.classList.remove('active');
+    setElementVisibility(v, true);
+  });
   const target = $(`#view-${view}`);
   if(!target) return;
   target.classList.add('active');
+  setElementVisibility(target, false);
   const shell = document.querySelector('.app-shell');
   if(shell) shell.dataset.currentView = view;
   $$('.nav-pill').forEach(b => b.classList.toggle('active', b.dataset.view === view));
@@ -1605,7 +1616,10 @@ async function init(){
   await refreshRemoteSessionUser();
   await syncRemoteSubmissions({ silent:true }).catch(()=>{});
   updateAuthUi();
+  switchView('home');
   updatePrayer();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if('serviceWorker' in navigator && !window.__HIFZ_DISABLE_SW__){
+    navigator.serviceWorker.register('sw.js').then(reg => reg.update()).catch(()=>{});
+  }
 }
 init().catch(err => { console.error(err); toast(err.message); });
