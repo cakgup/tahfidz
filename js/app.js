@@ -97,6 +97,22 @@ function getAuth(){ return readJson(STORAGE_KEYS.auth, null); }
 function setAuth(auth){ auth ? writeJson(STORAGE_KEYS.auth, auth) : storage.removeItem(STORAGE_KEYS.auth); }
 function isLoggedIn(){ return Boolean(getAuth()?.token && getAuth()?.user); }
 function currentUser(){ return getAuth()?.user || null; }
+function rememberKnownUser(user){
+  if(!user?.id) return;
+  const users = readJson(STORAGE_KEYS.localUsers, []);
+  const idx = users.findIndex(item => item.id === user.id || (user.email && item.email && item.email.toLowerCase() === String(user.email).toLowerCase()));
+  const normalized = {
+    ...users[idx],
+    id: user.id,
+    name: user.name || users[idx]?.name || 'Santri',
+    email: user.email || users[idx]?.email || '',
+    role: user.role || users[idx]?.role || 'santri',
+    status: user.status || users[idx]?.status || 'active'
+  };
+  if(idx >= 0) users[idx] = normalized;
+  else users.push(normalized);
+  writeJson(STORAGE_KEYS.localUsers, users);
+}
 function currentRole(){ return currentUser()?.role || 'guest'; }
 function isLocalAuthToken(token = getAuth()?.token){ return String(token || '').startsWith('local-'); }
 function isSpecialAdminEmail(email = ''){ return String(email || '').trim().toLowerCase() === SUPER_ADMIN_EMAIL; }
@@ -185,6 +201,7 @@ async function refreshRemoteSessionUser(){
     const data = await apiFetch('/api/auth/me');
     if(data?.user){
       const auth = getAuth();
+      rememberKnownUser(data.user);
       if(auth?.token) setAuth({ ...auth, user: data.user });
     }
   }catch{}
@@ -192,6 +209,8 @@ async function refreshRemoteSessionUser(){
 function normalizeRemoteSubmission(item = {}){
   return {
     id: item.id || crypto.randomUUID(),
+    student_name: item.student_name || item.user_name || currentUser()?.name || 'Santri',
+    student_email: item.student_email || currentUser()?.email || '',
     teacher: item.teacher_name || item.teacher || 'Guru',
     teacher_id: item.teacher_id || '',
     note: item.note || '-',
@@ -582,9 +601,11 @@ function renderReviewsLegacyV2(){
 function renderReviews(){
   if(!isLoggedIn()){
     $('#reviewList').innerHTML = emptyState('Silakan masuk untuk melihat murajaah.', 'Jadwal murajaah bersifat personal dan dibuat dari ayat yang sudah Anda tandai hafal.', 'Masuk', 'login');
+    if($('#clearAllReviews')) $('#clearAllReviews').hidden = true;
     return;
   }
   const inventory = reviewInventory();
+  if($('#clearAllReviews')) $('#clearAllReviews').hidden = !(inventory.todayItems.length || inventory.futureCount);
   if(inventory.todayItems.length){
     $('#reviewList').innerHTML = `<article class="info-card review-summary-card">
       <div>
@@ -726,6 +747,8 @@ async function saveSubmission(){
   const teacher = getSelectedTeacher();
   const item = {
     id: crypto.randomUUID(),
+    student_name: currentUser()?.name || 'Santri',
+    student_email: currentUser()?.email || '',
     teacher: teacher.name,
     teacher_id: teacher.id,
     note: $('#submissionNote').value || `${state.currentSurah.name_latin} ${start}-${end}`,
@@ -799,8 +822,16 @@ function startPrayerCountdown(times){
   };
   tick(); state.prayerTimer = setInterval(tick, 1000);
 }
-function openLocationModal(){ $('#locationModal').hidden = false; $('#gpsStatus').textContent = ''; }
-function closeLocationModal(){ $('#locationModal').hidden = true; }
+function openLocationModal(){
+  $('#locationModal').hidden = false;
+  $('#gpsStatus').textContent = '';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => $('#detectGps')?.focus(), 0);
+}
+function closeLocationModal(){
+  $('#locationModal').hidden = true;
+  document.body.style.overflow = '';
+}
 function setPrayerLocation(name, latitude, longitude, options = {}){
   const persist = options.persist ?? true;
   if(persist){
@@ -876,6 +907,7 @@ async function handleRegister(e){
     const cap = state.captchas.register;
     const payload = {name,email,password,captchaId:cap.id,captchaAnswer:$('#registerCaptchaAnswer').value.trim()};
     const data = cap.local ? await localRegister({name,email,password}) : await apiFetch('/api/auth/register', {method:'POST', body:JSON.stringify(payload)});
+    rememberKnownUser(data.user);
     setAuth({token:data.token, user:data.user});
     if(!cap.local) await syncRemoteSubmissions({ silent:true }).catch(()=>{});
     updateAuthUi();
@@ -891,6 +923,7 @@ async function handleLogin(e){
     const cap = state.captchas.login;
     const payload = {email,password,captchaId:cap.id,captchaAnswer:$('#loginCaptchaAnswer').value.trim()};
     const data = cap.local ? await localLogin({email,password}) : await apiFetch('/api/auth/login', {method:'POST', body:JSON.stringify(payload)});
+    rememberKnownUser(data.user);
     setAuth({token:data.token, user:data.user});
     if(!cap.local) await syncRemoteSubmissions({ silent:true }).catch(()=>{});
     updateAuthUi();
@@ -1027,11 +1060,11 @@ function getAllSubmissions(){
   for(const key of subKeys){
     const userId = key.slice(subPrefix.length);
     const userObj = localUsers.find(u => u.id === userId);
-    const userName = userObj ? userObj.name : `Santri (${userId.slice(0,6)})`;
     const subs = readJson(key, []);
     for(const sub of subs){
       const grade = guruReviews[sub.id] || null;
-      allSubs.push({ ...sub, _userId: userId, _userName: userName, _grade: grade });
+      const resolvedName = sub.student_name || sub.user_name || userObj?.name || (sub.student_email ? sub.student_email.replace(/@.*$/, '') : '') || `ID ${userId.slice(0,6)}`;
+      allSubs.push({ ...sub, _userId: userId, _userName: `Santri: ${resolvedName}`, _grade: grade });
     }
   }
 
@@ -1124,7 +1157,7 @@ function renderGuruPanel(filter = 'all'){
 }
 
 /** Buka modal penilaian */
-function openGradeModal(submissionId){
+function openGradeModalLegacy(submissionId){
   const all = getAllSubmissions();
   const sub = all.find(s => s.id === submissionId);
   if(!sub){ toast('Setoran tidak ditemukan.'); return; }
@@ -1144,11 +1177,38 @@ function openGradeModal(submissionId){
 }
 
 /** Tutup modal penilaian */
-function closeGradeModal(){
+function closeGradeModalLegacy(){
   $('#gradeModal').hidden = true;
 }
 
 /** Simpan penilaian guru */
+function openGradeModal(submissionId){
+  const all = getAllSubmissions();
+  const sub = all.find(s => s.id === submissionId);
+  if(!sub){ toast('Setoran tidak ditemukan.'); return; }
+
+  $('#gradeSubmissionId').value = submissionId;
+  $('#gradeInfo').innerHTML = `
+    <strong>${escapeHtml(sub._userName)}</strong>
+    <span>📖 Setoran: ${escapeHtml(sub.note || '-')}</span>
+    <span>🕐 Dikirim: ${sub.created_at ? new Date(sub.created_at).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'}) : '-'}</span>
+  `;
+
+  const existing = sub._grade;
+  $('#gradeScore').value   = existing?.nilai   ?? '';
+  $('#gradeStatus').value  = existing?.status  ?? 'disetujui';
+  $('#gradeCatatan').value = existing?.catatan ?? '';
+
+  $('#gradeModal').hidden = false;
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => $('#gradeScore')?.focus(), 0);
+}
+
+function closeGradeModal(){
+  $('#gradeModal').hidden = true;
+  document.body.style.overflow = '';
+}
+
 function saveGrade(){
   const submissionId = $('#gradeSubmissionId').value;
   const nilai  = Number($('#gradeScore').value);
@@ -1354,6 +1414,7 @@ function updateAuthUi(){
   localPromoteSpecialAdmin();
   const logged = isLoggedIn();
   const role = currentRole();
+  if(logged && currentUser()) rememberKnownUser(currentUser());
   $$('[data-user-only]').forEach(el => el.hidden = !logged);
   $$('[data-guest-only]').forEach(el => el.hidden = logged);
   $$('[data-role]').forEach(el => {
@@ -1447,10 +1508,13 @@ function bindEvents(){
   $('#playSequence').addEventListener('click', playSequence);
   $('#markMemorized').addEventListener('click', () => markMemorized().catch(e=>toast(e.message)));
   $('#markDifficult').addEventListener('click', markDifficult);
-  $('#generateReview').addEventListener('click', generateReview);
+  $('#generateReview').addEventListener('click', () => generateReview());
+  $('#clearAllReviews').addEventListener('click', clearAllReviews);
   $('#reviewList').addEventListener('click', e => {
     if(e.target.dataset.review) handleReviewResult(e.target.dataset.id, e.target.dataset.review);
     if(e.target.dataset.openReview) openReviewAyah(e.target.dataset.openReview);
+    if(e.target.dataset.deleteReview) deleteReview(e.target.dataset.deleteReview);
+    if(e.target.dataset.clearReviews) clearAllReviews();
     if(e.target.dataset.jump === 'generate-review'){
       generateReview();
       return;
@@ -1467,6 +1531,9 @@ function bindEvents(){
   $('#locationModal').addEventListener('click', e => { if(e.target.id === 'locationModal') closeLocationModal(); });
   $('#detectGps').addEventListener('click', detectGps);
   $('#useDefaultLocation').addEventListener('click', () => { setPrayerLocation('Bekasi', -6.2383, 106.9756); toast('Lokasi default Bekasi digunakan.'); });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape' && !$('#locationModal').hidden) closeLocationModal();
+  });
   $('#loginForm').addEventListener('submit', handleLogin);
   $('#registerForm').addEventListener('submit', handleRegister);
   $('#refreshLoginCaptcha').addEventListener('click', () => loadCaptcha('login'));
@@ -1524,6 +1591,9 @@ function bindEvents(){
   $('#cancelGradeBtn').addEventListener('click', closeGradeModal);
   $('#closeGradeModal').addEventListener('click', closeGradeModal);
   $('#gradeModal').addEventListener('click', e => { if(e.target.id === 'gradeModal') closeGradeModal(); });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape' && !$('#gradeModal').hidden) closeGradeModal();
+  });
 }
 async function init(){
   localPromoteSpecialAdmin();

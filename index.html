@@ -8,7 +8,7 @@
   <title>Hifz Companion</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="css/styles.css?v=20260615-ayah-center" />
+  <link rel="stylesheet" href="css/styles.css?v=20260615-location-modal" />
 </head>
 <body>
   <div class="app-shell">
@@ -164,9 +164,12 @@
           <div>
             <p class="eyebrow">Murajaah</p>
             <h2>Jadwal murajaah hari ini</h2>
-            <p class="form-help">Buat jadwal dari ayat yang sudah ditandai hafal. Setelah dibuka, baca murajaah lalu pilih hasilnya: lancar atau perlu ulang.</p>
+            <p class="form-help">Ayat hafal tidak langsung masuk ke sini. Susun jadwal hanya saat diperlukan, lalu buka ayat dan pilih hasil murajaahnya.</p>
           </div>
-          <button class="btn secondary" id="generateReview">Susun jadwal dari hafalan</button>
+          <div class="review-toolbar">
+            <button class="btn secondary" id="generateReview">Susun jadwal</button>
+            <button class="btn ghost" id="clearAllReviews">Bersihkan</button>
+          </div>
         </div>
         <div class="review-list" id="reviewList"></div>
       </section>
@@ -387,13 +390,19 @@
   </div>
 
   <div class="modal-backdrop" id="locationModal" hidden>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="locationModalTitle">
+    <div class="modal-card location-modal-card" role="dialog" aria-modal="true" aria-labelledby="locationModalTitle">
       <div class="modal-head">
         <h3 id="locationModalTitle">Atur Lokasi Jadwal Shalat</h3>
         <button class="icon-button" id="closeLocationModal" aria-label="Tutup">✕</button>
       </div>
-      <p>Lokasi aktif: <strong id="modalLocationName">Bekasi</strong></p>
-      <div class="action-row">
+      <div class="location-modal-copy">
+        <p class="form-help">Pilih cara pengambilan lokasi agar jadwal shalat mengikuti posisi Anda saat ini atau kembali ke lokasi default.</p>
+      </div>
+      <div class="grade-info">
+        <strong>Lokasi aktif</strong>
+        <span id="modalLocationName">Bekasi</span>
+      </div>
+      <div class="action-row location-modal-actions">
         <button class="btn primary" id="detectGps">Gunakan GPS saat ini</button>
         <button class="btn ghost" id="useDefaultLocation">Gunakan Bekasi</button>
       </div>
@@ -403,29 +412,29 @@
 
   <!-- Modal Penilaian Setoran Guru -->
   <div class="modal-backdrop" id="gradeModal" hidden>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="gradeModalTitle">
+    <div class="modal-card grade-modal-card" role="dialog" aria-modal="true" aria-labelledby="gradeModalTitle">
       <div class="modal-head">
         <h3 id="gradeModalTitle">Penilaian Setoran</h3>
         <button class="icon-button" id="closeGradeModal" aria-label="Tutup">✕</button>
       </div>
       <input type="hidden" id="gradeSubmissionId" />
       <div class="grade-info" id="gradeInfo"></div>
-      <div class="control-panel single" style="margin-top:16px">
+      <div class="grade-form-grid">
         <label>Nilai (0–100)
           <input type="number" id="gradeScore" min="0" max="100" placeholder="Contoh: 85" />
         </label>
-        <label>Status Setoran
+        <label class="grade-field grade-field-status">Status Setoran
           <select id="gradeStatus">
             <option value="disetujui">✅ Disetujui</option>
             <option value="perlu-ulang">🔄 Perlu Ulang</option>
             <option value="ditolak">❌ Ditolak</option>
           </select>
         </label>
-        <label>Catatan / Masukan
+        <label class="grade-field grade-field-notes">Catatan / Masukan
           <textarea id="gradeCatatan" rows="4" placeholder="Catatan untuk santri, misalnya: tajwid kurang pada ayat 3, makhraj huruf ع perlu diperbaiki."></textarea>
         </label>
       </div>
-      <div class="action-row" style="margin-top:4px">
+      <div class="action-row grade-modal-actions">
         <button class="btn primary" id="saveGradeBtn">Simpan Penilaian</button>
         <button class="btn ghost" id="cancelGradeBtn">Batal</button>
       </div>
@@ -433,7 +442,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="js/config.js?v=20260615-ayah-center"></script>
-  <script type="module" src="js/app.js?v=20260615-ayah-center"></script>
+  <script src="js/config.js?v=20260615-location-modal"></script>
+  <script type="module" src="js/app.js?v=20260615-location-modal"></script>
 </body>
 </html>

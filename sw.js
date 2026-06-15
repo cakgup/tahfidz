@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v22-ayah-center';
+const CACHE_NAME = 'hifz-companion-v26-location-modal';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260615-ayah-center',
-  './js/config.js?v=20260615-ayah-center',
-  './js/app.js?v=20260615-ayah-center',
+  './css/styles.css?v=20260615-location-modal',
+  './js/config.js?v=20260615-location-modal',
+  './js/app.js?v=20260615-location-modal',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',
