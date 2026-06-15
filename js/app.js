@@ -1060,7 +1060,7 @@ function renderSubmissions(){
     $('#submissionList').innerHTML = '';
     return;
   }
-  const data = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
+  const data = readJson(userScopedKey(STORAGE_KEYS.submissions), []).filter(hasValidSubmissionAudio);
   $('#submissionList').innerHTML = data.length
     ? data.map(s => `<article class="review-item submission-history-card"><div class="submission-history-copy"><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} - Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div><div class="submission-history-media">${s.audio_url ? `<audio controls src="${s.audio_url}" class="submission-history-audio"></audio>` : '<p class="submission-history-empty">Audio tidak tersedia</p>'}<button class="icon-button submission-history-delete" data-delete-submission="${escapeHtml(s.id)}" title="Hapus setoran ini" aria-label="Hapus setoran"><span aria-hidden="true">🗑</span></button></div></article>`).join('')
     : emptyState('Belum ada setoran.', 'Pilih target di menu Hafalan, rekam bacaan, lalu simpan setoran agar riwayat dan audio bisa diputar kembali.', null, null);
@@ -1308,12 +1308,12 @@ function deleteSubmission(submissionId){
   renderSubmissions();
   updateDashboard();
   updateHome();
-  toast('Setoran berhasil dihapus dan storage terbebas.');
-  
-  // Sync dengan server jika online
   if(window.HIFZ_CONFIG.apiBase){
-    apiFetch('/api/submissions', { method:'POST', body:JSON.stringify({deleted:submissionId}) }).catch(console.warn);
+    apiFetch(`/api/submissions/${encodeURIComponent(submissionId)}`, { method:'DELETE' })
+      .then(() => syncRemoteSubmissions({ silent:true }).catch(()=>{}))
+      .catch(console.warn);
   }
+  toast('Setoran berhasil dihapus.');
 }
 function updateDashboard(){
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});

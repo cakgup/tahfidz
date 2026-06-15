@@ -24,6 +24,7 @@ export default {
       else if (url.pathname === '/api/reviews/result' && request.method === 'POST') response = await saveReviewResult(request, env);
       else if (url.pathname === '/api/submissions' && request.method === 'GET') response = await listSubmissions(request, env);
       else if (url.pathname === '/api/submissions' && request.method === 'POST') response = await createSubmission(request, env);
+      else if (url.pathname.match(/^\/api\/submissions\/[^/]+$/) && request.method === 'DELETE') response = await deleteSubmission(request, url, env);
       else if (url.pathname === '/api/submissions/audio' && request.method === 'GET') response = await getSubmissionAudio(url, env);
       else if (url.pathname === '/api/teachers' && request.method === 'GET') response = await listTeachers(request, env);
       else if (url.pathname === '/api/account/reset-data' && request.method === 'POST') response = await resetAccountData(request, env);
@@ -390,17 +391,33 @@ async function listSubmissions(request, env){
     LEFT JOIN users u ON u.id = s.user_id`;
   let bindings;
   if(auth.user.role === 'admin'){
-    query += ` ORDER BY s.submitted_at DESC LIMIT 200`;
+    query += ` WHERE s.audio_url IS NOT NULL AND trim(s.audio_url) <> '' ORDER BY s.submitted_at DESC LIMIT 200`;
     bindings = [];
   }else if(auth.user.role === 'guru'){
-    query += ` WHERE s.teacher_id=? ORDER BY s.submitted_at DESC LIMIT 200`;
+    query += ` WHERE s.teacher_id=? AND s.audio_url IS NOT NULL AND trim(s.audio_url) <> '' ORDER BY s.submitted_at DESC LIMIT 200`;
     bindings = [auth.user.id];
   }else{
-    query += ` WHERE s.user_id=? ORDER BY s.submitted_at DESC LIMIT 100`;
+    query += ` WHERE s.user_id=? AND s.audio_url IS NOT NULL AND trim(s.audio_url) <> '' ORDER BY s.submitted_at DESC LIMIT 100`;
     bindings = [auth.user.id];
   }
   const { results } = await env.DB.prepare(query).bind(...bindings).all();
   return json({ submissions: results });
+}
+async function deleteSubmission(request, url, env){
+  const auth = await requireAuth(request, env);
+  const submissionId = decodeURIComponent(url.pathname.split('/')[3] || '').trim();
+  if(!submissionId) fail('ID setoran tidak valid.');
+  const row = await env.DB.prepare(`SELECT id, user_id, teacher_id, audio_url
+    FROM submissions
+    WHERE id=?`).bind(submissionId).first();
+  if(!row) fail('Setoran tidak ditemukan.', 404);
+  const canDelete = row.user_id === auth.user.id || auth.user.role === 'admin';
+  if(!canDelete) fail('Anda tidak berhak menghapus setoran ini.', 403);
+  const objectKey = extractSubmissionObjectKey(row.audio_url);
+  if(objectKey && env.SUBMISSIONS_BUCKET) await env.SUBMISSIONS_BUCKET.delete(objectKey);
+  await env.DB.prepare('DELETE FROM submission_notes WHERE submission_id=?').bind(submissionId).run();
+  await env.DB.prepare('DELETE FROM submissions WHERE id=?').bind(submissionId).run();
+  return json({ ok:true, deletedId: submissionId });
 }
 async function getSubmissionAudio(url, env){
   if(!env.SUBMISSIONS_BUCKET) fail('Bucket R2 untuk setoran belum dikonfigurasi.', 500);
