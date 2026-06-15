@@ -547,6 +547,18 @@ select option { font-weight: 400; }
   padding: 6px 0 18px;
   border-bottom: 1px dashed rgba(255,255,255,.14);
   margin-bottom: 18px;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.translation {
+  margin: 0 auto;
+  max-width: 72ch;
+  text-align: center;
+  color: var(--text);
+  font-size: clamp(1rem, 1.8vw, 1.08rem);
+  line-height: 1.8;
 }
 
 .review-item {
@@ -809,13 +821,84 @@ select option { font-weight: 400; }
 .setoran-actions {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 14px;
 }
 
 .setoran-actions .btn {
   width: 100%;
+  min-height: 62px;
+  justify-content: center;
+  padding: 16px 22px;
+  font-size: clamp(1rem, 2.4vw, 1.1rem);
+  letter-spacing: -.01em;
+  box-shadow: 0 14px 30px rgba(5, 11, 26, .18);
+}
+
+#startRecord,
+#stopRecord,
+#discardRecord {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+#startRecord {
+  background: linear-gradient(135deg, #ffd84f, #ffbf1f);
+  color: #0b1732;
+}
+
+#startRecord:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 34px rgba(255, 191, 31, .22);
+}
+
+#stopRecord {
+  background: linear-gradient(135deg, #6d5238, #5a4331);
+  color: #f3dfc5;
+}
+
+#stopRecord:not(:disabled) {
+  background: linear-gradient(135deg, #c96b38, #9f4d1f);
+  color: #fff4e8;
+}
+
+#stopRecord:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 34px rgba(201, 107, 56, .18);
+}
+
+.recording-indicator {
+  width: 100%;
   min-height: 54px;
   justify-content: center;
+  padding: 12px 16px;
+  gap: 12px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(186, 73, 99, .16), rgba(132, 35, 62, .22));
+}
+
+.record-preview-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: stretch;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 22px;
+}
+
+.record-preview-row audio,
+#recordPreview {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+#discardRecord {
+  width: 100%;
+  min-height: 56px;
+  border-radius: 18px;
+  box-shadow: none;
 }
 
 sup.fn-ref { font-size: .65em; vertical-align: super; line-height: 0; color: var(--accent); font-weight: 600; letter-spacing: 0; margin-left: 1px; }
@@ -1168,8 +1251,25 @@ textarea:focus { border-color: #6679c0; box-shadow: 0 0 0 4px rgba(102,121,192,.
   }
   .setoran-fields { grid-template-columns: minmax(240px, .95fr) minmax(0, 1.25fr); }
   .setoran-actions {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
+  }
+
+  .recording-indicator {
+    width: fit-content;
+    min-width: 280px;
+  }
+
+  .record-preview-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+  }
+
+  #discardRecord {
+    width: auto;
+    min-width: 220px;
+    padding-inline: 22px;
   }
 
   .cards-4 { grid-template-columns: repeat(2, 1fr); }

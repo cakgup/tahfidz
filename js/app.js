@@ -416,15 +416,12 @@ function requireSantri(message = 'Menu ini khusus santri. Silakan gunakan akun s
 async function markMemorized(){
   if(!requireSantri()) return;
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
-  const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []);
   const selected = getAyahsInRange();
   for(const a of selected){
     const key = ayahKey(state.currentSurah.id, a.number);
     progress[key] = {surah_id: state.currentSurah.id, surah: state.currentSurah.name_latin, ayah_number: a.number, status:'memorized', memorized_at: new Date().toISOString(), strength_score: 60};
-    reviews.push({id: crypto.randomUUID(), key, surah:state.currentSurah.name_latin, surah_id:state.currentSurah.id, ayah_number:a.number, due_date: nextDate(1), status:'pending', priority:2});
   }
   writeJson(userScopedKey(STORAGE_KEYS.progress), progress);
-  writeJson(userScopedKey(STORAGE_KEYS.reviews), dedupeReviews(reviews));
   saveActiveTarget();
   renderReader(); renderReviews(); updateDashboard(); updateHome();
   if(window.HIFZ_CONFIG.apiBase){
@@ -432,7 +429,7 @@ async function markMemorized(){
       method:'POST', body:JSON.stringify({surah_id:state.currentSurah.id, ayah_number:a.number, status:'memorized', strength_score:60})
     }))).catch(console.warn);
   }
-  toast('Alhamdulillah, hafalan ditandai dan masuk jadwal murajaah.');
+  toast('Ayat ditandai hafal. Susun murajaah nanti saat memang Anda perlukan.');
 }
 function markDifficult(){
   if(!requireSantri()) return;
@@ -446,6 +443,28 @@ function dedupeReviews(items){
   const seen = new Map();
   for(const item of items) seen.set(`${item.key}:${item.due_date}:${item.status}`, item);
   return [...seen.values()];
+}
+function cleanupReviews({ notify = false } = {}){
+  if(!isLoggedIn()) return [];
+  const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []);
+  const todayDate = today();
+  const cleaned = dedupeReviews(reviews.filter(item => item.status === 'pending' && String(item.due_date || '') >= todayDate));
+  if(cleaned.length !== reviews.length){
+    writeJson(userScopedKey(STORAGE_KEYS.reviews), cleaned);
+    if(notify) toast('Jadwal murajaah yang sudah lewat hari dibersihkan otomatis.');
+  }
+  return cleaned;
+}
+function reviewInventory(){
+  const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
+  const reviews = cleanupReviews();
+  const todayDate = today();
+  return {
+    memorizedCount: Object.values(progress).filter(v => v.status === 'memorized').length,
+    todayItems: reviews.filter(r => r.due_date === todayDate).sort((a, b) => a.priority - b.priority || a.surah.localeCompare(b.surah, 'id') || a.ayah_number - b.ayah_number),
+    futureCount: reviews.filter(r => r.due_date > todayDate).length,
+    pendingKeys: new Set(reviews.map(r => r.key))
+  };
 }
 function emptyState(title, body, buttonLabel, jump){
   return `<article class="info-card empty-state"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p>${buttonLabel ? `<button class="btn secondary" data-jump="${jump}">${escapeHtml(buttonLabel)}</button>` : ''}</article>`;
@@ -476,13 +495,32 @@ function handleReviewResult(id, result){
   const idx = reviews.findIndex(r => r.id === id);
   if(idx < 0) return;
   const current = reviews[idx];
-  reviews[idx] = {...current, status:'done', result, reviewed_at:new Date().toISOString()};
+  reviews.splice(idx, 1);
   const nextDays = result === 'ulang' ? 1 : 7;
   const priority = result === 'ulang' ? 1 : 3;
   reviews.push({...current, id:crypto.randomUUID(), due_date:nextDate(nextDays), status:'pending', priority});
   writeJson(userScopedKey(STORAGE_KEYS.reviews), dedupeReviews(reviews));
-  renderReviews(); updateDashboard(); updateHome(); toast('Hasil murajaah tersimpan.');
+  renderReviews(); updateDashboard(); updateHome(); toast(result === 'ulang' ? 'Dicatat untuk diulang besok.' : 'Murajaah dicatat lancar. Akan muncul lagi pekan depan.');
   if(window.HIFZ_CONFIG.apiBase) apiFetch('/api/reviews/result', {method:'POST', body:JSON.stringify({id, result})}).catch(console.warn);
+}
+function deleteReview(id){
+  const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []);
+  const next = reviews.filter(item => item.id !== id);
+  if(next.length === reviews.length) return;
+  writeJson(userScopedKey(STORAGE_KEYS.reviews), next);
+  renderReviews(); updateDashboard(); updateHome();
+  toast('Jadwal murajaah dihapus.');
+}
+function clearAllReviews(){
+  const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []);
+  if(!reviews.length){
+    toast('Belum ada jadwal murajaah untuk dibersihkan.');
+    return;
+  }
+  if(!confirm('Hapus semua jadwal murajaah aktif? Jadwal bisa disusun ulang nanti dari hafalan.')) return;
+  writeJson(userScopedKey(STORAGE_KEYS.reviews), []);
+  renderReviews(); updateDashboard(); updateHome();
+  toast('Semua jadwal murajaah dibersihkan.');
 }
 function openReviewAyah(key){
   const [surahId, ayahNumber] = key.split(':').map(Number);
@@ -504,15 +542,22 @@ function generateReview(){
     toast('Belum ada hafalan yang dapat dijadikan jadwal murajaah.');
     return;
   }
-  const reviews = memorized.map(([key, v]) => ({
+  const existing = reviewInventory().pendingKeys;
+  const candidates = memorized.filter(([key]) => !existing.has(key));
+  if(!candidates.length){
+    renderReviews(); updateDashboard(); updateHome();
+    toast('Semua ayat hafalan yang aktif sudah punya jadwal murajaah.');
+    return;
+  }
+  const reviews = candidates.map(([key, v]) => ({
     id: crypto.randomUUID(), key, surah: v.surah, surah_id: v.surah_id, ayah_number: v.ayah_number, due_date: today(), status: 'pending', priority: difficult[key] ? 1 : 3
   }));
   writeJson(userScopedKey(STORAGE_KEYS.reviews), dedupeReviews([...readJson(userScopedKey(STORAGE_KEYS.reviews), []), ...reviews]));
-  renderReviews(); updateDashboard(); updateHome(); toast('Jadwal murajaah berhasil dibuat dari hafalan Anda.');
+  renderReviews(); updateDashboard(); updateHome(); toast(`${reviews.length} ayat masuk jadwal murajaah hari ini.`);
   if(window.HIFZ_CONFIG.apiBase) apiFetch('/api/reviews/generate', { method: 'POST' }).catch(console.warn);
 }
 
-function renderReviews(){
+function renderReviewsLegacyV2(){
   if(!isLoggedIn()){
     $('#reviewList').innerHTML = emptyState('Silakan masuk untuk melihat murajaah.', 'Jadwal murajaah bersifat personal dan dibuat dari ayat yang sudah Anda tandai hafal.', 'Masuk', 'login');
     return;
@@ -532,6 +577,61 @@ function renderReviews(){
   } else {
     $('#reviewList').innerHTML = emptyState('Belum ada hafalan untuk dijadwalkan.', 'Tandai ayat sebagai hafal terlebih dahulu, lalu kembali ke sini untuk menyusun murajaah.', 'Mulai Hafalan', 'hafalan');
   }
+}
+
+function renderReviews(){
+  if(!isLoggedIn()){
+    $('#reviewList').innerHTML = emptyState('Silakan masuk untuk melihat murajaah.', 'Jadwal murajaah bersifat personal dan dibuat dari ayat yang sudah Anda tandai hafal.', 'Masuk', 'login');
+    return;
+  }
+  const inventory = reviewInventory();
+  if(inventory.todayItems.length){
+    $('#reviewList').innerHTML = `<article class="info-card review-summary-card">
+      <div>
+        <h3>Alur murajaah sederhana</h3>
+        <p>Jadwal dibuat manual dari ayat yang sudah ditandai hafal. Item hanya tampil pada hari jadwalnya, lalu otomatis dibersihkan jika harinya sudah lewat. Jika tidak dibutuhkan, Anda bisa hapus satuan atau bersihkan semua.</p>
+      </div>
+      <div class="review-summary-stats">
+        <span class="badge">Hari ini: ${inventory.todayItems.length}</span>
+        <span class="badge">Mendatang: ${inventory.futureCount}</span>
+        <span class="badge">Hafalan siap: ${inventory.memorizedCount}</span>
+      </div>
+      <div class="review-summary-actions">
+        <button class="btn secondary" data-jump="generate-review">Tambah dari hafalan</button>
+        <button class="btn ghost" data-clear-reviews="all">Bersihkan semua</button>
+      </div>
+    </article>` + inventory.todayItems.map(r => `<article class="review-item review-compact-card">
+      <div class="review-compact-copy">
+        <strong>${escapeHtml(r.surah)} ayat ${r.ayah_number}</strong>
+        <p>Hari ini · Prioritas ${r.priority}</p>
+      </div>
+      <div class="review-compact-actions">
+        <button class="btn ghost" data-open-review="${r.key}">Buka</button>
+        <button class="btn secondary" data-review="lancar" data-id="${r.id}">Lancar</button>
+        <button class="btn warning" data-review="ulang" data-id="${r.id}">Ulang</button>
+        <button class="icon-button review-delete-button" data-delete-review="${r.id}" title="Hapus jadwal murajaah" aria-label="Hapus jadwal murajaah">×</button>
+      </div>
+    </article>`).join('');
+    return;
+  }
+  if(inventory.memorizedCount){
+    $('#reviewList').innerHTML = `<article class="info-card review-summary-card">
+      <div>
+        <h3>Murajaah dibuat saat Anda perlukan</h3>
+        <p>Menandai hafal tidak lagi langsung menambah daftar murajaah. Tekan tombol susun hanya saat Anda ingin membuat jadwal dari hafalan yang sudah ada.</p>
+      </div>
+      <div class="review-summary-stats">
+        <span class="badge">Hafalan siap: ${inventory.memorizedCount}</span>
+        <span class="badge">Mendatang: ${inventory.futureCount}</span>
+      </div>
+      <div class="review-summary-actions">
+        <button class="btn secondary" data-jump="generate-review">Susun jadwal hari ini</button>
+        ${inventory.futureCount ? '<button class="btn ghost" data-clear-reviews="all">Bersihkan semua</button>' : ''}
+      </div>
+    </article>`;
+    return;
+  }
+  $('#reviewList').innerHTML = emptyState('Belum ada hafalan untuk dijadwalkan.', 'Tandai ayat sebagai hafal terlebih dahulu, lalu kembali ke sini untuk menyusun murajaah.', 'Mulai Hafalan', 'hafalan');
 }
 
 async function setupRecorder(){
@@ -887,7 +987,7 @@ function updateProfileV1(){
   if(!user) return;
   $('#profileCard').innerHTML = `<h3>${escapeHtml(user.name)}</h3><p>${escapeHtml(user.email || '-')}</p><span class="badge">Role: ${escapeHtml(user.role || 'santri')}</span>`;
 }
-function renderSubmissions(){
+function renderSubmissionsLegacy(){
   if(!isLoggedIn()){
     $('#submissionList').innerHTML = '';
     return;

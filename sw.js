@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v20-setoran-layout';
+const CACHE_NAME = 'hifz-companion-v22-ayah-center';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260615-setoran-layout',
-  './js/config.js?v=20260615-setoran-layout',
-  './js/app.js?v=20260615-setoran-layout',
+  './css/styles.css?v=20260615-ayah-center',
+  './js/config.js?v=20260615-ayah-center',
+  './js/app.js?v=20260615-ayah-center',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',
