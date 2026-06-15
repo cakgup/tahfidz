@@ -1060,7 +1060,7 @@ function renderSubmissions(){
     $('#submissionList').innerHTML = '';
     return;
   }
-  const data = readJson(userScopedKey(STORAGE_KEYS.submissions), []).filter(hasValidSubmissionAudio);
+  const data = sanitizeSubmissionStore();
   $('#submissionList').innerHTML = data.length
     ? data.map(s => `<article class="review-item submission-history-card"><div class="submission-history-copy"><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} - Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div><div class="submission-history-media">${s.audio_url ? `<audio controls src="${s.audio_url}" class="submission-history-audio"></audio>` : '<p class="submission-history-empty">Audio tidak tersedia</p>'}<button class="icon-button submission-history-delete" data-delete-submission="${escapeHtml(s.id)}" title="Hapus setoran ini" aria-label="Hapus setoran"><span aria-hidden="true">🗑</span></button></div></article>`).join('')
     : emptyState('Belum ada setoran.', 'Pilih target di menu Hafalan, rekam bacaan, lalu simpan setoran agar riwayat dan audio bisa diputar kembali.', null, null);
@@ -1068,6 +1068,15 @@ function renderSubmissions(){
 
 function hasValidSubmissionAudio(submission = {}){
   return Boolean(String(submission.audio_url || '').trim());
+}
+
+function sanitizeSubmissionStore(){
+  if(!isLoggedIn()) return [];
+  const key = userScopedKey(STORAGE_KEYS.submissions);
+  const stored = readJson(key, []);
+  const cleaned = stored.filter(hasValidSubmissionAudio);
+  if(cleaned.length !== stored.length) writeJson(key, cleaned);
+  return cleaned;
 }
 
 function formatDisplayName(name = ''){
@@ -1319,7 +1328,7 @@ function updateDashboard(){
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
   const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
   const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []);
-  const submissions = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
+  const submissions = sanitizeSubmissionStore();
   const totalMemorized = Object.values(progress).filter(v => v.status === 'memorized').length;
   const targetSummary = getTargetProgressSummary();
   const memorized = targetSummary.total ? targetSummary.memorized : totalMemorized;
@@ -1341,6 +1350,7 @@ function updateDashboard(){
 }
 function updateHome(){
   const user = currentUser();
+  sanitizeSubmissionStore();
   const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []).filter(r => r.status === 'pending' && r.due_date <= today()).length;
   const targetSummary = getTargetProgressSummary();
   if(user){
