@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v19-submission-sync';
+const CACHE_NAME = 'hifz-companion-v20-setoran-layout';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260613-submission-sync',
-  './js/config.js?v=20260613-submission-sync',
-  './js/app.js?v=20260613-submission-sync',
+  './css/styles.css?v=20260615-setoran-layout',
+  './js/config.js?v=20260615-setoran-layout',
+  './js/app.js?v=20260615-setoran-layout',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',

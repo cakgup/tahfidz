@@ -903,6 +903,17 @@ function renderSubmissions(){
    ============================================================ */
 
 /** Ambil semua setoran dari semua user di localStorage */
+function renderSubmissions(){
+  if(!isLoggedIn()){
+    $('#submissionList').innerHTML = '';
+    return;
+  }
+  const data = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
+  $('#submissionList').innerHTML = data.length
+    ? data.map(s => `<article class="review-item submission-history-card"><div class="submission-history-copy"><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} - Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div><div class="submission-history-media">${s.audio_url ? `<audio controls src="${s.audio_url}" class="submission-history-audio"></audio>` : '<p class="submission-history-empty">Audio tidak tersedia</p>'}<button class="icon-button submission-history-delete" data-delete-submission="${escapeHtml(s.id)}" title="Hapus setoran ini" aria-label="Hapus setoran"><span aria-hidden="true">🗑</span></button></div></article>`).join('')
+    : emptyState('Belum ada setoran.', 'Pilih target di menu Hafalan, rekam bacaan, lalu simpan setoran agar riwayat dan audio bisa diputar kembali.', null, null);
+}
+
 function getAllSubmissions(){
   const guruReviews = readJson(STORAGE_KEYS.guruReviews, {});
   const localUsers  = readJson(STORAGE_KEYS.localUsers, []);
@@ -1428,4 +1439,3 @@ async function init(){
   if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 init().catch(err => { console.error(err); toast(err.message); });
-
