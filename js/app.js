@@ -1054,6 +1054,35 @@ function renderSubmissions(){
     : emptyState('Belum ada setoran.', 'Pilih target di menu Hafalan, rekam bacaan, lalu simpan setoran agar riwayat dan audio bisa diputar kembali.', null, null);
 }
 
+function hasValidSubmissionAudio(submission = {}){
+  return Boolean(String(submission.audio_url || '').trim());
+}
+
+function formatDisplayName(name = ''){
+  return String(name || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function resolveSubmissionStudentName(submission = {}, userObj = null, userId = ''){
+  const directName = [
+    submission.student_name,
+    submission.user_name,
+    userObj?.name
+  ].find(value => String(value || '').trim());
+  if(directName) return formatDisplayName(directName);
+
+  const emailSource = String(submission.student_email || userObj?.email || '').trim();
+  if(emailSource){
+    const localPart = emailSource.replace(/@.*$/, '').replace(/[._-]+/g, ' ').trim();
+    if(localPart) return formatDisplayName(localPart);
+  }
+
+  const shortId = String(userId || submission.user_id || '').slice(0, 6);
+  return shortId ? `Santri ${shortId}` : 'Santri Tanpa Nama';
+}
+
 function getAllSubmissions(){
   const guruReviews = readJson(STORAGE_KEYS.guruReviews, {});
   const localUsers  = readJson(STORAGE_KEYS.localUsers, []);
@@ -1069,9 +1098,10 @@ function getAllSubmissions(){
     const userObj = localUsers.find(u => u.id === userId);
     const subs = readJson(key, []);
     for(const sub of subs){
+      if(!hasValidSubmissionAudio(sub)) continue;
       const grade = guruReviews[sub.id] || null;
-      const resolvedName = sub.student_name || sub.user_name || userObj?.name || (sub.student_email ? sub.student_email.replace(/@.*$/, '') : '') || `ID ${userId.slice(0,6)}`;
-      allSubs.push({ ...sub, _userId: userId, _userName: `Santri: ${resolvedName}`, _grade: grade });
+      const resolvedName = resolveSubmissionStudentName(sub, userObj, userId);
+      allSubs.push({ ...sub, _userId: userId, _userName: resolvedName, _grade: grade });
     }
   }
 
