@@ -771,6 +771,41 @@ select option { font-weight: 400; }
   line-height: 1.65;
 }
 
+.submission-grade-panel {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.submission-grade-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.submission-grade-top strong {
+  font-size: .98rem;
+  letter-spacing: -.01em;
+}
+
+.submission-grade-note,
+.submission-grade-time {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.submission-grade-time {
+  font-size: .88rem;
+  opacity: .82;
+}
+
 .submission-history-media {
   display: grid;
   grid-template-columns: 1fr;
@@ -1476,6 +1511,10 @@ textarea:focus { border-color: #6679c0; box-shadow: 0 0 0 4px rgba(102,121,192,.
   border-color: #dfc982;
   background: linear-gradient(180deg, #fffaf0, #f7f0df);
   box-shadow: 0 16px 34px rgba(188, 154, 60, .14);
+}
+[data-theme="light"] .submission-grade-panel {
+  background: rgba(255,255,255,.86);
+  border-color: #d9d1c3;
 }
 [data-theme="light"] .filter-tab { background: var(--surface-2); color: var(--text-soft); }
 [data-theme="light"] .filter-tab.active { background: linear-gradient(135deg, #1a4a2e, #236636); color: #7fffa8; }

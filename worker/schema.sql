@@ -131,6 +131,19 @@ CREATE TABLE IF NOT EXISTS submission_notes (
   FOREIGN KEY (submission_id) REFERENCES submissions(id)
 );
 
+CREATE TABLE IF NOT EXISTS submission_grades (
+  id TEXT PRIMARY KEY,
+  submission_id TEXT NOT NULL UNIQUE,
+  graded_by TEXT NOT NULL,
+  score INTEGER NOT NULL,
+  status TEXT NOT NULL,
+  notes TEXT,
+  graded_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (submission_id) REFERENCES submissions(id),
+  FOREIGN KEY (graded_by) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS classes (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
@@ -180,6 +193,8 @@ CREATE TABLE IF NOT EXISTS prayer_times_cache (
 CREATE INDEX IF NOT EXISTS idx_progress_user ON memorization_progress(user_id);
 CREATE INDEX IF NOT EXISTS idx_review_user_due ON review_schedule(user_id, due_date, status);
 CREATE INDEX IF NOT EXISTS idx_submission_user ON submissions(user_id, submitted_at);
+CREATE INDEX IF NOT EXISTS idx_submission_grades_submission ON submission_grades(submission_id);
+CREATE INDEX IF NOT EXISTS idx_submission_grades_grader ON submission_grades(graded_by, graded_at);
 CREATE INDEX IF NOT EXISTS idx_prayer_cache ON prayer_times_cache(location_key, prayer_date);
 
 CREATE INDEX IF NOT EXISTS idx_sessions_token_hash ON sessions(token_hash);

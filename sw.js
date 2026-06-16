@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v41-stop-upload-fix';
+const CACHE_NAME = 'hifz-companion-v42-grade-sync';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260616-stop-upload-fix',
-  './js/config.js?v=20260616-stop-upload-fix',
-  './js/app.js?v=20260616-stop-upload-fix',
+  './css/styles.css?v=20260616-grade-sync',
+  './js/config.js?v=20260616-grade-sync',
+  './js/app.js?v=20260616-grade-sync',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',

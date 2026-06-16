@@ -26,6 +26,7 @@ export default {
       else if (url.pathname === '/api/submissions' && request.method === 'GET') response = await listSubmissions(request, env);
       else if (url.pathname === '/api/submissions' && request.method === 'POST') response = await createSubmission(request, env);
       else if (url.pathname.match(/^\/api\/submissions\/[^/]+$/) && request.method === 'DELETE') response = await deleteSubmission(request, url, env);
+      else if (url.pathname.match(/^\/api\/submissions\/[^/]+\/grade$/) && request.method === 'POST') response = await saveSubmissionGrade(request, url, env);
       else if (url.pathname === '/api/submissions/audio' && request.method === 'GET') response = await getSubmissionAudio(url, env);
       else if (url.pathname === '/api/teachers' && request.method === 'GET') response = await listTeachers(request, env);
       else if (url.pathname === '/api/account/reset-data' && request.method === 'POST') response = await resetAccountData(request, env);
@@ -452,10 +453,18 @@ async function listSubmissions(request, env){
   let query = `SELECT s.*,
       t.name AS teacher_name,
       u.name AS student_name,
-      u.email AS student_email
+      u.email AS student_email,
+      sg.score AS grade_score,
+      sg.status AS grade_status,
+      sg.notes AS grade_notes,
+      sg.graded_at AS grade_graded_at,
+      sg.graded_by AS grade_graded_by,
+      g.name AS grader_name
     FROM submissions s
     LEFT JOIN users t ON t.id = s.teacher_id
     LEFT JOIN users u ON u.id = s.user_id`;
+  query += ` LEFT JOIN submission_grades sg ON sg.submission_id = s.id
+    LEFT JOIN users g ON g.id = sg.graded_by`;
   let bindings;
   if(auth.user.role === 'admin'){
     query += ` WHERE s.audio_url IS NOT NULL AND trim(s.audio_url) <> '' ORDER BY s.submitted_at DESC LIMIT 200`;
@@ -470,6 +479,47 @@ async function listSubmissions(request, env){
   const { results } = await env.DB.prepare(query).bind(...bindings).all();
   return json({ submissions: results });
 }
+async function saveSubmissionGrade(request, url, env){
+  const auth = await requireAuth(request, env);
+  if(!['guru', 'admin'].includes(auth.user.role)) fail('Akses khusus guru/admin.', 403);
+  const submissionId = decodeURIComponent(url.pathname.split('/')[3] || '').trim();
+  if(!submissionId) fail('ID setoran tidak valid.');
+  const submission = await env.DB.prepare(`SELECT id, teacher_id FROM submissions WHERE id=?`).bind(submissionId).first();
+  if(!submission) fail('Setoran tidak ditemukan.', 404);
+  if(auth.user.role !== 'admin' && submission.teacher_id !== auth.user.id) fail('Setoran ini bukan untuk akun guru Anda.', 403);
+
+  const body = await request.json();
+  const score = Number(body.score);
+  const status = String(body.status || '').trim().toLowerCase();
+  const notes = String(body.notes || '').trim();
+  if(!Number.isFinite(score) || score < 0 || score > 100) fail('Nilai harus antara 0 dan 100.');
+  if(!['disetujui', 'perlu-ulang', 'ditolak'].includes(status)) fail('Status penilaian tidak valid.');
+
+  const now = nowIso();
+  await env.DB.prepare(`
+    INSERT INTO submission_grades (id, submission_id, graded_by, score, status, notes, graded_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(submission_id) DO UPDATE SET
+      graded_by=excluded.graded_by,
+      score=excluded.score,
+      status=excluded.status,
+      notes=excluded.notes,
+      graded_at=excluded.graded_at,
+      updated_at=excluded.updated_at
+  `).bind(crypto.randomUUID(), submissionId, auth.user.id, score, status, notes, now, now).run();
+
+  return json({
+    ok: true,
+    grade: {
+      nilai: score,
+      status,
+      catatan: notes,
+      graded_at: now,
+      graded_by: auth.user.id,
+      graded_by_name: auth.user.name
+    }
+  });
+}
 async function deleteSubmission(request, url, env){
   const auth = await requireAuth(request, env);
   const submissionId = decodeURIComponent(url.pathname.split('/')[3] || '').trim();
@@ -482,6 +532,7 @@ async function deleteSubmission(request, url, env){
   if(!canDelete) fail('Anda tidak berhak menghapus setoran ini.', 403);
   const objectKey = extractSubmissionObjectKey(row.audio_url);
   if(objectKey && env.SUBMISSIONS_BUCKET) await env.SUBMISSIONS_BUCKET.delete(objectKey);
+  await env.DB.prepare('DELETE FROM submission_grades WHERE submission_id=?').bind(submissionId).run();
   await env.DB.prepare('DELETE FROM submission_notes WHERE submission_id=?').bind(submissionId).run();
   await env.DB.prepare('DELETE FROM submissions WHERE id=?').bind(submissionId).run();
   return json({ ok:true, deletedId: submissionId });
@@ -508,6 +559,7 @@ async function resetAccountData(request, env){
     }
   }
   await env.DB.prepare('DELETE FROM submission_notes WHERE submission_id IN (SELECT id FROM submissions WHERE user_id=?)').bind(auth.user.id).run();
+  await env.DB.prepare('DELETE FROM submission_grades WHERE submission_id IN (SELECT id FROM submissions WHERE user_id=?)').bind(auth.user.id).run();
   await env.DB.prepare('DELETE FROM submissions WHERE user_id=?').bind(auth.user.id).run();
   await env.DB.prepare('DELETE FROM review_logs WHERE user_id=?').bind(auth.user.id).run();
   await env.DB.prepare('DELETE FROM review_schedule WHERE user_id=?').bind(auth.user.id).run();

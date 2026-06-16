@@ -227,6 +227,7 @@ async function refreshRemoteSessionUser(){
   }catch{}
 }
 function normalizeRemoteSubmission(item = {}){
+  const grade = normalizeSubmissionGrade(item.grade || item);
   return {
     id: item.id || crypto.randomUUID(),
     user_id: item.user_id || item.student_id || '',
@@ -240,7 +241,8 @@ function normalizeRemoteSubmission(item = {}){
     surah_id: Number(item.surah_id || 0) || null,
     start_ayah: Number(item.start_ayah || 0) || null,
     end_ayah: Number(item.end_ayah || 0) || null,
-    created_at: item.submitted_at || item.created_at || new Date().toISOString()
+    created_at: item.submitted_at || item.created_at || new Date().toISOString(),
+    grade
   };
 }
 async function syncRemoteSubmissions({ silent = true } = {}){
@@ -1205,7 +1207,19 @@ function renderSubmissions(){
   }
   const data = sanitizeSubmissionStore();
   $('#submissionList').innerHTML = data.length
-    ? data.map(s => `<article class="review-item submission-history-card"><div class="submission-history-copy"><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} - Status: ${escapeHtml(submissionStatusLabel(s.status))}</p></div><div class="submission-history-media">${s.audio_url ? `<audio controls src="${s.audio_url}" class="submission-history-audio"></audio>` : '<p class="submission-history-empty">Audio tidak tersedia</p>'}<button class="icon-button submission-history-delete" data-delete-submission="${escapeHtml(s.id)}" title="Hapus setoran ini" aria-label="Hapus setoran"><span aria-hidden="true">🗑</span></button></div></article>`).join('')
+    ? data.map(s => {
+        const grade = normalizeSubmissionGrade(s.grade || s);
+        const gradeHtml = grade ? `
+          <div class="submission-grade-panel">
+            <div class="submission-grade-top">
+              <span>${statusChipHtml(grade)}</span>
+              <strong>Nilai: ${grade.nilai}/100</strong>
+            </div>
+            ${grade.catatan ? `<p class="submission-grade-note">${escapeHtml(grade.catatan)}</p>` : ''}
+            <span class="submission-grade-time">Dinilai: ${grade.graded_at ? new Date(grade.graded_at).toLocaleString('id-ID',{dateStyle:'short',timeStyle:'short'}) : '-'}</span>
+          </div>` : '<p class="submission-history-empty">Belum ada penilaian dari guru.</p>';
+        return `<article class="review-item submission-history-card"><div class="submission-history-copy"><strong>${escapeHtml(s.note)}</strong><p>Guru: ${escapeHtml(s.teacher)} - Status: ${escapeHtml(submissionStatusLabel(s.status))}</p>${gradeHtml}</div><div class="submission-history-media">${s.audio_url ? `<audio controls src="${s.audio_url}" class="submission-history-audio"></audio>` : '<p class="submission-history-empty">Audio tidak tersedia</p>'}<button class="icon-button submission-history-delete" data-delete-submission="${escapeHtml(s.id)}" title="Hapus setoran ini" aria-label="Hapus setoran"><span aria-hidden="true">🗑</span></button></div></article>`;
+      }).join('')
     : emptyState('Belum ada setoran.', 'Pilih target di menu Hafalan, rekam bacaan, lalu simpan setoran agar riwayat dan audio bisa diputar kembali.', null, null);
 }
 
@@ -1217,9 +1231,23 @@ function sanitizeSubmissionStore(){
   if(!isLoggedIn()) return [];
   const key = userScopedKey(STORAGE_KEYS.submissions);
   const stored = readJson(key, []);
-  const cleaned = stored.filter(hasValidSubmissionAudio);
+  const cleaned = stored.filter(hasValidSubmissionAudio).map(item => ({
+    ...item,
+    grade: normalizeSubmissionGrade(item.grade || item)
+  }));
   if(cleaned.length !== stored.length) writeJson(key, cleaned);
   return cleaned;
+}
+
+function normalizeSubmissionGrade(source = {}){
+  const nilai = Number(source.nilai ?? source.grade_score ?? source.score);
+  const status = String(source.status ?? source.grade_status ?? '').trim().toLowerCase();
+  const catatan = String(source.catatan ?? source.grade_notes ?? source.notes ?? '').trim();
+  const graded_at = source.graded_at ?? source.grade_graded_at ?? null;
+  const graded_by = source.graded_by ?? source.grade_graded_by ?? null;
+  const graded_by_name = source.graded_by_name ?? source.grader_name ?? null;
+  if(!Number.isFinite(nilai) || !status) return null;
+  return { nilai, status, catatan, graded_at, graded_by, graded_by_name };
 }
 
 function formatDisplayName(name = ''){
@@ -1278,7 +1306,7 @@ function getAllSubmissions(){
         u.id === submissionUserId
         || (sub.student_email && u.email && String(u.email).toLowerCase() === String(sub.student_email).toLowerCase())
       );
-      const grade = guruReviews[sub.id] || null;
+      const grade = normalizeSubmissionGrade(sub.grade || guruReviews[sub.id] || sub);
       const resolvedName = resolveSubmissionStudentName(sub, userObj, submissionUserId);
       allSubs.push({ ...sub, _userId: submissionUserId || userId, _userName: resolvedName, _grade: grade });
     }
@@ -1425,7 +1453,7 @@ function closeGradeModal(){
   document.body.style.overflow = '';
 }
 
-function saveGrade(){
+async function saveGrade(){
   const submissionId = $('#gradeSubmissionId').value;
   const nilai  = Number($('#gradeScore').value);
   const status = $('#gradeStatus').value;
@@ -1434,13 +1462,24 @@ function saveGrade(){
   if(!submissionId){ toast('ID setoran tidak valid.'); return; }
   if(isNaN(nilai) || nilai < 0 || nilai > 100){ toast('Nilai harus antara 0 dan 100.'); return; }
 
+  let gradePayload = { nilai, status, catatan, graded_at: new Date().toISOString(), graded_by: currentUser()?.id };
+  if(window.HIFZ_CONFIG.apiBase && !isLocalAuthToken()){
+    const saved = await apiFetch(`/api/submissions/${encodeURIComponent(submissionId)}/grade`, {
+      method:'POST',
+      body:JSON.stringify({ score:nilai, status, notes:catatan })
+    });
+    gradePayload = normalizeSubmissionGrade(saved.grade || {}) || gradePayload;
+    await syncRemoteSubmissions({ silent:true }).catch(()=>{});
+  }
+
   const guruReviews = readJson(STORAGE_KEYS.guruReviews, {});
-  guruReviews[submissionId] = { nilai, status, catatan, graded_at: new Date().toISOString(), graded_by: currentUser()?.id };
+  guruReviews[submissionId] = gradePayload;
   writeJson(STORAGE_KEYS.guruReviews, guruReviews);
 
   closeGradeModal();
   const activeFilter = $('.filter-tab.active')?.dataset?.filter || 'all';
   renderGuruPanel(activeFilter);
+  renderSubmissions();
   toast('Penilaian berhasil disimpan.');
 }
 
@@ -1860,7 +1899,7 @@ function bindEvents(){
   });
 
   // Modal penilaian
-  $('#saveGradeBtn').addEventListener('click', saveGrade);
+  $('#saveGradeBtn').addEventListener('click', () => saveGrade().catch(e => toast(e.message)));
   $('#cancelGradeBtn').addEventListener('click', closeGradeModal);
   $('#closeGradeModal').addEventListener('click', closeGradeModal);
   $('#gradeModal').addEventListener('click', e => { if(e.target.id === 'gradeModal') closeGradeModal(); });
