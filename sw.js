@@ -8,7 +8,9 @@ const CORE_ASSETS = [
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',
-  './assets/logo.png'
+  './assets/logo.png',
+  './assets/logo-manifest-192.png',
+  './assets/logo-manifest-512.png'
 ];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_ASSETS)));
