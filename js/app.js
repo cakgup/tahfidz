@@ -1246,7 +1246,7 @@ function normalizeSubmissionGrade(source = {}){
   const graded_at = source.graded_at ?? source.grade_graded_at ?? null;
   const graded_by = source.graded_by ?? source.grade_graded_by ?? null;
   const graded_by_name = source.graded_by_name ?? source.grader_name ?? null;
-  if(!Number.isFinite(nilai) || !status) return null;
+  if(!Number.isFinite(nilai)) return null;
   return { nilai, status, catatan, graded_at, graded_by, graded_by_name };
 }
 
