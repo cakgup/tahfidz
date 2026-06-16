@@ -1324,7 +1324,7 @@ function statusChipHtml(grade){
     'perlu-ulang': '<span class="status-chip perlu-ulang">🔄 Perlu Ulang</span>',
     ditolak:     '<span class="status-chip ditolak">❌ Ditolak</span>'
   };
-  return map[grade.status] || '<span class="status-chip pending">⏳ Belum dinilai</span>';
+  return map[grade.status] || '<span class="status-chip disetujui">✅ Sudah Dinilai</span>';
 }
 
 /** Render panel guru */
