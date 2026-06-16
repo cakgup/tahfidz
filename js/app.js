@@ -19,6 +19,9 @@ const state = {
   recordingTimerId: null,
   prayerTimer: null,
   lastAudio: null,
+  audioSessionId: 0,
+  audioPlayback: null,
+  activeAyahKey: null,
   captchas: { login: null, register: null }
 };
 
@@ -35,6 +38,14 @@ const STORAGE_KEYS = {
   localUsers: 'hifz_local_users_v1',
   guruReviews: 'hifz_guru_reviews_v1'
 };
+const AUDIO_RECITERS = [
+  'Alafasy_128kbps',
+  'Abdurrahmaan_As-Sudais_192kbps',
+  'Saood_ash-Shuraym_128kbps',
+  'Husary_128kbps_Mujawwad',
+  'Minshawy_Murattal_128kbps',
+  'MaherAlMuaiqly128kbps'
+];
 const SUPER_ADMIN_EMAIL = 'cakgup@guru.tahfidz';
 
 const escapeHtml = (value = '') => String(value)
@@ -318,14 +329,23 @@ function normalizeQuran(raw){
       kitabah: a.kitabah || a.text_ar || a.arabic || '',
       translation_id: a.translation_id || a.translation || '',
       footnotes: a.footnotes || '',
-      audio_url: a.audio_url || buildEveryAyahUrl(Number(a.surah_id || s.id), Number(a.number || a.ayah || a.ayah_number))
+      audio_url: a.audio_url || ''
     })).sort((a,b)=>a.number-b.number)
   })).sort((a,b)=>a.id-b.id);
   return {metadata:{...(raw.metadata || {}), title: source}, surahs};
 }
-function buildEveryAyahUrl(surahId, ayahNumber){
+function selectedAudioReciter(){
+  const display = readJson(STORAGE_KEYS.display, {});
+  const reciter = String(display.audioReciter || 'Alafasy_128kbps').trim();
+  return AUDIO_RECITERS.includes(reciter) ? reciter : 'Alafasy_128kbps';
+}
+function buildEveryAyahUrl(surahId, ayahNumber, reciter = selectedAudioReciter()){
   if(!surahId || !ayahNumber) return '';
-  return `https://everyayah.com/data/Alafasy_128kbps/${String(surahId).padStart(3,'0')}${String(ayahNumber).padStart(3,'0')}.mp3`;
+  return `https://everyayah.com/data/${encodeURIComponent(reciter)}/${String(surahId).padStart(3,'0')}${String(ayahNumber).padStart(3,'0')}.mp3`;
+}
+function resolveAyahAudioUrl(ayah = {}){
+  const selectedUrl = buildEveryAyahUrl(Number(ayah.surah_id), Number(ayah.number || ayah.ayah_number));
+  return selectedUrl || String(ayah.audio_url || '').trim();
 }
 
 async function loadQuran(){
@@ -381,7 +401,8 @@ function renderReader(){
     if(mode === 'translationHidden') translation = '';
     if(mode === 'firstWords') arabic = `<span>${escapeHtml(a.text_ar.split(/\s+/).slice(0, 3).join(' '))} ...</span>`;
     if(mode === 'blank') { arabic = '<div class="hidden-placeholder">Tes hafalan: baca tanpa melihat teks</div>'; translation = ''; }
-    return `<article class="ayah-card">
+    const isActive = state.activeAyahKey === key;
+    return `<article class="ayah-card${isActive ? ' is-audio-active' : ''}" data-ayah-key="${escapeHtml(key)}" data-ayah-number="${a.number}">
       <div class="ayah-top">
         <div class="ayah-meta">
           <span class="ayah-index-badge">${a.number}</span>
@@ -398,34 +419,129 @@ function renderReader(){
       ${footnotes ? `<details class="footnote"><summary>Catatan Kemenag</summary><p>${formatFootnoteRefs(escapeHtml(footnotes))}</p></details>` : ''}
     </article>`;
   }).join('');
+  syncActiveAyahCard(false);
+}
+
+function updateReaderActionButtons(isPlaying = false){
+  const playBtn = $('#playSequence');
+  const stopBtn = $('#stopSequence');
+  const memorizeBtn = $('#markMemorized');
+  const difficultBtn = $('#markDifficult');
+
+  if(playBtn){
+    playBtn.disabled = isPlaying;
+    playBtn.classList.add('reader-action-btn');
+    playBtn.title = 'Putar urutan ayat';
+    playBtn.setAttribute('aria-label', 'Putar urutan ayat');
+    playBtn.innerHTML = '<span aria-hidden="true">&#9654;</span>';
+  }
+  if(stopBtn) stopBtn.disabled = !isPlaying;
+  if(memorizeBtn){
+    memorizeBtn.classList.add('reader-action-btn');
+    memorizeBtn.title = 'Tandai sudah hafal';
+    memorizeBtn.setAttribute('aria-label', 'Tandai sudah hafal');
+    memorizeBtn.innerHTML = '<span aria-hidden="true">&#10003;</span>';
+  }
+  if(difficultBtn){
+    difficultBtn.classList.add('reader-action-btn');
+    difficultBtn.title = 'Tandai ada ayat sulit';
+    difficultBtn.setAttribute('aria-label', 'Tandai ada ayat sulit');
+    difficultBtn.innerHTML = '<span aria-hidden="true">!</span>';
+  }
+}
+
+function syncActiveAyahCard(scrollIntoView = true){
+  $$('#readerCard .ayah-card.is-audio-active').forEach(card => card.classList.remove('is-audio-active'));
+  if(!state.activeAyahKey) return;
+  const activeCard = document.querySelector(`#readerCard .ayah-card[data-ayah-key="${CSS.escape(state.activeAyahKey)}"]`);
+  if(!activeCard) return;
+  activeCard.classList.add('is-audio-active');
+  if(scrollIntoView){
+    activeCard.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+  }
+}
+
+function setActiveAyah(ayah = null, { scrollIntoView = true } = {}){
+  state.activeAyahKey = ayah ? ayahKey(Number(ayah.surah_id), Number(ayah.number || ayah.ayah_number)) : null;
+  syncActiveAyahCard(scrollIntoView);
 }
 
 async function playSequence(){
   const repeat = Number($('#repeatCount').value);
   const ayahs = getAyahsInRange();
-  if(!ayahs.some(a => a.audio_url)){ toast('URL audio belum tersedia untuk rentang ayat ini.'); return; }
+  if(!ayahs.some(a => resolveAyahAudioUrl(a))){ toast('URL audio belum tersedia untuk rentang ayat ini.'); return; }
   toast(`Memutar rentang ${ayahs.length} ayat sebanyak ${repeat} kali.`);
-  $('#playSequence').disabled = true;
+  const sessionId = ++state.audioSessionId;
+  updateReaderActionButtons(true);
   try{
     for(let i=0;i<repeat;i++){
+      if(sessionId !== state.audioSessionId) break;
       for(const ayah of ayahs){
-        if(!ayah.audio_url) continue;
-        await playAudio(ayah.audio_url);
+        if(sessionId !== state.audioSessionId) break;
+        const audioUrl = resolveAyahAudioUrl(ayah);
+        if(!audioUrl) continue;
+        setActiveAyah(ayah);
+        await playAudio(audioUrl, sessionId);
+        if(sessionId !== state.audioSessionId) break;
         await new Promise(r=>setTimeout(r, 550));
       }
     }
-  }catch(e){ toast(`Audio gagal diputar: ${e.message || 'cek koneksi'}`); }
-  finally{ $('#playSequence').disabled = false; }
+  }catch(e){
+    if(sessionId === state.audioSessionId) toast(`Audio gagal diputar: ${e.message || 'cek koneksi'}`);
+  }finally{
+    if(sessionId === state.audioSessionId){
+      state.audioPlayback = null;
+      state.lastAudio = null;
+    }
+    setActiveAyah(null, { scrollIntoView: false });
+    updateReaderActionButtons(false);
+  }
 }
-function playAudio(url){
+function playAudio(url, sessionId = state.audioSessionId){
   return new Promise((resolve, reject) => {
-    if(state.lastAudio){ state.lastAudio.pause(); state.lastAudio = null; }
+    if(sessionId !== state.audioSessionId){
+      resolve();
+      return;
+    }
+    if(state.lastAudio){
+      state.lastAudio.pause();
+      state.lastAudio = null;
+    }
     const audio = new Audio(url);
     state.lastAudio = audio;
-    audio.onended = resolve;
-    audio.onerror = () => reject(new Error('sumber audio tidak dapat diakses'));
+    const cleanup = () => {
+      if(state.audioPlayback?.audio === audio) state.audioPlayback = null;
+      audio.onended = null;
+      audio.onerror = null;
+    };
+    state.audioPlayback = {
+      audio,
+      resolve: () => { cleanup(); resolve(); },
+      reject: (error) => { cleanup(); reject(error); }
+    };
+    audio.onended = () => state.audioPlayback?.audio === audio ? state.audioPlayback.resolve() : resolve();
+    audio.onerror = () => state.audioPlayback?.audio === audio
+      ? state.audioPlayback.reject(new Error('sumber audio tidak dapat diakses'))
+      : reject(new Error('sumber audio tidak dapat diakses'));
     audio.play().catch(reject);
   });
+}
+function stopSequencePlayback({ notify = true } = {}){
+  state.audioSessionId += 1;
+  const playback = state.audioPlayback;
+  if(playback?.audio){
+    playback.audio.pause();
+    playback.audio.currentTime = 0;
+    playback.resolve();
+  }else if(state.lastAudio){
+    state.lastAudio.pause();
+    state.lastAudio.currentTime = 0;
+  }
+  state.audioPlayback = null;
+  state.lastAudio = null;
+  setActiveAyah(null, { scrollIntoView: false });
+  updateReaderActionButtons(false);
+  if(notify) toast('Pemutaran audio dihentikan.');
 }
 function requireLogin(message = 'Silakan masuk terlebih dahulu agar progres tersimpan.'){ 
   if(isLoggedIn()) return true;
@@ -1358,6 +1474,8 @@ function updateDashboard(){
 }
 function updateHome(){
   const user = currentUser();
+  const homeProgressCard = document.querySelector('#view-home .hero-progress');
+  setElementVisibility(homeProgressCard, !user);
   sanitizeSubmissionStore();
   const reviews = readJson(userScopedKey(STORAGE_KEYS.reviews), []).filter(r => r.status === 'pending' && r.due_date <= today()).length;
   const targetSummary = getTargetProgressSummary();
@@ -1437,6 +1555,25 @@ async function setManagedUserRole(userId, role){
   if(!found) throw new Error('Pengguna tidak ditemukan.');
   writeJson(STORAGE_KEYS.localUsers, nextUsers);
   return nextUsers.find(user => user.id === userId);
+}
+async function runSubmissionCleanup(){
+  if(currentRole() !== 'admin') throw new Error('Akses khusus admin.');
+  if(!window.HIFZ_CONFIG.apiBase || isLocalAuthToken()){
+    throw new Error('Cleanup manual hanya tersedia saat terhubung ke server remote.');
+  }
+  const resultEl = $('#adminCleanupResult');
+  if(resultEl) resultEl.textContent = 'Menjalankan cleanup setoran kedaluwarsa...';
+  const data = await apiFetch('/api/admin/submissions/cleanup', { method:'POST', body:JSON.stringify({ confirm:true }) });
+  const message = data.deleted_submissions
+    ? `Cleanup selesai: ${data.deleted_submissions} setoran dan ${data.deleted_objects || 0} file audio dihapus.`
+    : 'Cleanup selesai: tidak ada setoran yang melewati batas 3 hari.';
+  if(resultEl) resultEl.textContent = message;
+  await syncRemoteSubmissions({ silent:true }).catch(()=>{});
+  renderSubmissions();
+  renderGuruPanel($('.filter-tab.active')?.dataset?.filter || 'all');
+  updateDashboard();
+  updateHome();
+  toast(message);
 }
 async function renderAdminUserList(){
   const container = $('#adminUserList');
@@ -1558,15 +1695,20 @@ function switchView(view){
 }
 function bindJumpButtons(){ $$('[data-jump]').forEach(b => { b.onclick = () => switchView(b.dataset.jump); }); }
 function applyDisplaySettings(){
-  const display = readJson(STORAGE_KEYS.display, {arabicFontSize:42, showTranslation:true});
+  const display = readJson(STORAGE_KEYS.display, {arabicFontSize:42, showTranslation:true, audioReciter:'Alafasy_128kbps'});
   document.documentElement.style.setProperty('--arabic-size', `${display.arabicFontSize || 42}px`);
   if($('#arabicFontSize')) $('#arabicFontSize').value = display.arabicFontSize || 42;
   if($('#showTranslation')) $('#showTranslation').checked = display.showTranslation !== false;
+  if($('#audioReciter')) $('#audioReciter').value = AUDIO_RECITERS.includes(display.audioReciter) ? display.audioReciter : 'Alafasy_128kbps';
 }
 function saveDisplaySettings(){
-  const data = {arabicFontSize:Number($('#arabicFontSize').value), showTranslation:$('#showTranslation').checked};
+  const data = {
+    arabicFontSize:Number($('#arabicFontSize').value),
+    showTranslation:$('#showTranslation').checked,
+    audioReciter:AUDIO_RECITERS.includes($('#audioReciter')?.value) ? $('#audioReciter').value : 'Alafasy_128kbps'
+  };
   writeJson(STORAGE_KEYS.display, data);
-  applyDisplaySettings(); renderReader(); toast('Pengaturan tampilan disimpan.');
+  applyDisplaySettings(); renderReader(); toast('Pengaturan tampilan dan qari audio disimpan.');
 }
 async function resetLocalData(){
   const message = isLoggedIn()
@@ -1592,6 +1734,7 @@ function bindEvents(){
   ['startAyah','endAyah'].forEach(id => $(`#${id}`).addEventListener('change', () => { saveActiveTarget(); renderReader(); updateHome(); }));
   $('#hideMode').addEventListener('change', renderReader);
   $('#playSequence').addEventListener('click', playSequence);
+  $('#stopSequence')?.addEventListener('click', () => stopSequencePlayback());
   $('#markMemorized').addEventListener('click', () => markMemorized().catch(e=>toast(e.message)));
   $('#markDifficult').addEventListener('click', markDifficult);
   $('#generateReview').addEventListener('click', () => generateReview());
@@ -1626,6 +1769,19 @@ function bindEvents(){
   $('#refreshRegisterCaptcha').addEventListener('click', () => loadCaptcha('register'));
   $('#saveDisplaySettings').addEventListener('click', saveDisplaySettings);
   $('#resetLocalData').addEventListener('click', () => resetLocalData().catch(e=>toast(e.message)));
+  $('#runSubmissionCleanup')?.addEventListener('click', async e => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    try{
+      await runSubmissionCleanup();
+    }catch(err){
+      const resultEl = $('#adminCleanupResult');
+      if(resultEl) resultEl.textContent = err.message || 'Cleanup gagal dijalankan.';
+      toast(err.message || 'Cleanup gagal dijalankan.');
+    }finally{
+      btn.disabled = false;
+    }
+  });
   $('#adminUserSearch')?.addEventListener('input', () => {
     renderAdminUserList().catch(err => {
       const container = $('#adminUserList');
@@ -1696,6 +1852,7 @@ async function init(){
   await syncRemoteSubmissions({ silent:true }).catch(()=>{});
   updateAuthUi();
   switchView('home');
+  updateReaderActionButtons(false);
   updatePrayer();
   if('serviceWorker' in navigator && !window.__HIFZ_DISABLE_SW__){
     navigator.serviceWorker.register('sw.js').then(reg => reg.update()).catch(()=>{});

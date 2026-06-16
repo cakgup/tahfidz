@@ -28,7 +28,7 @@
   </script>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="css/styles.css?v=20260616-delete-click" />
+  <link rel="stylesheet" href="css/styles.css?v=20260616-admin-cleanup" />
 </head>
 <body>
   <div class="app-shell">
@@ -172,10 +172,11 @@
 
         <section class="reader-card" id="readerCard" aria-live="polite"></section>
 
-        <div class="action-row sticky-actions">
+        <div class="action-row sticky-actions hafalan-sticky-actions">
           <button class="btn primary" id="playSequence">▶ Putar urutan</button>
-          <button class="btn secondary" id="markMemorized">Tandai sudah hafal</button>
-          <button class="btn warning" id="markDifficult">Tandai ada ayat sulit</button>
+          <button class="btn ghost reader-action-btn" id="stopSequence" title="Hentikan audio" aria-label="Hentikan audio" disabled><span aria-hidden="true">&#9632;</span></button>
+          <button class="btn secondary reader-action-btn" id="markMemorized" title="Tandai sudah hafal" aria-label="Tandai sudah hafal"><span aria-hidden="true">&#10003;</span></button>
+          <button class="btn warning reader-action-btn" id="markDifficult" title="Tandai ada ayat sulit" aria-label="Tandai ada ayat sulit"><span aria-hidden="true">!</span></button>
         </div>
       </section>
 
@@ -381,7 +382,7 @@
                 <input type="range" id="arabicFontSize" min="28" max="58" value="42" />
               </label>
               <label class="check-row"><input type="checkbox" id="showTranslation" checked /> Tampilkan terjemahan</label>
-              <label for="audioReciter">Qari audio hafalan
+              <label for="audioReciter" class="audio-reciter-field">Qari audio hafalan
                 <select id="audioReciter">
                   <option value="Alafasy_128kbps">Mishary Alafasy</option>
                   <option value="Abdurrahmaan_As-Sudais_192kbps">Abdurrahman As-Sudais</option>
@@ -390,6 +391,7 @@
                   <option value="Minshawy_Murattal_128kbps">Muhammad Siddiq Al-Minshawi</option>
                   <option value="MaherAlMuaiqly128kbps">Maher Al-Muaiqly</option>
                 </select>
+                <span class="field-help">Pilih qari untuk audio hafalan per ayat. Perubahan berlaku saat pemutaran berikutnya.</span>
               </label>
             </div>
             <button class="btn secondary" id="saveDisplaySettings">Simpan Tampilan</button>
@@ -402,6 +404,10 @@
           <article class="info-card" data-role="admin">
             <h3>Kelola role pengguna</h3>
             <p class="form-help">Khusus admin: ubah akun santri menjadi guru agar bisa menilai setoran. Akses admin juga otomatis bisa membuka Panel Guru.</p>
+            <div class="admin-tools">
+              <button class="btn warning" type="button" id="runSubmissionCleanup">Bersihkan Setoran Kedaluwarsa</button>
+              <p class="form-help" id="adminCleanupResult">Setoran yang lewat 3 hari dapat dibersihkan manual dari sini kapan saja.</p>
+            </div>
             <label class="admin-user-search">
               <span>Cari pengguna</span>
               <input id="adminUserSearch" type="search" placeholder="Cari nama, email, atau role" autocomplete="off" />
@@ -472,7 +478,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="js/config.js?v=20260616-delete-click"></script>
-  <script type="module" src="js/app.js?v=20260616-delete-click"></script>
+  <script src="js/config.js?v=20260616-admin-cleanup"></script>
+  <script type="module" src="js/app.js?v=20260616-admin-cleanup"></script>
 </body>
 </html>

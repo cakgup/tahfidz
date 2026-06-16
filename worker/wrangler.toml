@@ -17,3 +17,8 @@ bucket_name = "hifz-companion-submissions"
 # Isi dengan domain GitHub Pages Bapak, contoh:
 # ALLOWED_ORIGINS = "https://cakgup.github.io,https://cakgup.github.io/hifz-companion"
 ALLOWED_ORIGINS = ""
+SUBMISSION_RETENTION_DAYS = "3"
+SUBMISSION_CLEANUP_BATCH_SIZE = "200"
+
+[triggers]
+crons = ["0 */6 * * *"]

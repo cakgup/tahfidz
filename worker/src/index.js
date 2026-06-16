@@ -13,6 +13,7 @@ export default {
       else if (url.pathname === '/api/auth/me' && request.method === 'GET') response = await authMe(request, env);
       else if (url.pathname === '/api/admin/users' && request.method === 'GET') response = await listAdminUsers(request, env);
       else if (url.pathname.match(/^\/api\/admin\/users\/[^/]+\/role$/) && request.method === 'PATCH') response = await updateAdminUserRole(request, url, env);
+      else if (url.pathname === '/api/admin/submissions/cleanup' && request.method === 'POST') response = await triggerSubmissionCleanup(request, env);
       else if (url.pathname === '/api/prayer/today') response = await prayerToday(request, env);
       else if (url.pathname === '/api/location/reverse' && request.method === 'GET') response = await reverseLocation(url, env);
       else if (url.pathname === '/api/quran/surahs') response = await listSurahs(env);
@@ -37,6 +38,9 @@ export default {
       for (const [k, v] of Object.entries(cors)) response.headers.set(k, v);
       return response;
     }
+  },
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(runScheduledMaintenance(env, controller));
   }
 };
 
@@ -175,6 +179,11 @@ async function updateAdminUserRole(request, url, env){
   const updated = await env.DB.prepare('SELECT id, name, email, role, status FROM users WHERE id = ?').bind(userId).first();
   return json({ ok: true, user: publicUser(updated) });
 }
+async function triggerSubmissionCleanup(request, env){
+  await requireAdmin(request, env);
+  const result = await cleanupExpiredSubmissions(env, { reason: 'admin-manual' });
+  return json(result);
+}
 
 async function prayerToday(request, env){
   const url = new URL(request.url);
@@ -261,6 +270,64 @@ function extractSubmissionObjectKey(audioUrl){
   } catch {
     return null;
   }
+}
+function retentionDays(env){
+  const raw = Number(env.SUBMISSION_RETENTION_DAYS || 3);
+  return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 3;
+}
+function cleanupBatchSize(env){
+  const raw = Number(env.SUBMISSION_CLEANUP_BATCH_SIZE || 200);
+  return Number.isFinite(raw) && raw > 0 ? Math.min(1000, Math.floor(raw)) : 200;
+}
+async function cleanupExpiredSubmissions(env, { reason = 'manual', retention = retentionDays(env), batchSize = cleanupBatchSize(env) } = {}){
+  const cutoffIso = addDays(-retention);
+  const { results: expired } = await env.DB.prepare(`
+    SELECT id, audio_url, submitted_at
+    FROM submissions
+    WHERE datetime(submitted_at) <= datetime(?)
+    ORDER BY datetime(submitted_at) ASC
+    LIMIT ?
+  `).bind(cutoffIso, batchSize).all();
+  if(!expired?.length){
+    return { ok: true, reason, retention_days: retention, cutoff_iso: cutoffIso, deleted_submissions: 0, deleted_objects: 0 };
+  }
+
+  let deletedObjects = 0;
+  if(env.SUBMISSIONS_BUCKET){
+    for(const submission of expired){
+      const objectKey = extractSubmissionObjectKey(submission.audio_url);
+      if(!objectKey) continue;
+      await env.SUBMISSIONS_BUCKET.delete(objectKey);
+      deletedObjects++;
+    }
+  }
+
+  const ids = expired.map(item => item.id);
+  const placeholders = ids.map(() => '?').join(', ');
+  await env.DB.prepare(`DELETE FROM submission_notes WHERE submission_id IN (${placeholders})`).bind(...ids).run();
+  await env.DB.prepare(`DELETE FROM submissions WHERE id IN (${placeholders})`).bind(...ids).run();
+
+  return {
+    ok: true,
+    reason,
+    retention_days: retention,
+    cutoff_iso: cutoffIso,
+    deleted_submissions: ids.length,
+    deleted_objects: deletedObjects,
+    deleted_ids: ids
+  };
+}
+async function runScheduledMaintenance(env, controller = null){
+  const result = await cleanupExpiredSubmissions(env, {
+    reason: controller?.cron ? `cron:${controller.cron}` : 'scheduled'
+  });
+  console.log(JSON.stringify({
+    event: 'submission_cleanup',
+    cron: controller?.cron || null,
+    scheduledTime: controller?.scheduledTime || null,
+    ...result
+  }));
+  return result;
 }
 async function listSurahs(env){
   const { results } = await env.DB.prepare('SELECT id, name_ar, name_latin, total_ayah, revelation_type FROM surahs ORDER BY id').all();
