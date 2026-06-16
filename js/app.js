@@ -841,9 +841,8 @@ function stopRecording(){
   toast('Rekaman selesai. Menyimpan...');
   // Auto-save submission setelah recording berhenti
   saveSubmission().catch(e => {
-    // Jika ada error, tampilkan tapi jangan throw
     console.warn('Auto-save error:', e);
-    toast('Rekaman disimpan lokal. Klik tombol lagi jika perlu menyimpan manual.');
+    toast(e.message || 'Setoran gagal dikirim ke server.');
   });
 }
 function discardRecording(){
@@ -866,6 +865,9 @@ function discardRecording(){
 async function saveSubmission(){
   if(!requireSantri('Setoran hafalan hanya tersedia untuk akun santri.')) return;
   if(!state.recordingBlob || !state.recordingUrl) throw new Error('Rekam setoran terlebih dahulu sebelum disimpan.');
+  if(window.HIFZ_CONFIG.apiBase && isLocalAuthToken()){
+    throw new Error('Akun pada perangkat ini masih memakai sesi lokal. Setoran belum bisa masuk ke server guru. Keluar lalu masuk ulang dengan akun server.');
+  }
   const {surahId, start, end} = getSelectedRange();
   const submissions = readJson(userScopedKey(STORAGE_KEYS.submissions), []);
   const teacher = getSelectedTeacher();

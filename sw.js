@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v38-admin-cleanup';
+const CACHE_NAME = 'hifz-companion-v39-submission-remote-guard';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260616-admin-cleanup',
-  './js/config.js?v=20260616-admin-cleanup',
-  './js/app.js?v=20260616-admin-cleanup',
+  './css/styles.css?v=20260616-submission-remote-guard',
+  './js/config.js?v=20260616-submission-remote-guard',
+  './js/app.js?v=20260616-submission-remote-guard',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',
