@@ -1,14 +1,14 @@
-const CACHE_NAME = 'hifz-companion-v39-submission-remote-guard';
+const CACHE_NAME = 'hifz-companion-v41-stop-upload-fix';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260616-submission-remote-guard',
-  './js/config.js?v=20260616-submission-remote-guard',
-  './js/app.js?v=20260616-submission-remote-guard',
+  './css/styles.css?v=20260616-stop-upload-fix',
+  './js/config.js?v=20260616-stop-upload-fix',
+  './js/app.js?v=20260616-stop-upload-fix',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',
-  './assets/icon.svg'
+  './assets/logo.png'
 ];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_ASSETS)));

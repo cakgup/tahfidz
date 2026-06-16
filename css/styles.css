@@ -86,13 +86,15 @@ select option { font-weight: 400; }
 .brand-mark {
   width: 58px;
   height: 58px;
-  border-radius: 20px;
-  background: var(--accent);
-  color: var(--primary);
+  border-radius: 22px;
+  background: rgba(255,255,255,.08) url("../assets/logo.png") center/cover no-repeat;
+  color: transparent;
   display: grid;
   place-items: center;
-  font-size: 32px;
+  font-size: 0;
   font-weight: 900;
+  box-shadow: 0 10px 24px rgba(5, 11, 26, .22);
+  overflow: hidden;
 }
 
 .brand-kicker, .eyebrow {
@@ -550,7 +552,7 @@ select option { font-weight: 400; }
   width: 50px;
   height: 50px;
   border-radius: 18px;
-  font-size: 28px;
+  font-size: 0;
 }
 
 .app-shell[data-current-view="login"] .brand-block h1,
@@ -1382,7 +1384,10 @@ textarea:focus { border-color: #6679c0; box-shadow: 0 0 0 4px rgba(102,121,192,.
 }
 [data-theme="light"] .brand-kicker, [data-theme="light"] .eyebrow { color: #f4c842 !important; }
 [data-theme="light"] .brand-block h1 { color: #fff !important; }
-[data-theme="light"] .brand-mark { background: #f4c842 !important; color: #162d56 !important; }
+[data-theme="light"] .brand-mark {
+  background: rgba(255,255,255,.72) url("../assets/logo.png") center/cover no-repeat !important;
+  color: transparent !important;
+}
 [data-theme="light"] .muted-light { color: rgba(255,255,255,.72) !important; }
 [data-theme="light"] .prayer-strip { border-color: rgba(255,255,255,.18) !important; background: rgba(255,255,255,.09) !important; }
 [data-theme="light"] .prayer-strip > div { background: rgba(255,255,255,.11) !important; }
@@ -1506,7 +1511,7 @@ textarea:focus { border-color: #6679c0; box-shadow: 0 0 0 4px rgba(102,121,192,.
     width: 76px;
     height: 76px;
     border-radius: 28px;
-    font-size: 42px;
+    font-size: 0;
   }
 
   .brand-block h1 { font-size: clamp(28px, 4vw, 42px); }

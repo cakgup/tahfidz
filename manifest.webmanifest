@@ -8,9 +8,10 @@
   "description": "Asisten hafalan Qur'an dengan murajaah dan jadwal shalat.",
   "icons": [
     {
-      "src": "assets/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

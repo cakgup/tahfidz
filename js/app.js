@@ -11,12 +11,14 @@ const state = {
   quran: null,
   currentSurah: null,
   recorder: null,
+  recorderStream: null,
   chunks: [],
   recordingBlob: null,
   recordingUrl: null,
   recordingMimeType: 'audio/webm',
   recordingStartedAt: null,
   recordingTimerId: null,
+  recordingStopPromise: null,
   prayerTimer: null,
   lastAudio: null,
   audioSessionId: 0,
@@ -782,8 +784,10 @@ function renderReviews(){
 async function setupRecorder(){
   if(!navigator.mediaDevices?.getUserMedia) throw new Error('Browser tidak mendukung rekaman audio.');
   const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+  state.recorderStream = stream;
   state.recorder = new MediaRecorder(stream);
   state.chunks = [];
+  state.recordingStopPromise = null;
   state.recorder.ondataavailable = e => state.chunks.push(e.data);
   state.recorder.onstop = () => {
     const blob = new Blob(state.chunks, {type:state.recorder.mimeType || 'audio/webm'});
@@ -793,6 +797,9 @@ async function setupRecorder(){
     state.recordingUrl = URL.createObjectURL(blob);
     $('#recordPreview').src = state.recordingUrl;
     $('#recordPreviewRow').hidden = false;
+    state.recorderStream?.getTracks?.().forEach(track => track.stop());
+    state.recorderStream = null;
+    state.recorder = null;
   };
 }
 function formatRecordingDuration(seconds = 0){
@@ -834,16 +841,30 @@ async function startRecording(){
   $('#startRecord').disabled = true; $('#stopRecord').disabled = false;
   toast('Rekaman dimulai. Bacalah dengan tartil.');
 }
-function stopRecording(){
-  state.recorder?.stop();
+async function stopRecording(){
+  const recorder = state.recorder;
+  if(!recorder) return;
+  if(recorder.state === 'inactive'){
+    toast('Rekaman sudah berhenti.');
+    return;
+  }
+  state.recordingStopPromise = new Promise(resolve => {
+    const finalize = () => resolve();
+    recorder.addEventListener('stop', finalize, { once:true });
+  });
+  recorder.stop();
   setRecordingUi(false);
   $('#startRecord').disabled = false; $('#stopRecord').disabled = true;
   toast('Rekaman selesai. Menyimpan...');
-  // Auto-save submission setelah recording berhenti
-  saveSubmission().catch(e => {
+  try{
+    await state.recordingStopPromise;
+    await saveSubmission();
+  }catch(e){
     console.warn('Auto-save error:', e);
     toast(e.message || 'Setoran gagal dikirim ke server.');
-  });
+  }finally{
+    state.recordingStopPromise = null;
+  }
 }
 function discardRecording(){
   if(!state.recordingBlob && !state.recordingUrl){
@@ -855,6 +876,10 @@ function discardRecording(){
   state.recordingBlob = null;
   state.recordingUrl = null;
   state.recordingMimeType = 'audio/webm';
+  state.recordingStopPromise = null;
+  state.recorderStream?.getTracks?.().forEach(track => track.stop());
+  state.recorderStream = null;
+  state.recorder = null;
   $('#recordPreview').removeAttribute('src');
   $('#recordPreviewRow').hidden = true;
   setRecordingUi(false);
@@ -1753,7 +1778,7 @@ function bindEvents(){
     if(e.target.dataset.jump) switchView(e.target.dataset.jump);
   });
   $('#startRecord').addEventListener('click', () => startRecording().catch(e=>toast(e.message)));
-  $('#stopRecord').addEventListener('click', stopRecording);
+  $('#stopRecord').addEventListener('click', () => stopRecording().catch(e => toast(e.message)));
   $('#discardRecord').addEventListener('click', discardRecording);
   $('#reloadQuran').addEventListener('click', () => loadQuran().then(()=>toast('Konten dimuat ulang.')).catch(e=>toast(e.message)));
   $('#locationButton').addEventListener('click', openLocationModal);
