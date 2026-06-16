@@ -1302,26 +1302,34 @@ function saveGrade(){
 }
 
 /** Hapus setoran dari storage */
-function deleteSubmission(submissionId){
-  if(!confirm('Hapus setoran ini? Audio dan data setoran akan dihapus secara permanen.')) return;
-  
+async function deleteSubmission(submissionId){
   const key = userScopedKey(STORAGE_KEYS.submissions);
   const data = readJson(key, []);
   const idx = data.findIndex(s => s.id === submissionId);
-  
+
   if(idx < 0){ toast('Setoran tidak ditemukan.'); return; }
-  
-  data.splice(idx, 1);
-  writeJson(key, data);
-  
+
+  const nextData = data.filter(item => item.id !== submissionId);
+  toast('Menghapus setoran...');
+
+  if(window.HIFZ_CONFIG.apiBase && isLoggedIn() && !isLocalAuthToken()){
+    try{
+      await apiFetch(`/api/submissions/${encodeURIComponent(submissionId)}`, { method:'DELETE' });
+      await syncRemoteSubmissions({ silent:true }).catch(()=>{});
+    }catch(err){
+      const message = String(err?.message || '');
+      if(!/404/.test(message) && !/tidak ditemukan/i.test(message)){
+        toast(`Setoran gagal dihapus dari server: ${message || 'request gagal'}`);
+        return;
+      }
+    }
+  }
+
+  writeJson(key, nextData);
+  sanitizeSubmissionStore();
   renderSubmissions();
   updateDashboard();
   updateHome();
-  if(window.HIFZ_CONFIG.apiBase){
-    apiFetch(`/api/submissions/${encodeURIComponent(submissionId)}`, { method:'DELETE' })
-      .then(() => syncRemoteSubmissions({ silent:true }).catch(()=>{}))
-      .catch(console.warn);
-  }
   toast('Setoran berhasil dihapus.');
 }
 function updateDashboard(){
@@ -1661,7 +1669,11 @@ function bindEvents(){
   // Tombol hapus setoran
   $('#submissionList').addEventListener('click', e => {
     const btn = e.target.closest('[data-delete-submission]');
-    if(btn) deleteSubmission(btn.dataset.deleteSubmission);
+    if(!btn) return;
+    btn.disabled = true;
+    deleteSubmission(btn.dataset.deleteSubmission)
+      .catch(err => toast(err.message || 'Setoran gagal dihapus.'))
+      .finally(() => { btn.disabled = false; });
   });
 
   // Modal penilaian

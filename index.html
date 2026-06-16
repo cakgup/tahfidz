@@ -28,7 +28,7 @@
   </script>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="css/styles.css?v=20260615-delete-fix" />
+  <link rel="stylesheet" href="css/styles.css?v=20260616-delete-click" />
 </head>
 <body>
   <div class="app-shell">
@@ -381,6 +381,16 @@
                 <input type="range" id="arabicFontSize" min="28" max="58" value="42" />
               </label>
               <label class="check-row"><input type="checkbox" id="showTranslation" checked /> Tampilkan terjemahan</label>
+              <label for="audioReciter">Qari audio hafalan
+                <select id="audioReciter">
+                  <option value="Alafasy_128kbps">Mishary Alafasy</option>
+                  <option value="Abdurrahmaan_As-Sudais_192kbps">Abdurrahman As-Sudais</option>
+                  <option value="Saood_ash-Shuraym_128kbps">Saud Asy-Syuraim</option>
+                  <option value="Husary_128kbps_Mujawwad">Mahmoud Khalil Al-Husary</option>
+                  <option value="Minshawy_Murattal_128kbps">Muhammad Siddiq Al-Minshawi</option>
+                  <option value="MaherAlMuaiqly128kbps">Maher Al-Muaiqly</option>
+                </select>
+              </label>
             </div>
             <button class="btn secondary" id="saveDisplaySettings">Simpan Tampilan</button>
           </article>
@@ -462,7 +472,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="js/config.js?v=20260615-delete-fix"></script>
-  <script type="module" src="js/app.js?v=20260615-delete-fix"></script>
+  <script src="js/config.js?v=20260616-delete-click"></script>
+  <script type="module" src="js/app.js?v=20260616-delete-click"></script>
 </body>
 </html>
