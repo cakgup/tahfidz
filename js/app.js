@@ -9,6 +9,7 @@ const storage = window.HIFZ_STORAGE || {
 
 const state = {
   quran: null,
+  quranPages: {},
   currentSurah: null,
   recorder: null,
   recorderStream: null,
@@ -24,6 +25,7 @@ const state = {
   audioSessionId: 0,
   audioPlayback: null,
   activeAyahKey: null,
+  mushafPageFocus: '',
   firstWordExpanded: {},
   captchas: { login: null, register: null }
 };
@@ -349,6 +351,29 @@ function resolveAyahAudioUrl(ayah = {}){
   const selectedUrl = buildEveryAyahUrl(Number(ayah.surah_id), Number(ayah.number || ayah.ayah_number));
   return selectedUrl || String(ayah.audio_url || '').trim();
 }
+function getSurahById(surahId){
+  return state.quran?.surahs?.find(s => Number(s.id) === Number(surahId)) || null;
+}
+function buildQuranPageIndex(){
+  const pageMap = {};
+  for(const surah of (state.quran?.surahs || [])){
+    for(const ayah of (surah.ayahs || [])){
+      const page = String(Number(ayah.page || surah.page || 1));
+      if(!pageMap[page]) pageMap[page] = [];
+      pageMap[page].push(ayah);
+    }
+  }
+  state.quranPages = pageMap;
+}
+function getAvailableMushafPages(){
+  return Object.keys(state.quranPages || {}).map(Number).sort((a, b) => a - b);
+}
+function getMushafPageAyahs(page = state.mushafPageFocus){
+  return (state.quranPages?.[String(page || '')] || []).slice();
+}
+function getCurrentReaderAyahs(){
+  return $('#hideMode')?.value === 'mushafPojok' ? getMushafPageAyahs() : getAyahsInRange();
+}
 
 async function loadQuran(){
   const path = window.HIFZ_CONFIG.quranDataPath || 'data/quran-kemenag-combined.json';
@@ -356,6 +381,7 @@ async function loadQuran(){
   if(!res.ok) throw new Error(`Data Qur'an tidak dapat dimuat dari ${path}.`);
   const raw = await res.json();
   state.quran = normalizeQuran(raw);
+  buildQuranPageIndex();
   populateSurahSelect();
   applyDisplaySettings();
   renderReader();
@@ -374,7 +400,14 @@ function populateAyahSelects(){
   $('#startAyah').innerHTML = options;
   $('#endAyah').innerHTML = options;
   $('#endAyah').value = state.currentSurah.ayahs.at(-1)?.number || 1;
+  state.mushafPageFocus = '';
   saveActiveTarget();
+}
+function updateReaderModeControls(){
+  const isPojok = $('#hideMode')?.value === 'mushafPojok';
+  setElementVisibility($('#surahField'), isPojok);
+  setElementVisibility($('#startAyahField'), isPojok);
+  setElementVisibility($('#endAyahField'), isPojok);
 }
 function getAyahsInRange(){
   const {start,end} = getSelectedRange();
@@ -438,7 +471,7 @@ function renderStandardAyahCard(a, mode, display, progress, difficult){
 function renderMushafPojokPages(ayahs, display, progress, difficult){
   const pageGroups = groupAyahsByPage(ayahs);
   return `<div class="mushaf-pojok-stack">` + pageGroups.map((group, index) => `
-    <section class="mushaf-page-shell">
+    <section class="mushaf-page-shell" data-mushaf-page="${group.page}">
       <div class="mushaf-page-header">
         <div class="mushaf-page-heading">
           <span class="badge">Halaman ${group.page}</span>
@@ -448,7 +481,7 @@ function renderMushafPojokPages(ayahs, display, progress, difficult){
       </div>
       <div class="mushaf-page-sheet">
         ${group.ayahs.map(a => {
-          const key = ayahKey(state.currentSurah.id, a.number);
+          const key = ayahKey(Number(a.surah_id), a.number);
           const isMemorized = progress[key]?.status === 'memorized';
           const isDifficult = difficult[key];
           const isActive = state.activeAyahKey === key;
@@ -477,28 +510,61 @@ function renderReaderPojok(){
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
   const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
   const display = readJson(STORAGE_KEYS.display, { showTranslation: true });
-  const ayahs = getAyahsInRange();
+  const pages = getAvailableMushafPages();
+  if(!state.mushafPageFocus || !pages.includes(Number(state.mushafPageFocus))){
+    state.mushafPageFocus = String(pages[0] || '');
+  }
+  const ayahs = getMushafPageAyahs();
   const pageGroups = groupAyahsByPage(ayahs);
-  const firstPage = pageGroups[0]?.page;
-  const lastPage = pageGroups[pageGroups.length - 1]?.page;
-  const pageRange = firstPage ? ` · Halaman ${firstPage}${lastPage && lastPage !== firstPage ? `-${lastPage}` : ''}` : '';
-  const meta = `${state.currentSurah.revelation_type || '-'} · ${state.currentSurah.total_ayah} ayat${state.currentSurah.translation ? ` · ${state.currentSurah.translation}` : ''}`;
+  const pageValue = state.mushafPageFocus;
+  const surahIds = [...new Set(ayahs.map(a => Number(a.surah_id)).filter(Boolean))];
+  const surahSummary = surahIds.map(id => getSurahById(id)?.name_latin || `Surah ${id}`).join(' · ');
+  const meta = surahSummary ? `Halaman ${pageValue} · ${surahSummary}` : `Halaman ${pageValue}`;
   $('#readerCard').innerHTML = `<div class="surah-title">
-      <div><span class="badge">${escapeHtml(window.HIFZ_CONFIG.quranSourceLabel || 'Al-Qur\'an Kemenag RI')}</span><h3>${state.currentSurah.id}. ${escapeHtml(state.currentSurah.name_latin)}</h3><p>${escapeHtml(meta)}</p></div>
+      <div><span class="badge">${escapeHtml(window.HIFZ_CONFIG.quranSourceLabel || 'Al-Qur\'an Kemenag RI')}</span><h3>Mushaf Pojok · Halaman ${escapeHtml(pageValue || '-')}</h3><p>${escapeHtml(meta)}</p></div>
       <div class="surah-title-side">
-        <div class="arabic surah-name">${escapeHtml(state.currentSurah.name_ar)}</div>
-        ${pageRange ? `<p class="surah-page-range">Rentang mushaf${pageRange}</p>` : ''}
+        <div class="arabic surah-name">الْمُصْحَفُ</div>
+        ${pageValue ? `<p class="surah-page-range">Pencarian berbasis halaman ${escapeHtml(pageValue)}</p>` : ''}
       </div>
     </div>` + renderMushafPojokPages(ayahs, display, progress, difficult);
+  updateMushafPageSelect(pageGroups);
   syncActiveAyahCard(false);
+}
+function updateMushafPageSelect(pageGroups = groupAyahsByPage(getMushafPageAyahs())){
+  const field = $('#mushafPageField');
+  const select = $('#mushafPageSelect');
+  const isPojok = $('#hideMode')?.value === 'mushafPojok';
+  if(!field || !select){
+    return;
+  }
+  if(!isPojok || !pageGroups.length){
+    state.mushafPageFocus = '';
+    select.innerHTML = '<option value="">Pilih halaman mushaf</option>';
+    setElementVisibility(field, true);
+    return;
+  }
+  const pages = getAvailableMushafPages().map(String);
+  if(!pages.includes(String(state.mushafPageFocus || ''))){
+    state.mushafPageFocus = pages[0];
+  }
+  select.innerHTML = pages.map(page => `<option value="${page}"${String(state.mushafPageFocus) === page ? ' selected' : ''}>Halaman ${page}</option>`).join('');
+  setElementVisibility(field, false);
+}
+function focusMushafPage(page){
+  const pageValue = String(page || '').trim();
+  state.mushafPageFocus = pageValue;
+  if(!pageValue) return;
+  renderReader();
 }
 function renderReader(){
   if(!state.currentSurah) return;
+  updateReaderModeControls();
   const mode = $('#hideMode').value;
   if(mode === 'mushafPojok'){
     renderReaderPojok();
     return;
   }
+  updateMushafPageSelect([]);
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
   const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
   const display = readJson(STORAGE_KEYS.display, { showTranslation: true });
@@ -584,7 +650,7 @@ function setActiveAyah(ayah = null, { scrollIntoView = true } = {}){
 
 async function playSequence(){
   const repeat = Number($('#repeatCount').value);
-  const ayahs = getAyahsInRange();
+  const ayahs = getCurrentReaderAyahs();
   if(!ayahs.some(a => resolveAyahAudioUrl(a))){ toast('URL audio belum tersedia untuk rentang ayat ini.'); return; }
   toast(`Memutar rentang ${ayahs.length} ayat sebanyak ${repeat} kali.`);
   const sessionId = ++state.audioSessionId;
@@ -675,17 +741,18 @@ function requireSantri(message = 'Menu ini khusus santri. Silakan gunakan akun s
 async function markMemorized(){
   if(!requireSantri()) return;
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
-  const selected = getAyahsInRange();
+  const selected = getCurrentReaderAyahs();
   for(const a of selected){
-    const key = ayahKey(state.currentSurah.id, a.number);
-    progress[key] = {surah_id: state.currentSurah.id, surah: state.currentSurah.name_latin, ayah_number: a.number, status:'memorized', memorized_at: new Date().toISOString(), strength_score: 60};
+    const surah = getSurahById(a.surah_id);
+    const key = ayahKey(Number(a.surah_id), a.number);
+    progress[key] = {surah_id: Number(a.surah_id), surah: surah?.name_latin || state.currentSurah.name_latin, ayah_number: a.number, status:'memorized', memorized_at: new Date().toISOString(), strength_score: 60};
   }
   writeJson(userScopedKey(STORAGE_KEYS.progress), progress);
   saveActiveTarget();
   renderReader(); renderReviews(); updateDashboard(); updateHome();
   if(window.HIFZ_CONFIG.apiBase){
     Promise.allSettled(selected.map(a => apiFetch('/api/progress', {
-      method:'POST', body:JSON.stringify({surah_id:state.currentSurah.id, ayah_number:a.number, status:'memorized', strength_score:60})
+      method:'POST', body:JSON.stringify({surah_id:Number(a.surah_id), ayah_number:a.number, status:'memorized', strength_score:60})
     }))).catch(console.warn);
   }
   toast('Ayat ditandai hafal. Susun murajaah nanti saat memang Anda perlukan.');
@@ -693,7 +760,10 @@ async function markMemorized(){
 function markDifficult(){
   if(!requireSantri()) return;
   const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
-  for(const a of getAyahsInRange()) difficult[ayahKey(state.currentSurah.id, a.number)] = {surah:state.currentSurah.name_latin, surah_id:state.currentSurah.id, ayah_number:a.number, created_at:new Date().toISOString()};
+  for(const a of getCurrentReaderAyahs()){
+    const surah = getSurahById(a.surah_id);
+    difficult[ayahKey(Number(a.surah_id), a.number)] = {surah:surah?.name_latin || state.currentSurah.name_latin, surah_id:Number(a.surah_id), ayah_number:a.number, created_at:new Date().toISOString()};
+  }
   writeJson(userScopedKey(STORAGE_KEYS.difficult), difficult);
   renderReader(); updateDashboard(); updateHome();
   toast('Ayat masuk daftar sulit dan diprioritaskan untuk murajaah.');
@@ -1916,6 +1986,9 @@ function bindEvents(){
   $('#surahSelect').addEventListener('change', () => { populateAyahSelects(); saveActiveTarget(); renderReader(); updateHome(); });
   ['startAyah','endAyah'].forEach(id => $(`#${id}`).addEventListener('change', () => { saveActiveTarget(); renderReader(); updateHome(); }));
   $('#hideMode').addEventListener('change', renderReader);
+  $('#mushafPageSelect')?.addEventListener('change', e => {
+    focusMushafPage(e.target.value);
+  });
   $('#readerCard').addEventListener('click', e => {
     const toggle = e.target.closest('[data-toggle-first-word]');
     if(!toggle) return;
