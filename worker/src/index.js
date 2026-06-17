@@ -444,8 +444,8 @@ async function listTeachers(request, env){
   await requireAuth(request, env);
   const { results } = await env.DB.prepare(`SELECT id, name, email, role, status
     FROM users
-    WHERE status = 'active' AND role IN ('guru', 'admin')
-    ORDER BY CASE role WHEN 'admin' THEN 0 ELSE 1 END, lower(name) ASC`).all();
+    WHERE status = 'active' AND role = 'guru'
+    ORDER BY lower(name) ASC`).all();
   return json({ teachers: results.map(publicUser) });
 }
 async function listSubmissions(request, env){

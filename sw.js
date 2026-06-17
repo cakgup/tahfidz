@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v42-grade-sync';
+const CACHE_NAME = 'hifz-companion-v44-teacher-filter';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260616-grade-sync',
-  './js/config.js?v=20260616-grade-sync',
-  './js/app.js?v=20260616-grade-sync',
+  './css/styles.css?v=20260617-teacher-filter',
+  './js/config.js?v=20260617-teacher-filter',
+  './js/app.js?v=20260617-teacher-filter',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',

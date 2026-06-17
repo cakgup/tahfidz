@@ -257,16 +257,13 @@ async function fetchTeacherUsers(){
   if(!isLoggedIn()) return [];
   if(window.HIFZ_CONFIG.apiBase && !isLocalAuthToken()){
     const data = await apiFetch('/api/teachers');
-    return (data.teachers || []).filter(user => ['guru', 'admin'].includes(user.role));
+    return (data.teachers || []).filter(user => user.role === 'guru');
   }
   localPromoteSpecialAdmin();
   return readJson(STORAGE_KEYS.localUsers, [])
     .map(({password, ...user}) => user)
-    .filter(user => ['guru', 'admin'].includes(user.role))
-    .sort((a, b) => {
-      const roleRank = (a.role === 'admin' ? 0 : 1) - (b.role === 'admin' ? 0 : 1);
-      return roleRank || String(a.name || '').localeCompare(String(b.name || ''), 'id');
-    });
+    .filter(user => user.role === 'guru')
+    .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'id'));
 }
 function setTeacherSelectState(optionsHtml, disabled = false){
   const select = $('#teacherName');
@@ -1368,12 +1365,12 @@ function renderGuruPanel(filter = 'all'){
     const grade = sub._grade;
     const gradePanel = grade ? `
       <div class="grade-panel">
-        <div class="grade-row">
+        <div class="grade-summary">
           <div class="grade-score-badge ${grade.nilai < 60 ? 'low' : grade.nilai < 80 ? 'mid' : ''}">${grade.nilai ?? '-'}</div>
-          <div>
-            <strong>${statusChipHtml(grade)} &nbsp; Nilai: ${grade.nilai ?? '-'}/100</strong>
-            ${grade.catatan ? `<span style="display:block;margin-top:6px">${escapeHtml(grade.catatan)}</span>` : ''}
-            <span style="font-size:.85rem;opacity:.7">Dinilai: ${grade.graded_at ? new Date(grade.graded_at).toLocaleString('id-ID',{dateStyle:'short',timeStyle:'short'}) : '-'}</span>
+          <div class="grade-summary-copy">
+            <strong>Nilai ${grade.nilai ?? '-'}/100</strong>
+            ${grade.catatan ? `<p class="grade-summary-note">${escapeHtml(grade.catatan)}</p>` : '<p class="grade-summary-note">Belum ada catatan tambahan.</p>'}
+            <span class="grade-summary-time">Dinilai: ${grade.graded_at ? new Date(grade.graded_at).toLocaleString('id-ID',{dateStyle:'short',timeStyle:'short'}) : '-'}</span>
           </div>
         </div>
       </div>` : '';

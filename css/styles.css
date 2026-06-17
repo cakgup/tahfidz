@@ -1239,6 +1239,17 @@ sup.fn-ref { font-size: .65em; vertical-align: super; line-height: 0; color: var
 
 .grade-panel { background: var(--surface-2); border-radius: 16px; padding: 16px; font-size: .97rem; color: var(--text-soft); }
 .grade-panel strong { color: var(--text); display: block; margin-bottom: 4px; }
+.grade-summary { display: flex; align-items: flex-start; gap: 16px; }
+.grade-summary-copy { min-width: 0; display: grid; gap: 6px; }
+.grade-summary-note {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.55;
+}
+.grade-summary-time {
+  font-size: .85rem;
+  opacity: .72;
+}
 
 .modal-backdrop {
   position: fixed;
@@ -1721,6 +1732,13 @@ textarea:focus { border-color: #6679c0; box-shadow: 0 0 0 4px rgba(102,121,192,.
   .guru-stats { grid-template-columns: repeat(3, 1fr); }
 
   [data-theme="light"] .tab-nav { padding-bottom: 18px; }
+}
+
+@media (max-width: 640px) {
+  .grade-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 /* ========== DESKTOP BREAKPOINT (min-width: 981px) ========== */
