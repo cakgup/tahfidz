@@ -24,6 +24,7 @@ const state = {
   audioSessionId: 0,
   audioPlayback: null,
   activeAyahKey: null,
+  firstWordExpanded: {},
   captchas: { login: null, register: null }
 };
 
@@ -397,6 +398,15 @@ function renderFirstWordPrompt(text = ''){
   const firstWord = String(text || '').trim().split(/\s+/u).find(Boolean) || '';
   return `<span class="first-word-prompt"><span class="first-word-text">${escapeHtml(firstWord)}</span><span class="first-word-dots" aria-hidden="true">...</span></span>`;
 }
+function renderFirstWordInteractive(ayah, key){
+  const expanded = Boolean(state.firstWordExpanded[key]);
+  const label = expanded ? escapeHtml(ayah.text_ar) : renderFirstWordPrompt(ayah.text_ar);
+  const hint = expanded ? 'Klik untuk ringkas kembali' : 'Klik untuk tampilkan ayat utuh';
+  return `<button type="button" class="first-word-toggle${expanded ? ' is-expanded' : ''}" data-toggle-first-word="${escapeHtml(key)}" aria-expanded="${expanded ? 'true' : 'false'}" title="${hint}">
+    <span class="first-word-toggle-label">${label}</span>
+    <span class="first-word-toggle-hint">${hint}</span>
+  </button>`;
+}
 function renderStandardAyahCard(a, mode, display, progress, difficult){
   const key = ayahKey(state.currentSurah.id, a.number);
   const isMemorized = progress[key]?.status === 'memorized';
@@ -406,7 +416,7 @@ function renderStandardAyahCard(a, mode, display, progress, difficult){
   const footnotes = String(a.footnotes || '').trim();
   if(mode === 'arabicHidden') arabic = '';
   if(mode === 'translationHidden') translation = '';
-  if(mode === 'firstWords') arabic = renderFirstWordPrompt(a.text_ar);
+  if(mode === 'firstWords') arabic = renderFirstWordInteractive(a, key);
   const isActive = state.activeAyahKey === key;
   return `<article class="ayah-card${isActive ? ' is-audio-active' : ''}" data-ayah-key="${escapeHtml(key)}" data-ayah-number="${a.number}">
     <div class="ayah-top">
@@ -506,7 +516,7 @@ function renderReader(){
     const footnotes = String(a.footnotes || '').trim();
     if(mode === 'arabicHidden') arabic = '';
     if(mode === 'translationHidden') translation = '';
-    if(mode === 'firstWords') arabic = renderFirstWordPrompt(a.text_ar);
+    if(mode === 'firstWords') arabic = renderFirstWordInteractive(a, key);
     const isActive = state.activeAyahKey === key;
     return `<article class="ayah-card${isActive ? ' is-audio-active' : ''}" data-ayah-key="${escapeHtml(key)}" data-ayah-number="${a.number}">
       <div class="ayah-top">
@@ -687,6 +697,11 @@ function markDifficult(){
   writeJson(userScopedKey(STORAGE_KEYS.difficult), difficult);
   renderReader(); updateDashboard(); updateHome();
   toast('Ayat masuk daftar sulit dan diprioritaskan untuk murajaah.');
+}
+function toggleFirstWordAyah(key){
+  if(!key) return;
+  state.firstWordExpanded[key] = !state.firstWordExpanded[key];
+  renderReader();
 }
 function dedupeReviews(items){
   const seen = new Map();
@@ -1901,6 +1916,11 @@ function bindEvents(){
   $('#surahSelect').addEventListener('change', () => { populateAyahSelects(); saveActiveTarget(); renderReader(); updateHome(); });
   ['startAyah','endAyah'].forEach(id => $(`#${id}`).addEventListener('change', () => { saveActiveTarget(); renderReader(); updateHome(); }));
   $('#hideMode').addEventListener('change', renderReader);
+  $('#readerCard').addEventListener('click', e => {
+    const toggle = e.target.closest('[data-toggle-first-word]');
+    if(!toggle) return;
+    toggleFirstWordAyah(toggle.dataset.toggleFirstWord);
+  });
   $('#playSequence').addEventListener('click', playSequence);
   $('#stopSequence')?.addEventListener('click', () => stopSequencePlayback());
   $('#markMemorized').addEventListener('click', () => markMemorized().catch(e=>toast(e.message)));

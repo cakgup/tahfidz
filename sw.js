@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v52-mode-order';
+const CACHE_NAME = 'hifz-companion-v53-first-word-toggle';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260617-mode-order',
-  './js/config.js?v=20260617-mode-order',
-  './js/app.js?v=20260617-mode-order',
+  './css/styles.css?v=20260617-first-word-toggle',
+  './js/config.js?v=20260617-first-word-toggle',
+  './js/app.js?v=20260617-first-word-toggle',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',

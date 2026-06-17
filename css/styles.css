@@ -674,6 +674,30 @@ select option { font-weight: 400; }
   letter-spacing: .04em;
   font-size: .62em;
 }
+.first-word-toggle {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 0;
+  cursor: pointer;
+}
+.first-word-toggle-label {
+  display: inline-flex;
+}
+.first-word-toggle-hint {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: .33em;
+  font-weight: 700;
+  letter-spacing: .03em;
+  color: var(--text-soft);
+}
+.first-word-toggle.is-expanded .first-word-toggle-label {
+  font-weight: 900;
+}
 
 .translation {
   margin: 0 auto;
