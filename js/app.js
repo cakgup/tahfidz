@@ -380,9 +380,115 @@ function getAyahsInRange(){
   const min = Math.min(start,end), max = Math.max(start,end);
   return (state.currentSurah?.ayahs || []).filter(a => a.number >= min && a.number <= max);
 }
+function groupAyahsByPage(ayahs = []){
+  const groups = [];
+  ayahs.forEach(ayah => {
+    const page = Number(ayah.page || state.currentSurah?.page || 1);
+    const lastGroup = groups[groups.length - 1];
+    if(!lastGroup || lastGroup.page !== page){
+      groups.push({ page, ayahs: [ayah] });
+    }else{
+      lastGroup.ayahs.push(ayah);
+    }
+  });
+  return groups;
+}
+function renderFirstWordPrompt(text = ''){
+  const firstWord = String(text || '').trim().split(/\s+/u).find(Boolean) || '';
+  return `<span class="first-word-prompt"><span class="first-word-text">${escapeHtml(firstWord)}</span><span class="first-word-dots" aria-hidden="true">...</span></span>`;
+}
+function renderStandardAyahCard(a, mode, display, progress, difficult){
+  const key = ayahKey(state.currentSurah.id, a.number);
+  const isMemorized = progress[key]?.status === 'memorized';
+  const isDifficult = difficult[key];
+  let arabic = escapeHtml(a.text_ar);
+  let translation = display.showTranslation ? escapeHtml(a.translation_id || '') : '';
+  const footnotes = String(a.footnotes || '').trim();
+  if(mode === 'arabicHidden') arabic = '';
+  if(mode === 'translationHidden') translation = '';
+  if(mode === 'firstWords') arabic = renderFirstWordPrompt(a.text_ar);
+  const isActive = state.activeAyahKey === key;
+  return `<article class="ayah-card${isActive ? ' is-audio-active' : ''}" data-ayah-key="${escapeHtml(key)}" data-ayah-number="${a.number}">
+    <div class="ayah-top">
+      <div class="ayah-meta">
+        <span class="ayah-index-badge">${a.number}</span>
+        ${a.juz ? `<span class="ayah-juz-badge">Juz ${a.juz}</span>` : ''}
+      </div>
+      <div class="status-badges">
+        <span class="badge status-badge ${isMemorized ? 'status-hafal' : 'status-belum'}">${isMemorized ? 'Hafal' : 'Belum'}</span>
+        ${isDifficult ? '<span class="badge status-badge status-sulit">Sulit</span>' : ''}
+      </div>
+    </div>
+    <div class="ayah-copy-meta">${escapeHtml(state.currentSurah.name_latin)} · ayat ${a.number}</div>
+    ${arabic ? `<div class="arabic arabic-block">${arabic}</div>` : ''}
+    ${translation ? `<p class="translation">${formatFootnoteRefs(translation)}</p>` : ''}
+    ${footnotes ? `<details class="footnote"><summary>Catatan Kemenag</summary><p>${formatFootnoteRefs(escapeHtml(footnotes))}</p></details>` : ''}
+  </article>`;
+}
+function renderMushafPojokPages(ayahs, display, progress, difficult){
+  const pageGroups = groupAyahsByPage(ayahs);
+  return `<div class="mushaf-pojok-stack">` + pageGroups.map((group, index) => `
+    <section class="mushaf-page-shell">
+      <div class="mushaf-page-header">
+        <div class="mushaf-page-heading">
+          <span class="badge">Halaman ${group.page}</span>
+          <strong>${index + 1}/${pageGroups.length} halaman aktif</strong>
+        </div>
+        <span class="mushaf-page-count">${group.ayahs.length} ayat</span>
+      </div>
+      <div class="mushaf-page-sheet">
+        ${group.ayahs.map(a => {
+          const key = ayahKey(state.currentSurah.id, a.number);
+          const isMemorized = progress[key]?.status === 'memorized';
+          const isDifficult = difficult[key];
+          const isActive = state.activeAyahKey === key;
+          const translation = display.showTranslation ? escapeHtml(a.translation_id || '') : '';
+          const footnotes = String(a.footnotes || '').trim();
+          return `<article class="ayah-card mushaf-ayah-card${isActive ? ' is-audio-active' : ''}" data-ayah-key="${escapeHtml(key)}" data-ayah-number="${a.number}">
+            <div class="mushaf-ayah-top">
+              <div class="ayah-meta">
+                <span class="ayah-index-badge">${a.number}</span>
+                ${a.juz ? `<span class="ayah-juz-badge">Juz ${a.juz}</span>` : ''}
+              </div>
+              <div class="status-badges">
+                <span class="badge status-badge ${isMemorized ? 'status-hafal' : 'status-belum'}">${isMemorized ? 'Hafal' : 'Belum'}</span>
+                ${isDifficult ? '<span class="badge status-badge status-sulit">Sulit</span>' : ''}
+              </div>
+            </div>
+            <div class="arabic arabic-block mushaf-arabic-block">${escapeHtml(a.text_ar)}</div>
+            ${translation ? `<p class="translation mushaf-translation">${formatFootnoteRefs(translation)}</p>` : ''}
+            ${footnotes ? `<details class="footnote mushaf-footnote"><summary>Catatan Kemenag</summary><p>${formatFootnoteRefs(escapeHtml(footnotes))}</p></details>` : ''}
+          </article>`;
+        }).join('')}
+      </div>
+    </section>`).join('') + `</div>`;
+}
+function renderReaderPojok(){
+  const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
+  const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
+  const display = readJson(STORAGE_KEYS.display, { showTranslation: true });
+  const ayahs = getAyahsInRange();
+  const pageGroups = groupAyahsByPage(ayahs);
+  const firstPage = pageGroups[0]?.page;
+  const lastPage = pageGroups[pageGroups.length - 1]?.page;
+  const pageRange = firstPage ? ` · Halaman ${firstPage}${lastPage && lastPage !== firstPage ? `-${lastPage}` : ''}` : '';
+  const meta = `${state.currentSurah.revelation_type || '-'} · ${state.currentSurah.total_ayah} ayat${state.currentSurah.translation ? ` · ${state.currentSurah.translation}` : ''}`;
+  $('#readerCard').innerHTML = `<div class="surah-title">
+      <div><span class="badge">${escapeHtml(window.HIFZ_CONFIG.quranSourceLabel || 'Al-Qur\'an Kemenag RI')}</span><h3>${state.currentSurah.id}. ${escapeHtml(state.currentSurah.name_latin)}</h3><p>${escapeHtml(meta)}</p></div>
+      <div class="surah-title-side">
+        <div class="arabic surah-name">${escapeHtml(state.currentSurah.name_ar)}</div>
+        ${pageRange ? `<p class="surah-page-range">Rentang mushaf${pageRange}</p>` : ''}
+      </div>
+    </div>` + renderMushafPojokPages(ayahs, display, progress, difficult);
+  syncActiveAyahCard(false);
+}
 function renderReader(){
   if(!state.currentSurah) return;
   const mode = $('#hideMode').value;
+  if(mode === 'mushafPojok'){
+    renderReaderPojok();
+    return;
+  }
   const progress = readJson(userScopedKey(STORAGE_KEYS.progress), {});
   const difficult = readJson(userScopedKey(STORAGE_KEYS.difficult), {});
   const display = readJson(STORAGE_KEYS.display, { showTranslation: true });
@@ -398,10 +504,9 @@ function renderReader(){
     let arabic = escapeHtml(a.text_ar);
     let translation = display.showTranslation ? escapeHtml(a.translation_id || '') : '';
     const footnotes = String(a.footnotes || '').trim();
-    if(mode === 'arabicHidden') arabic = '<div class="hidden-placeholder">Teks Arab disembunyikan</div>';
+    if(mode === 'arabicHidden') arabic = '';
     if(mode === 'translationHidden') translation = '';
-    if(mode === 'firstWords') arabic = `<span>${escapeHtml(a.text_ar.split(/\s+/).slice(0, 3).join(' '))} ...</span>`;
-    if(mode === 'blank') { arabic = '<div class="hidden-placeholder">Tes hafalan: baca tanpa melihat teks</div>'; translation = ''; }
+    if(mode === 'firstWords') arabic = renderFirstWordPrompt(a.text_ar);
     const isActive = state.activeAyahKey === key;
     return `<article class="ayah-card${isActive ? ' is-audio-active' : ''}" data-ayah-key="${escapeHtml(key)}" data-ayah-number="${a.number}">
       <div class="ayah-top">
@@ -415,7 +520,7 @@ function renderReader(){
         </div>
       </div>
       <div class="ayah-copy-meta">${escapeHtml(state.currentSurah.name_latin)} · ayat ${a.number}</div>
-      <div class="arabic arabic-block">${arabic}</div>
+      ${arabic ? `<div class="arabic arabic-block">${arabic}</div>` : ''}
       ${translation ? `<p class="translation">${formatFootnoteRefs(translation)}</p>` : ''}
       ${footnotes ? `<details class="footnote"><summary>Catatan Kemenag</summary><p>${formatFootnoteRefs(escapeHtml(footnotes))}</p></details>` : ''}
     </article>`;

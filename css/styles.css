@@ -657,6 +657,23 @@ select option { font-weight: 400; }
   justify-items: center;
   text-align: center;
 }
+.first-word-prompt {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: .18em;
+  direction: rtl;
+}
+.first-word-text {
+  font-weight: 950;
+  letter-spacing: 0;
+}
+.first-word-dots {
+  opacity: .5;
+  font-weight: 700;
+  letter-spacing: .04em;
+  font-size: .62em;
+}
 
 .translation {
   margin: 0 auto;
@@ -851,6 +868,88 @@ select option { font-weight: 400; }
   background: linear-gradient(135deg, var(--primary), #263b72);
   border-radius: 16px;
   color: #fff;
+}
+.surah-title-side {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+.surah-page-range {
+  margin: 0;
+  color: rgba(255,255,255,.82);
+  font-size: .95rem;
+  text-align: right;
+}
+.mushaf-pojok-stack {
+  display: grid;
+  gap: 18px;
+  margin-top: 16px;
+}
+.mushaf-page-shell {
+  padding: 16px;
+  border-radius: 26px;
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+  border: 1px solid rgba(255,255,255,.08);
+}
+.mushaf-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.mushaf-page-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.mushaf-page-count {
+  color: var(--text-soft);
+  font-size: .92rem;
+}
+.mushaf-page-sheet {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 24px;
+  background: #f6f0db;
+  color: #22411d;
+  border: 1px solid rgba(183, 156, 76, .26);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
+}
+.mushaf-ayah-card {
+  margin-bottom: 0;
+  border-radius: 20px;
+  padding: 16px 18px;
+  background: rgba(255,255,255,.58);
+  border-color: rgba(161, 142, 86, .18);
+  box-shadow: none;
+}
+.mushaf-ayah-card.is-audio-active {
+  background: #fff7d8;
+  border-color: rgba(188, 148, 32, .55);
+  box-shadow: 0 14px 30px rgba(140, 108, 18, .14);
+}
+.mushaf-ayah-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.mushaf-arabic-block {
+  border-bottom-color: rgba(34,65,29,.14);
+  margin-bottom: 14px;
+  color: #22411d;
+}
+.mushaf-translation {
+  max-width: 80ch;
+  color: #314129;
+}
+.mushaf-footnote {
+  background: rgba(255,255,255,.56);
+  border-color: rgba(161, 142, 86, .2);
 }
 
 .journey-card {
