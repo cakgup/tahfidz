@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v51-first-word-dots';
+const CACHE_NAME = 'hifz-companion-v52-mode-order';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260617-first-word-dots',
-  './js/config.js?v=20260617-first-word-dots',
-  './js/app.js?v=20260617-first-word-dots',
+  './css/styles.css?v=20260617-mode-order',
+  './js/config.js?v=20260617-mode-order',
+  './js/app.js?v=20260617-mode-order',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',
