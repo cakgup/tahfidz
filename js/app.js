@@ -1076,6 +1076,18 @@ function discardRecording(){
   $('#stopRecord').disabled = true;
   toast('Rekaman dihapus. Silakan rekam ulang.');
 }
+function clearSavedRecordingPreview(){
+  if(state.recordingUrl) URL.revokeObjectURL(state.recordingUrl);
+  state.recordingBlob = null;
+  state.recordingUrl = null;
+  state.recordingMimeType = 'audio/webm';
+  state.recordingStopPromise = null;
+  $('#recordPreview').removeAttribute('src');
+  $('#recordPreviewRow').hidden = true;
+  setRecordingUi(false);
+  $('#startRecord').disabled = false;
+  $('#stopRecord').disabled = true;
+}
 async function saveSubmission(){
   if(!requireSantri('Setoran hafalan hanya tersedia untuk akun santri.')) return;
   if(!state.recordingBlob || !state.recordingUrl) throw new Error('Rekam setoran terlebih dahulu sebelum disimpan.');
@@ -1116,6 +1128,7 @@ async function saveSubmission(){
   writeJson(userScopedKey(STORAGE_KEYS.submissions), submissions);
   $('#teacherName').selectedIndex = 0;
   $('#submissionNote').value = '';
+  clearSavedRecordingPreview();
   renderSubmissions(); updateDashboard(); updateHome(); toast('Setoran berhasil disimpan.');
 }
 function renderSubmissionsLegacyOld(){

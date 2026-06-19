@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v57-mode-top';
+const CACHE_NAME = 'hifz-companion-v58-hide-preview-after-save';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260617-mode-top',
-  './js/config.js?v=20260617-mode-top',
-  './js/app.js?v=20260617-mode-top',
+  './css/styles.css?v=20260619-hide-preview-after-save',
+  './js/config.js?v=20260619-hide-preview-after-save',
+  './js/app.js?v=20260619-hide-preview-after-save',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',
