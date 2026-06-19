@@ -909,6 +909,7 @@ select option { font-weight: 400; }
   display: grid;
   gap: 18px;
   margin-top: 16px;
+  touch-action: pan-y;
 }
 .mushaf-page-shell {
   padding: 16px;

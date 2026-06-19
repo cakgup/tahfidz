@@ -26,6 +26,8 @@ const state = {
   audioPlayback: null,
   activeAyahKey: null,
   mushafPageFocus: '',
+  mushafSwipeStartX: 0,
+  mushafSwipeStartY: 0,
   firstWordExpanded: {},
   captchas: { login: null, register: null }
 };
@@ -555,6 +557,18 @@ function focusMushafPage(page){
   state.mushafPageFocus = pageValue;
   if(!pageValue) return;
   renderReader();
+}
+function changeMushafPageBy(step = 0){
+  const pages = getAvailableMushafPages();
+  if(!pages.length) return;
+  const currentIndex = pages.indexOf(Number(state.mushafPageFocus || pages[0]));
+  if(currentIndex < 0) return;
+  const nextIndex = Math.min(pages.length - 1, Math.max(0, currentIndex + step));
+  if(nextIndex === currentIndex){
+    toast(step > 0 ? 'Sudah di halaman mushaf terakhir.' : 'Sudah di halaman mushaf pertama.');
+    return;
+  }
+  focusMushafPage(String(pages[nextIndex]));
 }
 function renderReader(){
   if(!state.currentSurah) return;
@@ -2002,6 +2016,24 @@ function bindEvents(){
   $('#mushafPageSelect')?.addEventListener('change', e => {
     focusMushafPage(e.target.value);
   });
+  $('#readerCard').addEventListener('touchstart', e => {
+    if($('#hideMode')?.value !== 'mushafPojok') return;
+    const touch = e.changedTouches?.[0];
+    if(!touch) return;
+    state.mushafSwipeStartX = touch.clientX;
+    state.mushafSwipeStartY = touch.clientY;
+  }, { passive:true });
+  $('#readerCard').addEventListener('touchend', e => {
+    if($('#hideMode')?.value !== 'mushafPojok') return;
+    const touch = e.changedTouches?.[0];
+    if(!touch) return;
+    const deltaX = touch.clientX - state.mushafSwipeStartX;
+    const deltaY = touch.clientY - state.mushafSwipeStartY;
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+    if(absX < 70 || absX <= absY * 1.2) return;
+    changeMushafPageBy(deltaX < 0 ? 1 : -1);
+  }, { passive:true });
   $('#readerCard').addEventListener('click', e => {
     const toggle = e.target.closest('[data-toggle-first-word]');
     if(!toggle) return;

@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v58-hide-preview-after-save';
+const CACHE_NAME = 'hifz-companion-v59-mushaf-swipe';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260619-hide-preview-after-save',
-  './js/config.js?v=20260619-hide-preview-after-save',
-  './js/app.js?v=20260619-hide-preview-after-save',
+  './css/styles.css?v=20260619-mushaf-swipe',
+  './js/config.js?v=20260619-mushaf-swipe',
+  './js/app.js?v=20260619-mushaf-swipe',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',
