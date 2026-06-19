@@ -28,6 +28,7 @@ const state = {
   mushafPageFocus: '',
   mushafSwipeStartX: 0,
   mushafSwipeStartY: 0,
+  mushafHiddenAyahs: {},
   firstWordExpanded: {},
   captchas: { login: null, register: null }
 };
@@ -442,6 +443,15 @@ function renderFirstWordInteractive(ayah, key){
     <span class="first-word-toggle-hint">${hint}</span>
   </button>`;
 }
+function renderMushafAyahToggle(ayah, key){
+  const hidden = Boolean(state.mushafHiddenAyahs[key]);
+  const label = hidden ? renderFirstWordPrompt(ayah.text_ar) : escapeHtml(ayah.text_ar);
+  const hint = hidden ? 'Klik untuk tampilkan ayat utuh' : 'Klik untuk sembunyikan ayat';
+  return `<button type="button" class="mushaf-ayah-toggle${hidden ? ' is-collapsed' : ''}" data-toggle-mushaf-ayah="${escapeHtml(key)}" aria-expanded="${hidden ? 'false' : 'true'}" title="${hint}">
+    <span class="mushaf-ayah-toggle-label">${label}</span>
+    <span class="mushaf-ayah-toggle-hint">${hint}</span>
+  </button>`;
+}
 function renderStandardAyahCard(a, mode, display, progress, difficult){
   const key = ayahKey(state.currentSurah.id, a.number);
   const isMemorized = progress[key]?.status === 'memorized';
@@ -500,7 +510,7 @@ function renderMushafPojokPages(ayahs, display, progress, difficult){
                 ${isDifficult ? '<span class="badge status-badge status-sulit">Sulit</span>' : ''}
               </div>
             </div>
-            <div class="arabic arabic-block mushaf-arabic-block">${escapeHtml(a.text_ar)}</div>
+            <div class="arabic arabic-block mushaf-arabic-block">${renderMushafAyahToggle(a, key)}</div>
             ${translation ? `<p class="translation mushaf-translation">${formatFootnoteRefs(translation)}</p>` : ''}
             ${footnotes ? `<details class="footnote mushaf-footnote"><summary>Catatan Kemenag</summary><p>${formatFootnoteRefs(escapeHtml(footnotes))}</p></details>` : ''}
           </article>`;
@@ -785,6 +795,11 @@ function markDifficult(){
 function toggleFirstWordAyah(key){
   if(!key) return;
   state.firstWordExpanded[key] = !state.firstWordExpanded[key];
+  renderReader();
+}
+function toggleMushafAyah(key){
+  if(!key) return;
+  state.mushafHiddenAyahs[key] = !state.mushafHiddenAyahs[key];
   renderReader();
 }
 function dedupeReviews(items){
@@ -2035,6 +2050,11 @@ function bindEvents(){
     changeMushafPageBy(deltaX < 0 ? 1 : -1);
   }, { passive:true });
   $('#readerCard').addEventListener('click', e => {
+    const mushafToggle = e.target.closest('[data-toggle-mushaf-ayah]');
+    if(mushafToggle){
+      toggleMushafAyah(mushafToggle.dataset.toggleMushafAyah);
+      return;
+    }
     const toggle = e.target.closest('[data-toggle-first-word]');
     if(!toggle) return;
     toggleFirstWordAyah(toggle.dataset.toggleFirstWord);

@@ -1,14 +1,17 @@
+<p align="center">
+  <img src="assets/logo.png" alt="Hifz Companion" width="164">
+</p>
+
 # Hifz Companion / Tahfidz
 
 <p align="center">
-  <strong>Aplikasi tahfidz berbasis PWA untuk hafalan, murajaah, setoran, dan pemantauan progres belajar Al-Qur'an.</strong><br>
-  Frontend statis, ringan dibuka dari HP, mendukung mode offline, dan dapat dihubungkan ke Cloudflare Worker + D1.
+  <strong>Aplikasi tahfidz berbasis PWA untuk hafalan, murajaah, setoran, penilaian guru, dan pemantauan progres belajar Al-Qur'an.</strong>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/PWA-Offline--Ready-2E7D32" alt="PWA Offline Ready">
   <img src="https://img.shields.io/badge/Mobile-Responsive-1E88E5" alt="Mobile Responsive">
-  <img src="https://img.shields.io/badge/Cloudflare-Worker%20%2B%20D1-F38020" alt="Cloudflare Worker and D1">
+  <img src="https://img.shields.io/badge/Cloudflare-Worker%20%2B%20D1%20%2B%20R2-F38020" alt="Cloudflare Worker D1 R2">
   <img src="https://img.shields.io/badge/Quran-Kemenag-1565C0" alt="Quran Kemenag">
 </p>
 
@@ -16,46 +19,89 @@
 
 ## Bismillahirrahmanirrahim
 
-Repository ini disusun sebagai ikhtiar digital untuk membantu proses menghafal, menjaga murajaah, memudahkan setoran, dan merapikan pendampingan belajar Al-Qur'an.
+Repository ini disusun untuk membantu proses menghafal Al-Qur'an secara lebih rapi: memilih target, menandai hafalan, menyusun murajaah, merekam setoran, memberi penilaian, dan memantau progres santri.
 
-Fokus project ini bukan hanya pada fitur, tetapi juga pada kemudahan perawatan:
+Dokumentasi ini juga dibuat supaya project:
 
 - mudah dijalankan secara lokal;
-- mudah diduplikasi untuk lembaga, kelas, atau pembimbing lain;
-- mudah diganti branding dan endpoint-nya;
-- lebih aman dibagikan karena kredensial sensitif tidak ditulis langsung di dokumentasi.
+- mudah diduplikasi untuk sekolah, pesantren, atau halaqah lain;
+- mudah diganti branding dan endpoint;
+- tetap aman dibagikan karena contoh kredensial disamarkan.
 
----
+## Ringkasan Fitur
 
-## Tentang Aplikasi
+### 1. Autentikasi dan role
 
-**Hifz Companion / Tahfidz** adalah aplikasi web statis berbasis PWA dengan backend opsional menggunakan **Cloudflare Worker** dan **Cloudflare D1**.
+- Login dan daftar dengan captcha matematika.
+- Role `santri`, `guru`, dan `admin`.
+- Admin dapat mengelola role user dan mengakses panel guru.
 
-Aplikasi ini dirancang untuk mendukung alur berikut:
+### 2. Hafalan
 
-- membaca dan menelusuri konten Al-Qur'an Kemenag;
-- mencatat hafalan dan murajaah;
-- menerima setoran pengguna yang sudah login;
-- membedakan akses santri, guru, dan admin;
-- tetap nyaman dipakai di perangkat mobile.
+- Pilih surah, ayat awal, ayat akhir, dan jumlah pengulangan.
+- Audio ayat dengan pilihan qari.
+- Sinkronisasi audio dengan ayat aktif.
+- Tampilan mobile-first yang sudah dioptimalkan untuk HP maupun laptop.
 
----
+Mode tampilan yang tersedia:
 
-## Fitur Utama
+- `Arab + Terjemahan`
+- `Terjemahan saja`
+- `Arab saja`
+- `Mushaf Pojok`
+- `Awal ayat saja`
 
-| Fitur | Keterangan |
-|---|---|
-| Hafalan | Menyimpan target dan progres hafalan per pengguna |
-| Murajaah | Membantu pengulangan hafalan yang sudah pernah disetorkan |
-| Setoran | Mencatat aktivitas setoran untuk pengguna yang sudah login |
-| Dashboard | Menampilkan ringkasan progres dan data personal |
-| Login + Registrasi | Autentikasi dengan session token dan captcha matematika |
-| Role Pengguna | Mendukung peran `santri`, `guru`, dan `admin` |
-| Jadwal Shalat | Lokasi manual atau deteksi GPS untuk waktu shalat |
-| PWA | Bisa dipasang ke homescreen dan tetap berguna saat koneksi terbatas |
-| Data Al-Qur'an Kemenag | Menggunakan data surah/ayat yang sudah dinormalisasi |
+Catatan:
 
----
+- Mode `Terjemahan saja` menyembunyikan blok Arab sepenuhnya.
+- Mode `Awal ayat saja` menampilkan pemantik 1 kalimah pertama dengan format titik di depan, lalu bisa diklik untuk menampilkan ayat utuh.
+- Opsi `Tes tanpa teks` sudah dihapus agar alur lebih sederhana.
+
+### 3. Mushaf Pojok
+
+- Basis tampilan menggunakan halaman mushaf, bukan surah/ayat.
+- Tersedia dropdown `Halaman Mushaf` 1-604.
+- Bisa berpindah halaman dengan gesture slide.
+- Tiap ayat pada mode ini bisa disembunyikan seperti mode `Awal ayat saja`, lalu dibuka kembali saat diklik.
+
+### 4. Murajaah
+
+- Susun jadwal dari ayat yang sudah ditandai hafal.
+- Tidak otomatis menambah jadwal saat ayat ditandai, sehingga daftar tetap rapi.
+- Bisa menandai hasil murajaah dan membersihkan daftar bila tidak diperlukan.
+
+### 5. Setoran
+
+- Rekam audio langsung dari browser.
+- Indikator rekaman aktif agar santri tahu aplikasi sedang merekam.
+- Audio preview sebelum/ketika proses simpan.
+- Pilih guru tujuan dari dropdown yang selalu mengambil daftar role `guru` aktif.
+- Setoran tersimpan ke server dan tampil di panel guru.
+- Setoran sementara dibersihkan otomatis setelah lewat masa retensi.
+
+### 6. Panel guru dan penilaian
+
+- Guru melihat daftar setoran masuk.
+- Nama santri, catatan setoran, audio, dan status penilaian ditampilkan lebih jelas.
+- Form penilaian tampil dalam popup.
+- Santri bisa melihat hasil penilaian dari guru.
+
+### 7. Beranda, profil, dan utilitas
+
+- Progress ring untuk user yang sudah login.
+- Jadwal shalat dengan lokasi default atau GPS.
+- Popup pemilihan lokasi jadwal shalat.
+- Theme toggle.
+- PWA installable dengan manifest dan favicon/logo.
+
+## Stack
+
+- Frontend: HTML, CSS, JavaScript
+- Data Al-Qur'an: Kemenag
+- Backend: Cloudflare Worker
+- Database: Cloudflare D1
+- Penyimpanan audio setoran: Cloudflare R2
+- Offline support: Service Worker + Web App Manifest
 
 ## Struktur Repository
 
@@ -73,86 +119,49 @@ tahfidz/
 |-- tools/
 `-- worker/
     |-- package.json
-    |-- schema.sql
     |-- wrangler.toml
+    |-- schema.sql
     |-- migrations/
     `-- src/
 ```
 
-Keterangan singkat:
+Folder penting:
 
-| File/Folder | Fungsi |
-|---|---|
-| `index.html` | Entry point aplikasi frontend |
-| `css/` | Styling utama aplikasi |
-| `js/` | Logika UI, auth, hafalan, murajaah, dan konfigurasi |
-| `data/` | Data Al-Qur'an Kemenag dan file pendukung frontend |
-| `tools/` | Script utilitas untuk normalisasi atau pemrosesan data |
-| `worker/` | Backend Cloudflare Worker, D1, dan konfigurasi deployment |
-| `ADMIN-SETUP.md` | Catatan pengaturan role admin setelah deploy |
+- `assets/` untuk logo, favicon, dan ikon.
+- `css/` untuk seluruh styling aplikasi.
+- `js/` untuk auth, hafalan, murajaah, setoran, panel guru, dan utilitas UI.
+- `data/` untuk data Al-Qur'an Kemenag yang dipakai frontend.
+- `worker/` untuk API, D1, R2, cron cleanup, dan endpoint admin.
 
----
+## Menjalankan Frontend Lokal
 
-## Konten Al-Qur'an
+Jangan buka lewat `file://` karena browser bisa memblokir pembacaan JSON.
 
-Project ini memakai data Al-Qur'an Kemenag yang sudah disusun untuk kebutuhan frontend:
-
-- file per surah berada di `data/quran_kemenag/surah_1.json` sampai `surah_114.json`;
-- file gabungan frontend berada di `data/quran-kemenag-combined.json`;
-- file index metadata berada di `data/quran-kemenag-index.json`.
-
-Frontend membaca field seperti:
-
-- `surah`
-- `ayahs`
-- `ayah`
-- `arabic`
-- `translation`
-- `juz`
-- `page`
-- `footnotes`
-
-Jika file sumber Kemenag berubah, file gabungan dapat dibuat ulang dengan:
-
-```bash
-node tools/normalize-kemenag-json.mjs
-```
-
----
-
-## Menjalankan Frontend Secara Lokal
-
-Jangan buka `index.html` langsung melalui `file://` karena browser dapat membatasi pembacaan file JSON.
-
-### Opsi 1 - Python
+### Opsi Python
 
 ```bash
 python -m http.server 8000
 ```
 
-Lalu buka:
+Buka:
 
 ```text
-http://localhost:8000
+http://127.0.0.1:8000
 ```
 
-### Opsi 2 - Static Server Node.js
+### Opsi Node
 
 ```bash
 npx -y serve .
 ```
 
-Lalu buka:
+Buka:
 
 ```text
-http://localhost:3000
+http://127.0.0.1:3000
 ```
 
----
-
-## Menjalankan Worker Secara Lokal
-
-Masuk ke folder worker:
+## Menjalankan Worker Lokal
 
 ```bash
 cd worker
@@ -164,52 +173,48 @@ Script yang tersedia:
 
 | Script | Fungsi |
 |---|---|
-| `npm run dev` | Menjalankan Cloudflare Worker secara lokal |
+| `npm run dev` | Menjalankan Worker lokal |
 | `npm run deploy` | Deploy Worker ke Cloudflare |
-| `npm run d1:migrate:local` | Apply migration ke database lokal |
-| `npm run d1:migrate:remote` | Apply migration ke database remote |
+| `npm run d1:migrate:local` | Apply migration ke D1 lokal |
+| `npm run d1:migrate:remote` | Apply migration ke D1 remote |
 
----
-
-## Panduan Duplikasi Project
-
-Bagian ini dibuat supaya orang lain lebih mudah memakai repository ini sebagai dasar project baru.
+## Cara Duplikasi Project
 
 ### 1. Clone repository
 
 ```bash
-git clone <url-repository-anda>
+git clone <url-repo-anda>
 cd tahfidz
 ```
 
-### 2. Ganti branding dasar
+### 2. Ganti branding
 
 Periksa dan sesuaikan:
 
-- judul halaman di `index.html`;
-- ikon dan aset di folder `assets/`;
-- warna dan tampilan di folder `css/`;
-- teks atau nama aplikasi di file JavaScript yang relevan.
+- `assets/logo.png`
+- `assets/logo-manifest-192.png`
+- `assets/logo-manifest-512.png`
+- `assets/icon.svg`
+- judul di `index.html`
+- teks nama aplikasi di `js/`
 
-### 3. Siapkan endpoint backend sendiri
+### 3. Ganti endpoint frontend
 
-Jangan gunakan nilai produksi lama secara mentah. Buat endpoint Worker Anda sendiri, lalu perbarui konfigurasi frontend.
-
-Di `js/config.js`, ubah nilai seperti ini:
+Sesuaikan `js/config.js` dengan Worker milik Anda sendiri:
 
 ```js
 window.HIFZ_CONFIG = {
-  apiBase: 'https://<worker-anda>.<subdomain-anda>.workers.dev',
+  apiBase: 'https://worker-anda.subdomain-anda.workers.dev',
   quranDataPath: 'data/quran-kemenag-combined.json',
   quranIndexPath: 'data/quran-kemenag-index.json'
 };
 ```
 
-Jika project hasil duplikasi tidak membutuhkan backend, bagian frontend masih bisa dipakai sebagai basis tampilan dan pembacaan data Al-Qur'an.
+Jika tidak memakai backend, frontend tetap bisa dipakai untuk mode baca dan eksplorasi data Al-Qur'an.
 
-### 4. Siapkan Cloudflare Worker dan D1
+### 4. Siapkan Worker, D1, dan R2
 
-Di `worker/wrangler.toml`, pastikan seluruh identifier diganti sesuai akun Anda sendiri.
+Di `worker/wrangler.toml`, jangan salin kredensial project lama. Gunakan nilai baru milik environment Anda sendiri.
 
 Contoh aman:
 
@@ -228,90 +233,74 @@ binding = "SUBMISSIONS_BUCKET"
 bucket_name = "nama-bucket-anda"
 
 [vars]
-ALLOWED_ORIGINS = "https://domain-anda.example,https://domain-anda.example/app"
+ALLOWED_ORIGINS = "https://domain-anda.example"
+SUBMISSION_RETENTION_DAYS = "3"
+SUBMISSION_CLEANUP_BATCH_SIZE = "200"
+
+[triggers]
+crons = ["0 */6 * * *"]
 ```
 
-Yang perlu diperhatikan:
+Yang wajib diganti:
 
-- `database_id` jangan menyalin ID dari project lain;
-- `bucket_name` sebaiknya dibuat baru;
-- `ALLOWED_ORIGINS` wajib disesuaikan dengan domain frontend Anda;
-- jangan menaruh token API, secret, atau kredensial lain di README.
+- `database_id`
+- `database_name`
+- `bucket_name`
+- `ALLOWED_ORIGINS`
+- nama Worker
 
-### 5. Apply migration database
+Jangan menaruh token, secret, atau ID produksi asli ke dalam README.
 
-Dari folder `worker`:
+### 5. Jalankan migration
 
 ```bash
+cd worker
 npm install
 npm run d1:migrate:remote
 ```
 
-Migration penting di repository ini:
+## Fitur Backend Penting
 
-```text
-0001_schema.sql
-0002_seed_sample.sql
-0003_reset_quran_schema.sql
-0004 - 0058 seed data Al-Qur'an Kemenag per bagian
-0059_auth_login_captcha.sql
-add-super-admin.sql
-```
+### Penyimpanan setoran
 
-Jika database sebelumnya pernah setengah terpasang atau rusak, lebih aman membuat database baru lalu menjalankan migration dari awal.
+- Metadata setoran disimpan di D1.
+- File audio disimpan di R2.
+- Target guru diambil dari endpoint guru aktif.
 
----
+### Cleanup otomatis
 
-## Deploy
+Setoran audio sementara dihapus otomatis setelah lewat masa retensi.
 
-### Frontend
+Konfigurasi saat ini:
 
-Frontend dapat dipublikasikan ke:
+- `SUBMISSION_RETENTION_DAYS = "3"`
+- `SUBMISSION_CLEANUP_BATCH_SIZE = "200"`
+- cron Worker berjalan setiap 6 jam
 
-- GitHub Pages
-- Cloudflare Pages
-- Vercel
-- hosting statis lain
+### Cleanup manual admin
 
-Jika memakai GitHub Pages:
+Tersedia endpoint admin kecil untuk menjalankan cleanup manual dari panel/admin tanpa menunggu cron.
 
-1. Push semua file frontend ke branch utama.
-2. Buka `Settings` repository.
-3. Masuk ke menu `Pages`.
-4. Pilih source `Deploy from a branch`.
-5. Pilih branch yang diinginkan dan folder root.
-6. Simpan lalu tunggu URL aktif.
+## Audio Qari
 
-### Worker
+Pilihan qari hafalan saat ini mendukung beberapa sumber audio EveryAyah, di antaranya:
 
-Dari folder `worker`:
+- Alafasy
+- Abdurrahman As-Sudais
+- Saood Ash-Shuraym
+- Husary Mujawwad
+- Minshawy Murattal
+- Maher Al-Muaiqly
 
-```bash
-npm install
-npm run deploy
-```
-
-Pastikan lebih dulu:
-
-- sudah login ke Cloudflare;
-- `wrangler.toml` sudah disesuaikan;
-- database D1 dan bucket R2 benar-benar milik environment Anda sendiri.
-
----
+Pilihan qari disimpan di preferensi tampilan user dan dipakai pada menu hafalan.
 
 ## Setup Admin
 
-Catatan role admin tersedia di:
+Panduan singkat juga tersedia di:
 
 ```text
 ADMIN-SETUP.md
 ```
-
-Prinsip umumnya:
-
-- user biasa daftar terlebih dahulu;
-- role kemudian dapat diubah menjadi `admin` melalui D1;
-- gunakan email milik environment Anda sendiri, bukan email contoh dari project lain.
 
 Contoh query aman:
 
@@ -321,7 +310,7 @@ SET role = 'admin', updated_at = CURRENT_TIMESTAMP
 WHERE lower(email) = 'admin@example.com';
 ```
 
-Untuk verifikasi:
+Verifikasi:
 
 ```sql
 SELECT id, name, email, role, status
@@ -329,58 +318,55 @@ FROM users
 WHERE lower(email) = 'admin@example.com';
 ```
 
----
+## Konten Al-Qur'an
 
-## Catatan Keamanan
+Data utama berada di:
 
-- Password disimpan sebagai hash, bukan plaintext.
-- Captcha matematika divalidasi di backend, bukan hanya di frontend.
-- Session token dikirim melalui header `Authorization: Bearer <token>`.
-- Untuk produksi, pertimbangkan memakai cookie `HttpOnly` dan `Secure` jika frontend dan backend berada pada domain yang sesuai.
-- Jangan commit kredensial, token, `database_id`, bucket produksi, atau domain internal tanpa disamarkan.
-- Jika repository akan dipublikasikan, audit ulang `js/config.js`, `worker/wrangler.toml`, dan dokumen setup sebelum push.
+- `data/quran-kemenag-combined.json`
+- `data/quran-kemenag-index.json`
+- `data/quran_kemenag/`
 
----
+Jika perlu membangun ulang data gabungan:
 
-## Checklist Sebelum Dibagikan ke Orang Lain
+```bash
+node tools/normalize-kemenag-json.mjs
+```
 
-- [ ] Branding dan nama aplikasi sudah disesuaikan
-- [ ] Endpoint Worker mengarah ke environment baru
-- [ ] `database_id`, bucket, dan origin lama sudah diganti
-- [ ] Tidak ada email pribadi atau identifier sensitif di dokumentasi
-- [ ] Frontend bisa dibuka lokal tanpa error penting
-- [ ] Worker bisa dijalankan atau dideploy di akun Cloudflare baru
-- [ ] Migration database sudah diuji dari awal
+## Checklist Sebelum Dibagikan
 
----
+- [ ] Logo, nama aplikasi, dan favicon sudah disesuaikan
+- [ ] `apiBase` mengarah ke Worker milik environment baru
+- [ ] `database_id` dan `bucket_name` lama tidak ikut terbawa
+- [ ] `ALLOWED_ORIGINS` sudah sesuai domain baru
+- [ ] Login, daftar, hafalan, murajaah, setoran, panel guru, dan profil sudah diuji
+- [ ] Tidak ada kredensial sensitif di README atau file config publik
 
 ## Troubleshooting Singkat
 
-### Frontend tidak memuat data
+### Frontend putih atau CSS tidak tampil
 
-- cek apakah server lokal dijalankan melalui `http://`;
-- pastikan file JSON ada di path yang benar;
-- lakukan refresh keras browser.
+- pastikan file dibuka lewat server lokal, bukan `file://`;
+- lakukan hard refresh;
+- cek path aset CSS/JS dan service worker cache.
 
-### Login atau data personal tidak berjalan
+### Login atau penyimpanan data tidak jalan
 
 - cek `apiBase` di `js/config.js`;
 - pastikan Worker aktif;
-- pastikan migration auth sudah terpasang.
+- pastikan migration D1 sudah lengkap.
 
-### Jadwal shalat tidak muncul
+### Setoran tidak muncul di guru
 
-- cek izin lokasi jika memakai GPS;
-- pastikan data lokasi default valid;
-- cek koneksi jika ada dependensi API eksternal.
+- pastikan santri menekan simpan setoran setelah rekam;
+- pastikan guru tujuan benar;
+- cek Worker, D1, dan R2 aktif;
+- cek origin frontend sudah diizinkan.
 
-### Deploy Worker gagal
+### Audio setoran gagal dihapus
 
-- periksa login `wrangler`;
-- periksa `wrangler.toml`;
-- pastikan nama database, ID database, dan bucket sesuai environment aktif.
-
----
+- cek endpoint delete di Worker;
+- pastikan object R2 dan metadata D1 sama-sama bisa dihapus;
+- cek log network browser untuk request yang gagal.
 
 ## Teknologi
 
@@ -389,17 +375,16 @@ WHERE lower(email) = 'admin@example.com';
 | HTML | Struktur halaman |
 | CSS | Tampilan aplikasi |
 | JavaScript | Interaksi frontend |
-| Service Worker | Dukungan offline/PWA |
+| Service Worker | Dukungan offline |
+| Web App Manifest | Installable app |
 | Cloudflare Worker | Backend API |
-| Cloudflare D1 | Database aplikasi |
-| Cloudflare R2 | Penyimpanan file setoran jika diaktifkan |
-
----
+| Cloudflare D1 | Database |
+| Cloudflare R2 | Penyimpanan audio setoran |
 
 <p align="center">
-  <strong>Dirancang agar mudah dipakai, mudah dikembangkan, dan mudah diteruskan oleh orang berikutnya.</strong>
+  <strong>Dirancang agar mudah dipakai, mudah diubah, dan mudah diteruskan.</strong>
 </p>
 
 <p align="center">
-  <sub>developed with ❤️ by cakgup</sub>
+  <sub>developed with &#10084; by <a href="https://cakgup.codeberg.page">cakgup</a></sub>
 </p>

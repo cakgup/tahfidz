@@ -1,10 +1,10 @@
-const CACHE_NAME = 'hifz-companion-v59-mushaf-swipe';
+const CACHE_NAME = 'hifz-companion-v60-mushaf-hide-ayah';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20260619-mushaf-swipe',
-  './js/config.js?v=20260619-mushaf-swipe',
-  './js/app.js?v=20260619-mushaf-swipe',
+  './css/styles.css?v=20260619-mushaf-hide-ayah',
+  './js/config.js?v=20260619-mushaf-hide-ayah',
+  './js/app.js?v=20260619-mushaf-hide-ayah',
   './data/quran-kemenag-combined.json',
   './data/quran-kemenag-index.json',
   './manifest.webmanifest',
